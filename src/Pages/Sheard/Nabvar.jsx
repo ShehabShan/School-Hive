@@ -75,7 +75,7 @@ const Navbar = () => {
 
   return (
     <div className="fixed top-0 left-0 w-full z-50 pt-[height-of-navbar] bg-white">
-      <div className="  max-w-[1440px] text-black flex justify-between items-center w-[100%]  mx-auto py-2">
+      <div className="  max-w-[1440px] text-black flex justify-between items-center w-[100%]  mx-auto py-3">
         <div className="flex ">
           <div className="dropdown">
             <div tabIndex={0} role="button" className="btn btn-ghost lg:hidden">

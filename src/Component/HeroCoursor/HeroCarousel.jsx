@@ -12,12 +12,10 @@ import bg2 from "../../assist/bgImg/bg2.jpg";
 import bg3 from "../../assist/bgImg/bg3.jpg";
 import bg5 from "../../assist/bgImg/bg5.jpg";
 
-// Utility for conditional class names
 export function cn(...classes) {
   return classes.filter(Boolean).join(" ");
 }
 
-// Section Data
 const sections = [
   {
     id: 1,
@@ -52,7 +50,6 @@ const sections = [
 export default function HeroCarousel() {
   const [currentSection, setCurrentSection] = useState(0);
 
-  // Animations for the text and buttons
   const textVariants = {
     hidden: { opacity: 0, y: 20 },
     visible: {
@@ -72,21 +69,21 @@ export default function HeroCarousel() {
   };
 
   return (
-    <section className="relative h-screen w-full">
-      {/* Background image container */}
+    <section className="relative h-screen w-full overflow-hidden">
+      {/* Background container */}
       <div className="absolute inset-0 transition-opacity duration-1000">
         <img
           src={sections[currentSection].bgImage}
           alt="Background"
-          className="w-full h-[850px] "
+          className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-black/30" />
       </div>
 
-      {/* Static overlay content with animation */}
+      {/* Content overlay */}
       <AnimatePresence mode="wait">
         <motion.div
-          key={currentSection} // Force re-render on section change
+          key={currentSection}
           className="absolute inset-0 flex items-center"
           initial={{ opacity: 0, y: 20 }}
           animate={{
@@ -102,7 +99,6 @@ export default function HeroCarousel() {
         >
           <div className="container mx-auto px-6">
             <div className="max-w-2xl space-y-6">
-              {/* Title and Description: Animating only for ID 1 and 3 */}
               <motion.h1
                 className="whitespace-pre-line text-5xl font-bold text-white md:text-6xl"
                 variants={
@@ -131,7 +127,6 @@ export default function HeroCarousel() {
                 to support emerging career opportunities.
               </motion.p>
 
-              {/* Buttons: Animating only for ID 2 and 4 */}
               <motion.div
                 className="flex gap-4"
                 variants={
@@ -163,22 +158,24 @@ export default function HeroCarousel() {
         </motion.div>
       </AnimatePresence>
 
-      {/* Bottom Navigation */}
-      <div className="absolute bottom-0 left-0 right-0 grid grid-cols-4">
+      {/* Navigation bar */}
+      <div className="absolute bottom-0 left-0 right-0 grid grid-cols-4 min-h-[100px]">
         {sections.map((section, index) => (
           <button
             key={section.id}
             onClick={() => setCurrentSection(index)}
             className={cn(
-              "group flex items-center lg:gap-4 py-5 lg:p-6 text-white transition-colors hover:bg-opacity-90",
+              "group flex items-center justify-center lg:justify-start gap-2 p-4 text-white transition-colors hover:bg-opacity-90",
               section.bgColor,
               currentSection === index ? "bg-opacity-100" : "bg-opacity-80"
             )}
           >
-            {section.icon}
-            <div className="flex items-center lg:gap-2">
-              <span className="font-semibold text-sm">{section.title}</span>
-              <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+            <div className="flex items-center gap-2 min-w-[120px]">
+              {section.icon}
+              <span className="font-semibold text-sm whitespace-nowrap">
+                {section.title}
+              </span>
+              <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1 shrink-0" />
             </div>
           </button>
         ))}
