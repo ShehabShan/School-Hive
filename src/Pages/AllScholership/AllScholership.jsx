@@ -49,7 +49,7 @@ const AllScholership = () => {
         <div className="input input-bordered flex items-center w-[40%] mx-auto mt-5 mb-5">
           <input
             type="text"
-            className="grow p-2 border rounded-md"
+            className="grow lg:p-2 border rounded-md"
             placeholder="Search"
             value={searchTerm}
             onChange={handleSearchChange}
@@ -70,7 +70,7 @@ const AllScholership = () => {
           </button>
         </div>
 
-        <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredScholarships.map((scholarship, index) => (
             <ScholarshipCard
               key={index}

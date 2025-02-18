@@ -32,7 +32,6 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
     document.documentElement.classList.toggle("dark");
   };
 
-  // Close language dropdown if clicked outside
   useEffect(() => {
     const handleClickOutsideLang = (event) => {
       if (
@@ -47,7 +46,6 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
       document.removeEventListener("mousedown", handleClickOutsideLang);
   }, []);
 
-  // Close profile dropdown if clicked outside
   useEffect(() => {
     const handleClickOutsideProfile = (event) => {
       if (
@@ -65,7 +63,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
   return (
     // Changed from `fixed` to `sticky` so that the navbar sticks to the top
     // of its scrollable parent (the `<main>` container) rather than the viewport.
-    <header className="bg-white border px-4 py-2 shadow-sm sticky top-0 lg:z-50">
+    <header className="bg-white border px-4 py-2 shadow-sm sticky top-0 z-10 lg:z-50">
       <div className="flex items-center justify-between">
         {/* Left side: Sidebar trigger and search */}
         <div className="flex items-center gap-4">
@@ -76,7 +74,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
             <Menu className="h-5 w-5" />
           </button>
 
-          <div className="relative">
+          <div className="relative hidden lg:block">
             <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
             <input
               type="search"

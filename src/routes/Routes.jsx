@@ -29,6 +29,7 @@ import ApplicationCard from "../Pages/ModaratorPages/AllAppliedScholarship/ViewD
 import ApplicationCardForUser from "../Pages/UserPage/MyApplication/ApplicationCardForUser";
 import AddReview from "../Pages/AddReview/AddReview";
 import UserRoute from "./UserRoute";
+import AboutUs from "../Component/AboutUs/AboutUs";
 
 const router = createBrowserRouter([
   {
@@ -70,6 +71,10 @@ const router = createBrowserRouter([
       {
         path: "contact",
         element: <ContactPage></ContactPage>,
+      },
+      {
+        path: "aboutUs",
+        element: <AboutUs></AboutUs>,
       },
 
       {

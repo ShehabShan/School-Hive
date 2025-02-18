@@ -1,4 +1,3 @@
-
 import useScholership from "../../../Hooks/useScholership";
 import ManageScholarCard from "./ManageScholareCard";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
@@ -41,8 +40,8 @@ const AllScholership = () => {
   console.log(allScholership);
 
   return (
-    <div>
-      <h2 className="text-3xl text-emerald-600 font-bold text-center my-8">
+    <div className="mx-8">
+      <h2 className="text-3xl text-black font-extrabold text-center my-8">
         Manage Scholership
       </h2>
 

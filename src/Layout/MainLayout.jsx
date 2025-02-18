@@ -1,5 +1,6 @@
 import { Outlet } from "react-router-dom";
 import Navbar from "../Pages/Sheard/Nabvar";
+import Footer from "../Component/Footer";
 
 const MainLayout = () => {
   return (
@@ -8,6 +9,7 @@ const MainLayout = () => {
       <div className="mx-auto">
         <Outlet></Outlet>
       </div>
+      <Footer></Footer>
     </div>
   );
 };

@@ -69,7 +69,7 @@ export default function HeroCarousel() {
   };
 
   return (
-    <section className="relative h-screen w-full overflow-hidden">
+    <section className="relative h-screen w-full overflow-hidden ">
       {/* Background container */}
       <div className="absolute inset-0 transition-opacity duration-1000">
         <img
@@ -159,7 +159,7 @@ export default function HeroCarousel() {
       </AnimatePresence>
 
       {/* Navigation bar */}
-      <div className="absolute bottom-0 left-0 right-0 grid grid-cols-4 min-h-[100px]">
+      <div className="absolute bottom-0 left-0 right-0 grid grid-cols-4 min-h-[100px] ">
         {sections.map((section, index) => (
           <button
             key={section.id}
@@ -170,7 +170,7 @@ export default function HeroCarousel() {
               currentSection === index ? "bg-opacity-100" : "bg-opacity-80"
             )}
           >
-            <div className="flex items-center gap-2 min-w-[120px]">
+            <div className="flex items-center gap-2 min-w-[120px] ">
               {section.icon}
               <span className="font-semibold text-sm whitespace-nowrap">
                 {section.title}

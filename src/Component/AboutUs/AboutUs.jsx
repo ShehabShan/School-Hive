@@ -5,7 +5,7 @@ import signature from "../../assist/image/AboutUs/signature.png";
 
 export default function AboutUs() {
   return (
-    <div className="bg-[#f6f6f6]">
+    <div className="bg-[#f6f6f6] ">
       <div className="max-w-[1440px] mx-auto px-4 py-16">
         <div className="grid lg:grid-cols-2 gap-12">
           {/* Left Column - Text Content */}
@@ -45,7 +45,7 @@ export default function AboutUs() {
                 alt="Signature"
                 width={250}
                 height={40}
-                className="object-contain"
+                className="object-contain hidden lg:block"
               />
             </div>
           </div>

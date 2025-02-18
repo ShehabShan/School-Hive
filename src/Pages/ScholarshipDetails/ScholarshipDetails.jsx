@@ -157,18 +157,19 @@ const ScholarshipDetails = () => {
           </div>
         </div>
       </div>
-
-      <div className="m-5">
-        <h2 className="text-3xl text-emerald-700 font-bold text-center mb-8">
-          Review
-        </h2>
-        <div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4
+      <div className="bg-[#f3f4f6] pb-10">
+        <div className="max-w-[1440px] mx-auto">
+          <h2 className="text-3xl pt-6 text-emerald-700 font-bold text-center mb-8">
+            Review
+          </h2>
+          <div
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4
            "
-        >
-          {review?.map((reviews, index) => (
-            <AllReviews key={index} review={reviews}></AllReviews>
-          ))}
+          >
+            {review?.map((reviews, index) => (
+              <AllReviews key={index} review={reviews}></AllReviews>
+            ))}
+          </div>
         </div>
       </div>
     </>
