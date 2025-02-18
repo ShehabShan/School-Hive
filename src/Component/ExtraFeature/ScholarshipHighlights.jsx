@@ -29,7 +29,7 @@ const highlights = [
 ];
 
 const ScholarshipHighlights = () => (
-  <div className="z-40">
+  <div className="z-40 bg-[#f3f4f6]">
     <section className=" max-w-[1440px] mx-auto mt-16 py-12 bg-gradient-to-r from-blue-500 to-indigo-600">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-extrabold text-white text-center mb-12">

@@ -35,15 +35,6 @@ const Navbar = () => {
       <li>
         <NavLink to="/contact">Contact</NavLink>
       </li>
-    </>
-  );
-
-  const dropDown = (
-    <>
-      <li>
-        <NavLink to="/myProfile">My Profile</NavLink>
-      </li>
-
       {isUser && (
         <li>
           <NavLink to="/userDashboard/myProfile">User Dashboard</NavLink>
@@ -62,6 +53,15 @@ const Navbar = () => {
           <NavLink to="/adminDashboard/adminProfile">Admin Dashboard</NavLink>
         </li>
       )}
+    </>
+  );
+
+  const dropDown = (
+    <>
+      <li>
+        <NavLink to="/myProfile">My Profile</NavLink>
+      </li>
+
       <li>
         <button
           onClick={hanldeSingOut}
@@ -109,7 +109,9 @@ const Navbar = () => {
               <h3 className="text-3xl ">School Hive</h3>
             </Link>
             <div className=" hidden lg:flex">
-              <ul className=" flex gap-3 text-[#000000] text-xl">{links}</ul>
+              <ul className=" flex gap-4 text-[#000000] font-semibold ">
+                {links}
+              </ul>
             </div>
           </div>
         </div>

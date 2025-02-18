@@ -8,7 +8,7 @@ const TopScholarship = () => {
   console.log(allScholership);
 
   return (
-    <div>
+    <div className="bg-[#f3f4f6]">
       <div className="max-w-[1440px] mx-auto">
         <h2 className="text-3xl text-black font-bold text-center mb-6 mt-10">
           Top Scholership

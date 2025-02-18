@@ -14,7 +14,7 @@ const ScholarshipCard = ({ scholarship }) => {
         <img
           src={scholarship?.universityImage}
           alt={`logo`}
-          className="rounded-xl h-32 w-32 object-cover bg-white p-2"
+          className="rounded-xl h-[300px] w-[405px] object-cover bg-white p-2"
         />
       </figure>
 

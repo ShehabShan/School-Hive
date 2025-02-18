@@ -1,11 +1,6 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import {
-  FaCalendarAlt,
-  FaGraduationCap,
-  FaMapMarkerAlt,
-  FaUniversity,
-} from "react-icons/fa";
+import { FaCalendarAlt, FaGraduationCap, FaUniversity } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "../../../assist/add-data.png";
