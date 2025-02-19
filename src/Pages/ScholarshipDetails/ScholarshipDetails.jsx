@@ -1,4 +1,3 @@
-import { useRef, useState } from "react";
 import {
   FaUniversity,
   FaGraduationCap,
@@ -12,27 +11,30 @@ import useSingleScholership from "../../Hooks/useSingleScholership";
 import useReviews from "../../Hooks/useReviews";
 
 import AllReviews from "./AllReviews";
+import useAdmin from "../../Hooks/useAdmin";
 
 const ScholarshipDetails = () => {
   const { id } = useParams();
   // const [scholarship, setScholarship] = useState({});
   const [scholarship] = useSingleScholership(id);
   const [review] = useReviews(id);
+  const [isAdmin] = useAdmin();
+  console.log("nowCHeck", isAdmin);
   console.log("all review", review);
 
   return (
     <>
       <div className="min-h-screen bg-gradient-to-br from-purple-50 via-blue-50 to-cyan-50 p-6 md:p-12">
-        <div className="mx-auto max-w-4xl">
+        <div className="mx-auto max-w-[1000px]">
           <div className="overflow-hidden rounded-2xl bg-white shadow-xl">
             {/* Header Section */}
-            <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-8 text-white">
-              <div className="flex flex-col items-center gap-6 md:flex-row md:gap-8">
-                <div className="h-24 w-24 overflow-hidden rounded-xl bg-white p-2">
+            <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 py-8 text-white">
+              <div className="flex flex-col items-center gap-6 md:gap-8">
+                <div className="overflow-hidden rounded-xl bg-white p-2 ">
                   <img
                     src={scholarship?.universityImage}
                     alt={`Logo`}
-                    className="h-full w-full object-contain"
+                    className="h-full w-[900px] object-contain"
                   />
                 </div>
                 <div className="text-center md:text-left">
@@ -141,10 +143,14 @@ const ScholarshipDetails = () => {
               </div>
 
               {/* Application Button */}
+
               <div className="flex gap-7">
                 <Link to={`/apply/${scholarship?._id}`} className="w-full">
-                  <button className="w-full rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-xl">
-                    Apply Now
+                  <button
+                    disabled={isAdmin}
+                    className={`w-full rounded-xl bg-gradient-to-r from-purple-600 to-blue-600 px-8 py-4 text-lg font-semibold text-white shadow-lg transition-all hover:from-purple-700 hover:to-blue-700 hover:shadow-xl `}
+                  >
+                    {isAdmin ? "Admin Can't Apply" : "Apply Now"}
                   </button>
                 </Link>
               </div>
@@ -162,14 +168,20 @@ const ScholarshipDetails = () => {
           <h2 className="text-3xl pt-6 text-emerald-700 font-bold text-center mb-8">
             Review
           </h2>
-          <div
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4
+          {review?.length === 0 ? (
+            <h2 className="text-black text-5xl text-center">
+              No Reviews Avalable
+            </h2>
+          ) : (
+            <div
+              className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4
            "
-          >
-            {review?.map((reviews, index) => (
-              <AllReviews key={index} review={reviews}></AllReviews>
-            ))}
-          </div>
+            >
+              {review?.map((reviews, index) => (
+                <AllReviews key={index} review={reviews}></AllReviews>
+              ))}
+            </div>
+          )}
         </div>
       </div>
     </>

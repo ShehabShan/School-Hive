@@ -3,7 +3,7 @@ import { MdDelete } from "react-icons/md";
 
 const AllReviews = ({ review }) => {
   return (
-    <div className="bg-white shadow-lg rounded-lg overflow-hidden">
+    <div className="bg-white shadow-lg rounded-lg overflow-hidden ">
       <div className="p-4">
         <div className="flex items-center mb-4">
           <img

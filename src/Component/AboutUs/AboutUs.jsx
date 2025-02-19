@@ -51,13 +51,13 @@ export default function AboutUs() {
           </div>
 
           {/* Right Column - imgs */}
-          <div className="relative flex items-center px-3">
+          <div className="relative flex items-center lg:px-3">
             <div className="grid grid-cols-5 lg:gap-4">
               <div className="col-span-3 relative">
                 <img
                   src={img3}
                   alt="Students studying together"
-                  className="rounded-lg w-[210px] h-[350px] mt-10 ml-3 lg:w-[260px] lg:h-[360px] lg:mt-10 lg:ml-16"
+                  className="rounded-lg w-[150px] h-[350px] mt-10  lg:w-[260px] lg:h-[360px] lg:mt-10 lg:ml-16"
                 />
                 {/* Red arrow connection */}
                 <div className="absolute  hidden lg:flex lg:right-3 top-1/2 -translate-y-1/2">
@@ -80,7 +80,7 @@ export default function AboutUs() {
                 <img
                   src={img2}
                   alt="Teacher in library"
-                  className="rounded-lg w-[220px] h-[350px]  lg:h-[360px] lg:w-[260px]"
+                  className="rounded-lg w-[160px] h-[350px]  lg:h-[360px] lg:w-[260px]"
                 />
               </div>
             </div>

@@ -17,12 +17,18 @@ import {
 } from "lucide-react";
 import useAuth from "../Hooks/useAuth";
 import { Link } from "react-router-dom";
+import useUser from "../Hooks/useUser";
+import useModaretor from "../Hooks/useModaretor";
+import useAdmin from "../Hooks/useAdmin";
 
 export function AdminNavbar({ setMobileSidebarOpen }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [langDropdownOpen, setLangDropdownOpen] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const { user } = useAuth();
+  const [isUser] = useUser();
+  const [isModaretor] = useModaretor();
+  const [isAdmin] = useAdmin();
 
   const langDropdownRef = useRef(null);
   const profileDropdownRef = useRef(null);
@@ -182,16 +188,41 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                   </div>
                 </div>
                 <hr className="border-t" />
-                {/* Dropdown Items */}{" "}
-                <Link to="/adminDashboard/adminProfile">
-                  <div
-                    className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
-                    onClick={() => setProfileDropdownOpen(false)}
-                  >
-                    <Users className="h-4 w-4" />
-                    <span>Profile</span>
-                  </div>
-                </Link>
+                {/* Dropdown Items */}
+                {isAdmin && (
+                  <Link to="/adminDashboard/adminProfile">
+                    <div
+                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    >
+                      <Users className="h-4 w-4" />
+                      <span>Admin Profile</span>
+                    </div>
+                  </Link>
+                )}
+                {isModaretor && (
+                  <Link to="/modaratorDashboard/myProfile">
+                    <div
+                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    >
+                      <Users className="h-4 w-4" />
+                      <span>Modaretor Profile</span>
+                    </div>
+                  </Link>
+                )}
+                {isUser && (
+                  <Link to="/userDashboard/myProfile">
+                    <div
+                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                      onClick={() => setProfileDropdownOpen(false)}
+                    >
+                      <Users className="h-4 w-4" />
+                      <span>User Profile</span>
+                    </div>
+                  </Link>
+                )}
+
                 <div
                   className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
                   onClick={() => setProfileDropdownOpen(false)}

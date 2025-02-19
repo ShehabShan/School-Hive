@@ -3,9 +3,7 @@ import { createBrowserRouter } from "react-router-dom";
 import Home from "../Layout/Home";
 import MainLayout from "../Layout/MainLayout";
 import Login from "../Pages/Authentication/Login";
-import UserDashboard from "../Layout/UserDashboard";
 import AdminDashboard from "../Layout/AdminDashboard";
-import ModaratorDashboard from "../Layout/ModaratorDashboard";
 import MyProfile from "../Pages/UserPage/MyProfile/MyProfile";
 import MyApplication from "../Pages/UserPage/MyApplication/MyApplication";
 import MyReviews from "../Pages/UserPage/MyReviews/MyReviews";
@@ -47,11 +45,7 @@ const router = createBrowserRouter([
       },
       {
         path: "allScholership/:id",
-        element: (
-          <PrivateRoute>
-            <ScholarshipDetails></ScholarshipDetails>
-          </PrivateRoute>
-        ),
+        element: <ScholarshipDetails></ScholarshipDetails>,
       },
 
       {
@@ -91,7 +85,7 @@ const router = createBrowserRouter([
     path: "userDashboard",
     element: (
       <UserRoute>
-        <UserDashboard></UserDashboard>
+        <AdminDashboard></AdminDashboard>
       </UserRoute>
     ),
     children: [
@@ -121,7 +115,7 @@ const router = createBrowserRouter([
     path: "modaratorDashboard",
     element: (
       <ModaretorRoute>
-        <ModaratorDashboard></ModaratorDashboard>
+        <AdminDashboard></AdminDashboard>
       </ModaretorRoute>
     ),
     children: [

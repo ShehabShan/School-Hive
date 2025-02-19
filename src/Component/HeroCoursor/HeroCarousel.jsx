@@ -165,14 +165,14 @@ export default function HeroCarousel() {
             key={section.id}
             onClick={() => setCurrentSection(index)}
             className={cn(
-              "group flex items-center justify-center lg:justify-start gap-2 p-4 text-white transition-colors hover:bg-opacity-90",
+              "group flex items-center justify-center lg:justify-start gap-2 p-4 text-white transition-colors hover:bg-opacity-90 ",
               section.bgColor,
               currentSection === index ? "bg-opacity-100" : "bg-opacity-80"
             )}
           >
-            <div className="flex items-center gap-2 min-w-[120px] ">
+            <div className="flex flex-col lg:flex-row items-center gap-2 min-w-[120px] ">
               {section.icon}
-              <span className="font-semibold text-sm whitespace-nowrap">
+              <span className="font-semibold text-sm lg:whitespace-nowrap">
                 {section.title}
               </span>
               <ChevronRight className="h-4 w-4 transition-transform group-hover:translate-x-1 shrink-0" />

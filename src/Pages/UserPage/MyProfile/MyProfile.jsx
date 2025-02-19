@@ -123,10 +123,7 @@ export default function ProfilePage() {
                       <p className="text-sm text-gray-500">Phone:</p>
                       <p>+1(555)123-4567</p>
                     </div>
-                    <div>
-                      <p className="text-sm text-gray-500">Designation:</p>
-                      <p>C.E.O</p>
-                    </div>
+
                     <div>
                       <p className="text-sm text-gray-500">Age:</p>
                       <p>22</p>

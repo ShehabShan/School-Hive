@@ -78,7 +78,7 @@ export default function AddScholarship() {
     <div className="min-h-screen bg-gray-50 p-4 md:p-8">
       <form
         onSubmit={handleSubmit}
-        className="card w-full max-w-3xl mx-auto shadow-lg bg-white"
+        className="card w-full  mx-auto shadow-lg bg-white"
       >
         <div className="card-header text-center p-4 border-b">
           <div className="mx-auto mb-4 h-16 w-16 overflow-hidden rounded-full">

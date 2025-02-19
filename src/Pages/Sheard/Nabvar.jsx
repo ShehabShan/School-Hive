@@ -78,7 +78,7 @@ const Navbar = () => {
   );
 
   return (
-    <div className="fixed top-0 left-0 w-full z-50 bg-white ">
+    <div className="fixed top-0 left-0 w-full py-3 z-50 bg-white ">
       <div className="w-[100%]  lg:max-w-[1440px] lg:mx-auto text-black flex justify-between items-center ">
         <div className="flex">
           <div className="dropdown">

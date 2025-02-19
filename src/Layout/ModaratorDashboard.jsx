@@ -21,7 +21,7 @@ const ModaratorDashboard = () => {
           </li>
           <li className="uppercase">
             <NavLink to="/modaratorDashboard/myReviews">
-              <FaHome></FaHome>My Reviews
+              <FaHome></FaHome>All Reviews
             </NavLink>
           </li>
           <li className="uppercase">

@@ -18,6 +18,9 @@ import {
 } from "lucide-react";
 import { AdminNavbar } from "./AdminNavbar";
 import useAuth from "../Hooks/useAuth";
+import useAdmin from "../Hooks/useAdmin";
+import useUser from "../Hooks/useUser";
+import useModaretor from "../Hooks/useModaretor";
 
 // A simple utility to conditionally join class names
 function cn(...classes) {
@@ -27,6 +30,9 @@ function cn(...classes) {
 const AdminDashboard = () => {
   const [openSections, setOpenSections] = useState([]);
   const { user } = useAuth();
+  const [isAdmin] = useAdmin();
+  const [isModaretor] = useModaretor();
+  const [isUser] = useUser();
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
@@ -45,6 +51,55 @@ const AdminDashboard = () => {
   //   { title: "Manage Reviews", path: "/adminDashboard/manageReviews" },
   // ];
 
+  const adminSubmenu = [
+    { title: "Admin Profile", path: "/adminDashboard/adminProfile" },
+    { title: "Add Scholarships", path: "/adminDashboard/addScholarships" },
+    {
+      title: "Manage Scholarships",
+      path: "/adminDashboard/manageScholarships",
+    },
+    {
+      title: "Applied Application",
+      path: "/adminDashboard/manageAppliedApplication",
+    },
+    { title: "Manage Users", path: "/adminDashboard/manageUsers" },
+  ];
+
+  const moderatorSubmenu = [
+    { title: "Moderator Profile", path: "/modaratorDashboard/myProfile" },
+    {
+      title: "Manage Scholarships",
+      path: "/modaratorDashboard/manageScholarships",
+    },
+    {
+      title: "All Reviews",
+      path: "/modaratorDashboard/myReviews",
+    },
+    {
+      title: "All Applied Scholarships",
+      path: "/modaratorDashboard/allAppliedScholarships",
+    },
+    {
+      title: "Add Scholarships",
+      path: "/modaratorDashboard/addScholarships",
+    },
+  ];
+
+  const userSubmenu = [
+    { title: "User Profile", path: "/userDashboard/myProfile" },
+    { title: "My Application", path: "/userDashboard/myApplication" },
+    { title: "My Reviews", path: "/userDashboard/myReviews" },
+  ];
+
+  let submenuItems = [];
+  if (isAdmin) {
+    submenuItems = adminSubmenu;
+  } else if (isModaretor) {
+    submenuItems = moderatorSubmenu;
+  } else if (isUser) {
+    submenuItems = userSubmenu;
+  }
+
   const navigationItems = [
     {
       section: "MAIN",
@@ -53,22 +108,7 @@ const AdminDashboard = () => {
           title: "Dashboard",
           icon: <Cloud className="h-4 w-4" />,
           path: "/adminDashboard/dashboard",
-          submenu: [
-            { title: "Admin Profile", path: "/adminDashboard/adminProfile" },
-            {
-              title: "Add Scholarships",
-              path: "/adminDashboard/addScholarships",
-            },
-            {
-              title: "Manage Scholarships",
-              path: "/adminDashboard/manageScholarships",
-            },
-            {
-              title: "Applied Application",
-              path: "/adminDashboard/manageAppliedApplication",
-            },
-            { title: "Manage Users", path: "/adminDashboard/manageUsers" },
-          ],
+          submenu: submenuItems,
         },
         {
           title: "Layouts",
@@ -291,7 +331,11 @@ const AdminDashboard = () => {
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-medium">{user?.displayName}</span>
-              <span className="text-xs text-gray-500">Admin</span>
+              <span className="text-xs text-gray-500">
+                {isAdmin && "Admin"}
+                {isModaretor && "Modaretor"}
+                {isUser && "User"}
+              </span>
             </div>
             <Link to="/adminDashboard/adminProfile" className="ml-auto">
               <Settings className=" h-4 w-4 text-gray-500" />
