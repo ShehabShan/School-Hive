@@ -52,7 +52,7 @@ const MyReviews = () => {
 
   return (
     <div>
-      <h2 className="text-3xl text-emerald-700 font-bold text-center py-4">
+      <h2 className="text-3xl text-black font-bold text-center py-4">
         My review
       </h2>
       {myReviews?.length === 0 ? (

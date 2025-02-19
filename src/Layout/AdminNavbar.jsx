@@ -145,7 +145,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
           <button className="relative text-gray-700 hover:bg-gray-200 p-2 rounded">
             <Bell className="h-5 w-5" />
             <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-purple-500 text-[10px] font-medium text-white flex items-center justify-center">
-              1
+              0
             </span>
           </button>
 
@@ -153,7 +153,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
           <button className="relative text-gray-700 hover:bg-gray-200 p-2 rounded">
             <MessageCircle className="h-5 w-5" />
             <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-purple-500 text-[10px] font-medium text-white flex items-center justify-center">
-              5
+              0
             </span>
           </button>
 
@@ -265,16 +265,16 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                   <Users className="h-4 w-4" />
                   <span>Team</span>
                 </div> */}
-                <Link to="/adminDashboard/manageUsers">
-                  <div
-                    className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
-                    onClick={() => setProfileDropdownOpen(false)}
-                  >
-                    <Users className="h-4 w-4" />
-                    <span>Invite User</span>
-                    <ChevronRight className="ml-auto h-4 w-4" />
-                  </div>
-                </Link>
+
+                <div
+                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                  onClick={() => setProfileDropdownOpen(false)}
+                >
+                  <Users className="h-4 w-4" />
+                  <span>Invite User</span>
+                  <ChevronRight className="ml-auto h-4 w-4" />
+                </div>
+
                 <a href="https://github.com/ShehabShan/School-Hive.git">
                   <div
                     className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
