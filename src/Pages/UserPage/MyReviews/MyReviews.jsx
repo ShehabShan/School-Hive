@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import useAuth from "../../../Hooks/useAuth";
 import ReviewCard from "../../AdminPages/ManageReviews/ReviewCard";
+import DataNotAvailable from "../../../Component/DataNotAvailable/DataNotAvailable";
 
 const MyReviews = () => {
   const { user } = useAuth();
@@ -51,19 +52,25 @@ const MyReviews = () => {
 
   return (
     <div>
-      <h2 className="text-3xl text-emerald-700 font-bold">My review</h2>
-      <div
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4
+      <h2 className="text-3xl text-emerald-700 font-bold text-center py-4">
+        My review
+      </h2>
+      {myReviews?.length === 0 ? (
+        <DataNotAvailable></DataNotAvailable>
+      ) : (
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4
       "
-      >
-        {myReviews?.map((reviews, index) => (
-          <ReviewCard
-            key={index}
-            review={reviews}
-            handleDelete={handleDelete}
-          ></ReviewCard>
-        ))}
-      </div>
+        >
+          {myReviews?.map((reviews, index) => (
+            <ReviewCard
+              key={index}
+              review={reviews}
+              handleDelete={handleDelete}
+            ></ReviewCard>
+          ))}
+        </div>
+      )}
     </div>
   );
 };
