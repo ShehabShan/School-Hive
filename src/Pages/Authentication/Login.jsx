@@ -26,9 +26,11 @@ const Login = () => {
         role: "user",
       };
 
-      axiosPublic.post("/users", userInfo);
-
-      console.log(userInfo);
+      try {
+        await axiosPublic.post("/users", userInfo);
+      } catch (e) {
+        console.error("Failed to save user to the database", e);
+      }
 
       toast.success("Signin Successful");
       navigate("/");

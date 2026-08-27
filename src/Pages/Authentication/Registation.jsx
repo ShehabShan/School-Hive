@@ -33,20 +33,22 @@ const Registration = () => {
         role: "user",
       };
 
-      console.log(userInfo);
+      try {
+        const { data } = await axiosPublic.post("/users", userInfo);
 
-      const { data } = await axiosPublic.post("/users", userInfo);
-
-      if (data.data.insertedId) {
-        e.target.reset();
-        Swal.fire({
-          position: "top-end",
-          icon: "success",
-          title: "User created successfully.",
-          showConfirmButton: false,
-          timer: 1500,
-        });
-        navigate("/");
+        if (data.data.insertedId) {
+          e.target.reset();
+          Swal.fire({
+            position: "top-end",
+            icon: "success",
+            title: "User created successfully.",
+            showConfirmButton: false,
+            timer: 1500,
+          });
+        }
+      } catch (error) {
+        console.error("Failed to save user to the database", error);
+        toast.error("Account created, but failed to save your profile.");
       }
 
       toast.success("Signup Successful");
@@ -68,9 +70,11 @@ const Registration = () => {
         role: "user",
       };
 
-      axiosPublic.post("/users", userInfo);
-
-      console.log(userInfo);
+      try {
+        await axiosPublic.post("/users", userInfo);
+      } catch (error) {
+        console.error("Failed to save user to the database", error);
+      }
 
       toast.success("Signin Successful");
     } catch (err) {
