@@ -16,7 +16,18 @@ const useAxiosSecure = () => {
   useEffect(() => {
     if (!tokenLoaded) return;
 
-    const interceptors = axiosInstance.interceptors.response.use(
+    const requestInterceptors = axiosInstance.interceptors.request.use(
+      (config) => {
+        const token = localStorage.getItem("access-token");
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`;
+        }
+        return config;
+      },
+      (error) => Promise.reject(error)
+    );
+
+    const responseInterceptors = axiosInstance.interceptors.response.use(
       (response) => {
         return response;
       },
@@ -37,7 +48,8 @@ const useAxiosSecure = () => {
     );
 
     return () => {
-      axiosInstance.interceptors.response.eject(interceptors);
+      axiosInstance.interceptors.request.eject(requestInterceptors);
+      axiosInstance.interceptors.response.eject(responseInterceptors);
     };
   }, [tokenLoaded, logOut, navigate]);
 

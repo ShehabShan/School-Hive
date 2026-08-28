@@ -36,6 +36,7 @@ const AuthProvider = ({ children }) => {
   };
 
   const logOut = () => {
+    localStorage.removeItem("access-token");
     setLoading(true);
     return signOut(auth);
   };
@@ -55,11 +56,16 @@ const AuthProvider = ({ children }) => {
         const user = { email: currentUser.email };
 
         try {
-          await axiosPublic.post(`/jwt`, user, { withCredentials: true });
-          console.log("jwt  check");
+          const { data } = await axiosPublic.post(`/jwt`, user, {
+            withCredentials: true,
+          });
+          if (data?.token) {
+            localStorage.setItem("access-token", data.token);
+          }
           setTokenLoaded(true);
         } catch (error) {
-          console.log("JWT TOKEN CREAtion success", error);
+          console.log("JWT TOKEN creation failed", error);
+          localStorage.removeItem("access-token");
           setTokenLoaded(false);
         } finally {
           setLoading(false);
@@ -71,6 +77,7 @@ const AuthProvider = ({ children }) => {
         } catch (error) {
           console.log("jwt token clearing faild", error);
         } finally {
+          localStorage.removeItem("access-token");
           setTokenLoaded(false);
           setLoading(false);
         }
