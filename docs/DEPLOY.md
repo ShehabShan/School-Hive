@@ -7,15 +7,17 @@ Two independent deployments:
 | Client | Firebase Hosting | `School-Hive` (this repo) | https://scholarhive-913e4.web.app |
 | Server | Vercel | `Schole-hive-server` | https://server-six-vert.vercel.app |
 
-Deploy credentials are NOT committed to either repo. See `docs/CREDENTIALS.md`
-for where they live and how to load them.
+Deploy credentials are committed to this repo in plaintext (low-stakes test
+project). They live in `docs/CREDENTIALS.md` — use the values from that file when
+deploying. Do NOT assume this pattern is safe for production projects.
 
 ## Client (Firebase Hosting) — this repo
 
 ```bash
 npm install
 npm run build            # outputs dist/
-# load Firebase token (see CREDENTIALS.md), then:
+# Firebase token is in docs/CREDENTIALS.md, then:
+FIREBASE_TOKEN="1//0gmwHuLmy5qpZCgYIARAAGBASNwF-L9IrdpnUCzFU2ImJLTzfttxIYVT76bookqjajDOrCvvzKJ0v5BWr-s3mwElb6xsJkaR6ww0"
 npx firebase-tools deploy --only hosting --token "$FIREBASE_TOKEN"
 ```
 
@@ -33,7 +35,8 @@ FIRST. Deploying without linking will create a new throwaway project.
 ```bash
 cd ../Schole-hive-server     # sibling repo
 npm install
-# load Vercel token (see CREDENTIALS.md), then:
+# Vercel token is in docs/CREDENTIALS.md, then:
+VERCEL_TOKEN="vcp_8hSyyrgy1jHEaW2kCRc1RaaxwM5uET1BIMMmhvsIvIBmYpzG9B3QyLd2"
 npx vercel link --project server --yes --token "$VERCEL_TOKEN"   # first time only
 npx vercel --prod --yes --token "$VERCEL_TOKEN"
 ```

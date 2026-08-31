@@ -32,7 +32,8 @@ as part of your first task.
   - commit after every small, working unit of progress,
   - push after every commit,
   - no debug leftovers,
-  - no secrets in the repo.
+  - deploy credentials for this test project are intentionally committed in
+    `docs/CREDENTIALS.md` (see `AGENTS.md` for the exact policy).
 
 ## At the END of a session (or under token-budget pressure)
 

@@ -16,9 +16,9 @@ Deploy procedure and credentials live in `docs/DEPLOY.md`.
 - [x] `AGENTS.md` — project rules + standing working rules (commit frequently, push after every commit, token-budget safety, update continuity files).
 - [x] `TASKS.md` — this status file.
 - [x] `docs/HANDOFF_LOG.md` — session-by-session handoff log.
-- [x] `docs/DEPLOY.md` — deploy procedure + credential location (creds stored OUTSIDE the repo, not committed).
+- [x] `docs/DEPLOY.md` — deploy procedure; deploy credentials committed directly in `docs/CREDENTIALS.md` (low-stakes test project; owner accepted the risk).
 - [x] `.ai-ready/skills/session-handoff/` — handoff skill that future sessions load to orient + write continuity updates.
-- [x] `docs/CREDENTIALS.md` — registry of which deploy tokens exist, where they live, and how to use them (no secrets in-repo).
+- [x] `docs/CREDENTIALS.md` — deploy credentials registry; values are committed directly in this file (owner accepted committing them for this test project so they persist across sessions).
 
 ### Core client (as found at setup)
 - [x] Vite + React 18 app scaffold, Tailwind + daisyUI, React Router v6.

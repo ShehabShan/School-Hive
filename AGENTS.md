@@ -28,7 +28,7 @@ These are the ground rules you must follow for the whole session:
   - When you START a unit of work: move it to IN PROGRESS in `TASKS.md`.
   - When you FINISH a unit: mark it DONE in `TASKS.md`.
   - When you finish a meaningful chunk (or end the session / hit budget limits): append a dated entry to `docs/HANDOFF_LOG.md` describing what was done, what's in progress, what's left, and any decisions/context the next session needs. Commit and push these updates.
-- **Never store secrets in the repo.** No tokens, passwords, or API keys in committed files. See `docs/DEPLOY.md` for where deploy credentials live (outside the repo) and how to use them.
+- **Deploy credentials live in this repo on purpose.** The Vercel/Firebase deploy tokens for this low-stakes test project are committed in `docs/CREDENTIALS.md` — the owner accepted this so credentials persist across session environments. Do NOT assume this pattern is safe for production projects. Never commit NEW secrets (DB URIs, JWT secrets, real passwords) — those stay in Vercel env vars / local `.env`.
 - **No debug leftovers.** Remove `console.log` debug statements before committing.
 
 ## 3. Project overview
