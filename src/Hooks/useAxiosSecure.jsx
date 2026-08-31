@@ -32,15 +32,12 @@ const useAxiosSecure = () => {
         return response;
       },
       (error) => {
-        console.log("error caught in interceptors", error);
-
-        if (error.response?.status === 401 || error.response?.status === 403) {
+        if (error.response?.status === 401) {
           logOut()
             .then(() => {
-              console.log("logged out user");
               navigate("/signIn");
             })
-            .catch((error) => console.log(error));
+            .catch(() => {});
         }
 
         return Promise.reject(error);
