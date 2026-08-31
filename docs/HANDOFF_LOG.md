@@ -8,6 +8,26 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-08-31 — Public navigation redesign pushed; Firebase deploy blocked
+
+**What was done**
+- Added the `UI Redesign — Component Checklist` to `TASKS.md` because it did not exist.
+- Refreshed `src/Pages/Sheard/Nabvar.jsx` with stronger active states, gradient brand styling, responsive mobile navigation, improved avatar fallback, and clearer signed-in affordances. Functionality and routes were preserved.
+- Pushed the visual change to `main` in commit `85f00268a7ba972f1a6129075d81060838373e75`.
+- Added the explicit Firebase hosting site to `firebase.json` in commit `6b3b94c4dc9c7f86f03f578a6746369775cb7611` so the current Firebase CLI can resolve the hosting target.
+- Production build passes using a temporary safe dependency resolution. The repository's normal install is blocked by the package firewall rejecting the lockfile's `websocket-driver@0.7.4`; lint still reports pre-existing errors outside this unit.
+
+**In progress**
+- Navigation remains `[~]` until the required Firebase deploy completes.
+
+**Blocker**
+- Firebase Hosting deploy reaches project `scholarhive-913e4` but returns HTTP 401: the token in `docs/CREDENTIALS.md` is invalid or expired. Do not paste a replacement credential into chat; repair the repo's deployment credential through the appropriate secure channel, then rerun the documented hosting deploy.
+
+**Left / next**
+- After Firebase deployment succeeds, mark navigation `[x]`, commit/push the checklist state, and continue with `src/Layout/MainLayout.jsx`.
+
+---
+
 ## 2026-08-31 — Deploy credentials moved into the repo
 
 **What was done**
