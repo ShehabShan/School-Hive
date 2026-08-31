@@ -1,5 +1,6 @@
 {
   "hosting": {
+    "site": "scholarhive-913e4",
     "public": "dist",
     "ignore": [
       "firebase.json",
