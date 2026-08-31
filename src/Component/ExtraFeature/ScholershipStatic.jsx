@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import {
   BookOpen,
   Users,
@@ -6,6 +7,7 @@ import {
   ArrowUpRight,
   ArrowDownRight,
   TrendingUp,
+  CalendarDays,
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import StatCard from "../../Component/ui/StatCard";
@@ -42,9 +44,9 @@ const scholarships = [
 ];
 
 const recentApplicants = [
-  { id: 1, name: "Alice Johnson", course: "Agriculture" },
-  { id: 2, name: "Bob Smith", course: "Engineering" },
-  { id: 3, name: "Carol Williams", course: "Medicine" },
+  { id: 1, name: "Alice Johnson", course: "Agriculture", color: "from-brand-500 to-brand-700" },
+  { id: 2, name: "Bob Smith", course: "Engineering", color: "from-sky-500 to-sky-700" },
+  { id: 3, name: "Carol Williams", course: "Medicine", color: "from-emerald-500 to-emerald-700" },
 ];
 
 const trends = [
@@ -60,61 +62,77 @@ const fields = [
   { label: "Medicine", value: 70 },
 ];
 
+const fadeUp = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-60px" },
+};
+
 const ScholershipStatic = () => {
   return (
-    <section className="bg-white">
-      <div className="container-page py-20 md:py-24">
-        <div className="section-title">
+    <section className="relative overflow-hidden bg-white">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-32 top-1/3 h-80 w-80 rounded-full bg-sky-50 blur-3xl"
+      />
+      <div className="container-page relative py-20 md:py-28">
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.5 }}
+          className="section-title"
+        >
           <span className="eyebrow">Insights</span>
           <h2>Scholarship Program Hub</h2>
           <p>
             A live overview of the platform, from funds allocated to trending
             fields of study.
           </p>
-        </div>
+        </motion.div>
 
         {/* Stat cards */}
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          <StatCard
-            icon={BookOpen}
-            label="Total Scholarships"
-            value="24"
-            trend="+2 from last month"
-            accent="brand"
-          />
-          <StatCard
-            icon={Users}
-            label="Total Applicants"
-            value="1,284"
-            trend="+10% from last month"
-            accent="sky"
-          />
-          <StatCard
-            icon={DollarSign}
-            label="Funds Allocated"
-            value="$1.2M"
-            trend="+18% from last year"
-            accent="emerald"
-          />
-          <StatCard
-            icon={GraduationCap}
-            label="Success Rate"
-            value="89%"
-            trend="+5% from last year"
-            accent="amber"
-          />
-        </div>
+        <motion.div
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, margin: "-60px" }}
+          variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
+          className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
+        >
+          {[
+            { icon: BookOpen, label: "Total Scholarships", value: "24", trend: "+2 from last month", accent: "brand" },
+            { icon: Users, label: "Total Applicants", value: "1,284", trend: "+10% from last month", accent: "sky" },
+            { icon: DollarSign, label: "Funds Allocated", value: "$1.2M", trend: "+18% from last year", accent: "emerald" },
+            { icon: GraduationCap, label: "Success Rate", value: "89%", trend: "+5% from last year", accent: "amber" },
+          ].map((stat) => (
+            <motion.div
+              key={stat.label}
+              variants={{
+                hidden: { opacity: 0, y: 24 },
+                visible: { opacity: 1, y: 0 },
+              }}
+              transition={{ duration: 0.4 }}
+            >
+              <StatCard {...stat} />
+            </motion.div>
+          ))}
+        </motion.div>
 
         <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-3">
           {/* Active scholarships */}
-          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6 lg:col-span-2">
+          <motion.div
+            {...fadeUp}
+            transition={{ duration: 0.5 }}
+            className="rounded-2xl border border-slate-100 bg-slate-50 p-6 lg:col-span-2"
+          >
             <div className="mb-5 flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900">
+              <h3 className="flex items-center gap-2 text-lg font-bold text-slate-900">
+                <BookOpen className="h-5 w-5 text-brand-600" />
                 Active Scholarships
               </h3>
               <Link
                 to="/allScholership"
-                className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:text-brand-700"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700"
               >
                 View all
                 <ArrowUpRight className="h-4 w-4" />
@@ -124,15 +142,21 @@ const ScholershipStatic = () => {
               {scholarships.map((scholarship) => (
                 <div
                   key={scholarship.id}
-                  className="flex items-center justify-between rounded-xl border border-slate-100 bg-white p-4 transition-shadow hover:shadow-soft"
+                  className="group flex items-center justify-between rounded-xl border border-slate-100 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-100 hover:shadow-soft"
                 >
-                  <div>
-                    <p className="font-semibold text-slate-800">
-                      {scholarship.name}
-                    </p>
-                    <p className="mt-0.5 text-xs text-slate-400">
-                      Deadline: {scholarship.deadline}
-                    </p>
+                  <div className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-600 group-hover:text-white">
+                      <GraduationCap className="h-5 w-5" />
+                    </span>
+                    <div>
+                      <p className="font-semibold text-slate-800">
+                        {scholarship.name}
+                      </p>
+                      <p className="mt-0.5 flex items-center gap-1 text-xs text-slate-400">
+                        <CalendarDays className="h-3 w-3" />
+                        Deadline: {scholarship.deadline}
+                      </p>
+                    </div>
                   </div>
                   <div className="text-right">
                     <p className="font-bold text-slate-900">
@@ -145,18 +169,25 @@ const ScholershipStatic = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           {/* Right column */}
           <div className="space-y-8">
-            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6">
-              <h3 className="mb-5 text-lg font-bold text-slate-900">
+            <motion.div
+              {...fadeUp}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="rounded-2xl border border-slate-100 bg-slate-50 p-6"
+            >
+              <h3 className="mb-5 flex items-center gap-2 text-lg font-bold text-slate-900">
+                <Users className="h-5 w-5 text-sky-600" />
                 Recent Applicants
               </h3>
               <div className="space-y-4">
                 {recentApplicants.map((applicant) => (
                   <div key={applicant.id} className="flex items-center gap-3">
-                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-bold text-white">
+                    <div
+                      className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${applicant.color} text-sm font-bold text-white ring-2 ring-white`}
+                    >
                       {applicant.name.charAt(0)}
                     </div>
                     <div>
@@ -170,10 +201,15 @@ const ScholershipStatic = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
 
-            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6">
-              <h3 className="mb-5 text-lg font-bold text-slate-900">
+            <motion.div
+              {...fadeUp}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="rounded-2xl border border-slate-100 bg-slate-50 p-6"
+            >
+              <h3 className="mb-5 flex items-center gap-2 text-lg font-bold text-slate-900">
+                <TrendingUp className="h-5 w-5 text-emerald-600" />
                 Application Trends
               </h3>
               <div className="space-y-3">
@@ -197,12 +233,16 @@ const ScholershipStatic = () => {
                   </div>
                 ))}
               </div>
-            </div>
+            </motion.div>
           </div>
         </div>
 
         {/* Top fields */}
-        <div className="mt-8 rounded-2xl border border-slate-100 bg-slate-50 p-6">
+        <motion.div
+          {...fadeUp}
+          transition={{ duration: 0.5 }}
+          className="mt-8 rounded-2xl border border-slate-100 bg-slate-50 p-6"
+        >
           <h3 className="mb-5 text-lg font-bold text-slate-900">
             Top Fields of Study
           </h3>
@@ -218,15 +258,18 @@ const ScholershipStatic = () => {
                   </span>
                 </div>
                 <div className="h-2.5 overflow-hidden rounded-full bg-slate-200">
-                  <div
+                  <motion.div
                     className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-700"
-                    style={{ width: `${field.value}%` }}
+                    initial={{ width: 0 }}
+                    whileInView={{ width: `${field.value}%` }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.8, ease: "easeOut" }}
                   />
                 </div>
               </div>
             ))}
           </div>
-        </div>
+        </motion.div>
       </div>
     </section>
   );
