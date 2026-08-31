@@ -1,13 +1,15 @@
 import { useQuery } from "@tanstack/react-query";
 
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaCrown, FaLock } from "react-icons/fa";
 import { FaPeopleGroup } from "react-icons/fa6";
 import Swal from "sweetalert2";
 
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
+import useSuperAdmin from "../../../Hooks/useSuperAdmin";
 
 const ManageUsers = () => {
   const axiosSecure = useAxiosSecure();
+  const [isSuperAdmin] = useSuperAdmin();
 
   const { refetch, data: users = [] } = useQuery({
     queryKey: ["users"],
@@ -162,53 +164,75 @@ const ManageUsers = () => {
               </tr>
             </thead>
             <tbody>
-              {users.map((user, index) => (
-                <tr className="myTd" key={user?._id}>
-                  <td>{index + 1}</td>
-                  <td>{user?.name}</td>
-                  <td>{user?.email}</td>
-                  <td className="space-x-3 flex flex-col pl-1 lg:flex-row">
-                    <button
-                      onClick={() => handleRoleAdmin(user)}
-                      className="rounded-sm"
-                    >
-                      <p className="flex flex-col items-center ">
-                        <FaPeopleGroup className=" text-white  w-10 h-8 bg-orange-500  "></FaPeopleGroup>
-                        Admin
-                      </p>
-                    </button>
+              {users.map((user, index) => {
+                const isOwner = user?.role === "superadmin";
+                return (
+                  <tr className="myTd" key={user?._id}>
+                    <td>{index + 1}</td>
+                    <td>{user?.name}</td>
+                    <td>{user?.email}</td>
+                    <td className="space-x-3 flex flex-col pl-1 lg:flex-row">
+                      {isOwner ? (
+                        <p className="flex items-center gap-2 text-lg font-bold text-yellow-600">
+                          <FaCrown className="text-yellow-500"></FaCrown> Owner
+                        </p>
+                      ) : (
+                        <>
+                          <button
+                            onClick={() => handleRoleAdmin(user)}
+                            className="rounded-sm"
+                          >
+                            <p className="flex flex-col items-center ">
+                              <FaPeopleGroup className=" text-white  w-10 h-8 bg-orange-500  "></FaPeopleGroup>
+                              Admin
+                            </p>
+                          </button>
 
-                    <button
-                      onClick={() => handleRoleModaretor(user)}
-                      className=" rounded-sm "
-                    >
-                      <p className="flex flex-col items-center">
-                        <FaPeopleGroup className=" text-white  w-10 h-8 bg-orange-500 "></FaPeopleGroup>
-                        modaretor
-                      </p>
-                    </button>
-                    <button
-                      onClick={() => handleRoleUser(user)}
-                      className=" rounded-sm "
-                    >
-                      <p className="flex flex-col items-center">
-                        <FaPeopleGroup className=" text-white  w-10 h-8 bg-orange-500 "></FaPeopleGroup>
-                        User
-                      </p>
-                    </button>
-                  </td>
-                  <td>
-                    {user?.role && (
-                      <p className="text-xl font-bold">{user?.role}</p>
-                    )}
-                  </td>
-                  <td>
-                    <button onClick={() => handleDelete(user)}>
-                      <FaTrash className="text-red-600 ml-4"></FaTrash>
-                    </button>
-                  </td>
-                </tr>
-              ))}
+                          <button
+                            onClick={() => handleRoleModaretor(user)}
+                            className=" rounded-sm "
+                          >
+                            <p className="flex flex-col items-center">
+                              <FaPeopleGroup className=" text-white  w-10 h-8 bg-orange-500 "></FaPeopleGroup>
+                              modaretor
+                            </p>
+                          </button>
+                          <button
+                            onClick={() => handleRoleUser(user)}
+                            className=" rounded-sm "
+                          >
+                            <p className="flex flex-col items-center">
+                              <FaPeopleGroup className=" text-white  w-10 h-8 bg-orange-500 "></FaPeopleGroup>
+                              User
+                            </p>
+                          </button>
+                        </>
+                      )}
+                    </td>
+                    <td>
+                      {user?.role && (
+                        <p className="text-xl font-bold">
+                          {isOwner ? "Owner" : user?.role}
+                        </p>
+                      )}
+                    </td>
+                    <td>
+                      {isOwner ? (
+                        <p
+                          className="text-gray-400 ml-4 text-2xl"
+                          title="The owner role cannot be changed or removed"
+                        >
+                          <FaLock></FaLock>
+                        </p>
+                      ) : (
+                        <button onClick={() => handleDelete(user)}>
+                          <FaTrash className="text-red-600 ml-4"></FaTrash>
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
             </tbody>
           </table>
         </div>
