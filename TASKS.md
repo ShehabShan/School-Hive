@@ -33,6 +33,76 @@ Deploy procedure and credentials live in `docs/DEPLOY.md`.
 
 ---
 
+## UI Redesign — Component Checklist
+
+Each item is a visual/UX pass only. Keep behavior and data contracts intact. Follow
+the required order for every item: update this checklist -> commit -> push -> deploy.
+
+### Global shell and public components
+- [x] `src/Pages/Sheard/Nabvar.jsx` — public navigation
+- [ ] `src/Layout/MainLayout.jsx` — public page shell
+- [ ] `src/Component/Footer.jsx` — site footer
+- [ ] `src/Layout/Home.jsx` — home composition
+- [ ] `src/Component/HeroCoursor/HeroCarousel.jsx` — hero
+- [ ] `src/Component/AboutUs/AboutUs.jsx` — about section
+- [ ] `src/Pages/TopScholarship/TopScholarship.jsx` — featured scholarships
+- [ ] `src/Component/ExtraFeature/ScholarshipHighlights.jsx` — highlights
+- [ ] `src/Component/ExtraFeature/ScholershipStatic.jsx` — statistics
+- [ ] `src/Component/Banner.jsx` — banner
+- [ ] `src/Pages/Contact/ContactPage.jsx` — contact
+- [ ] `src/Component/ErrorPage/NotFound.jsx` — not found
+- [ ] `src/Component/DataNotAvailable/DataNotAvailable.jsx` — empty data state
+
+### Shared UI primitives
+- [ ] `src/Component/ui/EmptyState.jsx`
+- [ ] `src/Component/ui/FormField.jsx`
+- [ ] `src/Component/ui/PageHeader.jsx`
+- [ ] `src/Component/ui/Skeleton.jsx`
+- [ ] `src/Component/ui/Spinner.jsx`
+- [ ] `src/Component/ui/Stars.jsx`
+- [ ] `src/Component/ui/StatCard.jsx`
+- [ ] `src/Component/ui/StatusBadge.jsx`
+
+### Authentication
+- [ ] `src/Pages/Authentication/Login.jsx`
+- [ ] `src/Pages/Authentication/Registation.jsx`
+- [ ] `src/Pages/Authentication/SocialLogin.jsx`
+
+### Scholarship discovery and details
+- [ ] `src/Pages/AllScholership/AllScholership.jsx`
+- [ ] `src/Pages/AllScholership/ScholarshipCard.jsx`
+- [ ] `src/Pages/ScholarshipDetails/ScholarshipDetails.jsx`
+- [ ] `src/Pages/ScholarshipDetails/AllReviews.jsx`
+
+### User dashboard
+- [ ] `src/Layout/UserDashboard.jsx`
+- [ ] `src/Pages/UserPage/MyProfile/MyProfile.jsx`
+- [ ] `src/Pages/UserPage/MyApplication/MyApplication.jsx`
+- [ ] `src/Pages/UserPage/MyApplication/MyApplicationCard.jsx`
+- [ ] `src/Pages/UserPage/MyApplication/ApplicationCardForUser.jsx`
+- [ ] `src/Pages/UserPage/MyReviews/MyReviews.jsx`
+- [ ] `src/Pages/UserPage/Apply/Apply.jsx`
+- [ ] `src/Pages/AddReview/AddReview.jsx`
+
+### Moderator dashboard
+- [ ] `src/Layout/ModaratorDashboard.jsx`
+- [ ] `src/Pages/ModaratorPages/AddScholarship/AddScholarship.jsx`
+- [ ] `src/Pages/ModaratorPages/ManageScholarships/ManageScholarships.jsx`
+- [ ] `src/Pages/ModaratorPages/ManageScholarships/ManageScholareCard.jsx`
+- [ ] `src/Pages/ModaratorPages/ManageScholarships/EditScholarship.jsx`
+- [ ] `src/Pages/ModaratorPages/AllAppliedScholarship/AllAppliedScholarship.jsx`
+- [ ] `src/Pages/ModaratorPages/AllAppliedScholarship/ViewDetails/ApplicationCard.jsx`
+
+### Admin dashboard
+- [ ] `src/Layout/AdminDashboard.jsx`
+- [ ] `src/Layout/AdminNavbar.jsx`
+- [ ] `src/Pages/AdminPages/ManageAppliedApplication/ManageAppliedApplication.jsx`
+- [ ] `src/Pages/AdminPages/ManageUsers/ManageUsers.jsx`
+- [ ] `src/Pages/AdminPages/ManageReviews/ManageReview.jsx`
+- [ ] `src/Pages/AdminPages/ManageReviews/ReviewCard.jsx`
+
+---
+
 ## IN PROGRESS
 
 _(nothing right now — next unit goes here when started)_
