@@ -10,7 +10,6 @@ const Navbar = () => {
   const [isAdmin] = useAdmin();
   const [isModaretor] = useModaretor();
   const [isUser] = useUser();
-  console.log("navbar admin", isAdmin);
   console.log("navbar modrator", isModaretor);
 
   const hanldeSingOut = () => {
