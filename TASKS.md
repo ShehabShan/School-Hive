@@ -46,7 +46,7 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] `src/Component/HeroCoursor/HeroCarousel.jsx` — hero
 - [x] `src/Component/AboutUs/AboutUs.jsx` — about section
 - [x] `src/Pages/TopScholarship/TopScholarship.jsx` — featured scholarships
-- [ ] `src/Component/ExtraFeature/ScholarshipHighlights.jsx` — highlights
+- [x] `src/Component/ExtraFeature/ScholarshipHighlights.jsx` — highlights
 - [ ] `src/Component/ExtraFeature/ScholershipStatic.jsx` — statistics
 - [ ] `src/Component/Banner.jsx` — banner
 - [ ] `src/Pages/Contact/ContactPage.jsx` — contact
