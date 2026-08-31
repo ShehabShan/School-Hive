@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 .env
+.env.*
+!.env.example
+deploy.env
+*.pem
+*.key
+.firebase/
 schole-hive-server/
 
 # Editor directories and files
