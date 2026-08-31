@@ -1,7 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Library, Atom, GraduationCap, ScrollText, ArrowRight } from "lucide-react";
+import {
+  Library,
+  Atom,
+  GraduationCap,
+  ScrollText,
+  ArrowRight,
+  Sparkles,
+  Users,
+  Trophy,
+  Globe2,
+} from "lucide-react";
 import bg1 from "../../assist/bgImg/bg1.jpg";
 import bg2 from "../../assist/bgImg/bg2.jpg";
 import bg3 from "../../assist/bgImg/bg3.jpg";
@@ -14,44 +24,61 @@ const sections = [
     title: "Undergraduate Studies",
     icon: Library,
     bgImage: bg1,
-    accent: "hover:bg-brand-700",
-    active: "bg-brand-700",
-    inactive: "bg-slate-900/60",
+    accent: "hover:bg-brand-600",
+    active: "bg-brand-600",
+    inactive: "bg-slate-950/50",
+    chip: "text-amber-300",
   },
   {
     id: 2,
     title: "Lifelong Learning",
     icon: Atom,
     bgImage: bg2,
-    accent: "hover:bg-indigo-700",
-    active: "bg-indigo-700",
-    inactive: "bg-slate-900/60",
+    accent: "hover:bg-indigo-600",
+    active: "bg-indigo-600",
+    inactive: "bg-slate-950/50",
+    chip: "text-sky-300",
   },
   {
     id: 3,
     title: "Feldman Lab",
     icon: GraduationCap,
     bgImage: bg3,
-    accent: "hover:bg-violet-700",
-    active: "bg-violet-700",
-    inactive: "bg-slate-900/60",
+    accent: "hover:bg-violet-600",
+    active: "bg-violet-600",
+    inactive: "bg-slate-950/50",
+    chip: "text-violet-300",
   },
   {
     id: 4,
     title: "Graduate Studies",
     icon: ScrollText,
     bgImage: bg5,
-    accent: "hover:bg-amber-600",
-    active: "bg-amber-600",
-    inactive: "bg-slate-900/60",
+    accent: "hover:bg-amber-500",
+    active: "bg-amber-500",
+    inactive: "bg-slate-950/50",
+    chip: "text-amber-300",
   },
+];
+
+const stats = [
+  { icon: Users, value: "12k+", label: "Students placed" },
+  { icon: Trophy, value: "850+", label: "Scholarships" },
+  { icon: Globe2, value: "40+", label: "Partner universities" },
 ];
 
 export default function HeroCarousel() {
   const [currentSection, setCurrentSection] = useState(0);
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSection((prev) => (prev + 1) % sections.length);
+    }, 7000);
+    return () => clearInterval(timer);
+  }, []);
+
   return (
-    <section className="relative h-[88vh] min-h-[560px] w-full overflow-hidden bg-slate-900">
+    <section className="relative h-[88vh] min-h-[600px] w-full overflow-hidden bg-slate-950">
       {/* Background */}
       <AnimatePresence>
         <motion.img
@@ -59,14 +86,15 @@ export default function HeroCarousel() {
           src={sections[currentSection].bgImage}
           alt="University campus"
           className="absolute inset-0 h-full w-full object-cover"
-          initial={{ opacity: 0, scale: 1.05 }}
+          initial={{ opacity: 0, scale: 1.08 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
+          transition={{ duration: 1.1, ease: "easeOut" }}
         />
       </AnimatePresence>
-      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/90 via-slate-950/60 to-slate-900/30" />
-      <div className="absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-slate-950/80 to-transparent" />
+      <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/70 to-slate-900/20" />
+      <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-slate-950 to-transparent" />
+      <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-slate-950/60 to-transparent" />
 
       {/* Content */}
       <div className="relative z-10 flex h-full items-center">
@@ -78,9 +106,15 @@ export default function HeroCarousel() {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -16 }}
               transition={{ duration: 0.6, ease: "easeOut" }}
-              className="max-w-2xl"
+              className="max-w-2xl pb-40 sm:pb-32"
             >
-              <span className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-300 ring-1 ring-white/20 backdrop-blur">
+              <span
+                className={cn(
+                  "inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider ring-1 ring-white/20 backdrop-blur",
+                  sections[currentSection].chip
+                )}
+              >
+                <Sparkles className="h-3.5 w-3.5" />
                 {sections[currentSection].title}
               </span>
               <h1 className="mt-6 text-4xl font-extrabold leading-tight tracking-tight text-white md:text-6xl">
@@ -97,17 +131,34 @@ export default function HeroCarousel() {
               <div className="mt-8 flex flex-wrap gap-4">
                 <Link
                   to="/allScholership"
-                  className="inline-flex items-center gap-2 rounded-xl bg-amber-500 px-7 py-3.5 font-bold text-white shadow-lg shadow-amber-500/25 transition-colors hover:bg-amber-600"
+                  className="group inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 px-7 py-3.5 font-bold text-white shadow-lg shadow-amber-500/30 transition-all duration-200 hover:-translate-y-0.5 hover:shadow-xl hover:shadow-amber-500/40"
                 >
                   Apply Now
-                  <ArrowRight className="h-4 w-4" />
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
                 </Link>
                 <Link
                   to="/aboutUs"
-                  className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-7 py-3.5 font-bold text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/20"
+                  className="inline-flex items-center gap-2 rounded-xl bg-white/10 px-7 py-3.5 font-bold text-white ring-1 ring-white/25 backdrop-blur transition-all duration-200 hover:-translate-y-0.5 hover:bg-white/20"
                 >
                   Learn More
                 </Link>
+              </div>
+
+              {/* Stats strip */}
+              <div className="mt-12 flex flex-wrap gap-8 border-t border-white/15 pt-6">
+                {stats.map(({ icon: Icon, value, label }) => (
+                  <div key={label} className="flex items-center gap-3">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white/10 ring-1 ring-white/15">
+                      <Icon className="h-5 w-5 text-amber-300" />
+                    </span>
+                    <div>
+                      <p className="text-lg font-extrabold leading-none text-white">
+                        {value}
+                      </p>
+                      <p className="mt-1 text-xs text-slate-400">{label}</p>
+                    </div>
+                  </div>
+                ))}
               </div>
             </motion.div>
           </AnimatePresence>
@@ -116,7 +167,7 @@ export default function HeroCarousel() {
 
       {/* Section tabs */}
       <div className="absolute inset-x-0 bottom-0 z-10">
-        <div className="grid grid-cols-2 border-t border-white/10 sm:grid-cols-4">
+        <div className="grid grid-cols-2 border-t border-white/10 bg-slate-950/40 backdrop-blur-md sm:grid-cols-4">
           {sections.map((section, index) => {
             const Icon = section.icon;
             const isActive = currentSection === index;
@@ -126,11 +177,17 @@ export default function HeroCarousel() {
                 onClick={() => setCurrentSection(index)}
                 aria-pressed={isActive}
                 className={cn(
-                  "flex items-center justify-center gap-2 px-3 py-4 text-white transition-colors sm:py-5",
+                  "group relative flex items-center justify-center gap-2 px-3 py-4 text-white transition-colors sm:py-5",
                   isActive ? section.active : cn(section.inactive, "hover:bg-white/10")
                 )}
               >
-                <Icon className="h-5 w-5 shrink-0" />
+                {isActive && (
+                  <motion.span
+                    layoutId="hero-tab-indicator"
+                    className="absolute inset-x-0 top-0 h-0.5 bg-white/80"
+                  />
+                )}
+                <Icon className="h-5 w-5 shrink-0 transition-transform duration-200 group-hover:scale-110" />
                 <span className="hidden text-sm font-semibold md:block">
                   {section.title}
                 </span>
