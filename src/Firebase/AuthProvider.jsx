@@ -64,7 +64,7 @@ const AuthProvider = ({ children }) => {
           }
           setTokenLoaded(true);
         } catch (error) {
-          console.log("JWT TOKEN creation failed", error);
+          console.error("JWT TOKEN creation failed", error);
           localStorage.removeItem("access-token");
           setTokenLoaded(false);
         } finally {
@@ -73,17 +73,14 @@ const AuthProvider = ({ children }) => {
       } else {
         try {
           await axiosPublic.post(`/clear-jwt`, {}, { withCredentials: true });
-          console.log("jwt clear check");
         } catch (error) {
-          console.log("jwt token clearing faild", error);
+          console.error("jwt token clearing failed", error);
         } finally {
           localStorage.removeItem("access-token");
           setTokenLoaded(false);
           setLoading(false);
         }
       }
-
-      console.log("current user", currentUser);
     });
     return () => {
       return unsubscribe();
