@@ -1,6 +1,14 @@
-import { FaBook, FaGraduationCap, FaUsers, FaDollarSign } from "react-icons/fa";
-import { FaArrowRight, FaArrowUp } from "react-icons/fa";
+import {
+  BookOpen,
+  Users,
+  DollarSign,
+  GraduationCap,
+  ArrowUpRight,
+  ArrowDownRight,
+  TrendingUp,
+} from "lucide-react";
 import { Link } from "react-router-dom";
+import StatCard from "../../Component/ui/StatCard";
 
 const scholarships = [
   {
@@ -34,245 +42,193 @@ const scholarships = [
 ];
 
 const recentApplicants = [
-  {
-    id: 1,
-    name: "Alice Johnson",
-    course: "Agriculture",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 2,
-    name: "Bob Smith",
-    course: "Engineering",
-    avatar: "/placeholder.svg",
-  },
-  {
-    id: 3,
-    name: "Carol Williams",
-    course: "Doctor",
-    avatar: "/placeholder.svg",
-  },
+  { id: 1, name: "Alice Johnson", course: "Agriculture" },
+  { id: 2, name: "Bob Smith", course: "Engineering" },
+  { id: 3, name: "Carol Williams", course: "Medicine" },
 ];
+
+const trends = [
+  { label: "International Students", value: "+12%", up: true },
+  { label: "STEM Fields", value: "+8%", up: true },
+  { label: "Humanities", value: "-3%", up: false },
+  { label: "First-Generation Students", value: "+15%", up: true },
+];
+
+const fields = [
+  { label: "Agriculture", value: 90 },
+  { label: "Engineering", value: 80 },
+  { label: "Medicine", value: 70 },
+];
+
 const ScholershipStatic = () => {
   return (
-    <div className="bg-gray-100">
-      <div className="min-h-screen  p-8 mt-12">
-        <div className="max-w-[1440px] mx-auto">
-          <h1 className="text-4xl font-bold mb-8 text-center">
-            Scholarship Program Management Hub
-          </h1>
+    <section className="bg-white">
+      <div className="container-page py-20 md:py-24">
+        <div className="section-title">
+          <span className="eyebrow">Insights</span>
+          <h2>Scholarship Program Hub</h2>
+          <p>
+            A live overview of the platform, from funds allocated to trending
+            fields of study.
+          </p>
+        </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <div className="bg-white p-4 rounded-lg shadow">
-              <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <h2 className="text-sm font-medium">Total Scholarships</h2>
-                <FaBook className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">24</div>
-                <p className="text-xs text-muted-foreground">
-                  +2 from last month
-                </p>
-              </div>
+        {/* Stat cards */}
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+          <StatCard
+            icon={BookOpen}
+            label="Total Scholarships"
+            value="24"
+            trend="+2 from last month"
+            accent="brand"
+          />
+          <StatCard
+            icon={Users}
+            label="Total Applicants"
+            value="1,284"
+            trend="+10% from last month"
+            accent="sky"
+          />
+          <StatCard
+            icon={DollarSign}
+            label="Funds Allocated"
+            value="$1.2M"
+            trend="+18% from last year"
+            accent="emerald"
+          />
+          <StatCard
+            icon={GraduationCap}
+            label="Success Rate"
+            value="89%"
+            trend="+5% from last year"
+            accent="amber"
+          />
+        </div>
+
+        <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-3">
+          {/* Active scholarships */}
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6 lg:col-span-2">
+            <div className="mb-5 flex items-center justify-between">
+              <h3 className="text-lg font-bold text-slate-900">
+                Active Scholarships
+              </h3>
+              <Link
+                to="/allScholership"
+                className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:text-brand-700"
+              >
+                View all
+                <ArrowUpRight className="h-4 w-4" />
+              </Link>
             </div>
-            <div className="bg-white p-4 rounded-lg shadow">
-              <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <h2 className="text-sm font-medium">Total Applicants</h2>
-                <FaUsers className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">1,284</div>
-                <p className="text-xs text-muted-foreground">
-                  +10% from last month
-                </p>
-              </div>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow">
-              <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <h2 className="text-sm font-medium">Funds Allocated</h2>
-                <FaDollarSign className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">$1.2M</div>
-                <p className="text-xs text-muted-foreground">
-                  +18% from last year
-                </p>
-              </div>
-            </div>
-            <div className="bg-white p-4 rounded-lg shadow">
-              <div className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <h2 className="text-sm font-medium">Success Rate</h2>
-                <FaGraduationCap className="h-4 w-4 text-muted-foreground" />
-              </div>
-              <div>
-                <div className="text-2xl font-bold">89%</div>
-                <p className="text-xs text-muted-foreground">
-                  +5% from last year
-                </p>
-              </div>
+            <div className="space-y-3">
+              {scholarships.map((scholarship) => (
+                <div
+                  key={scholarship.id}
+                  className="flex items-center justify-between rounded-xl border border-slate-100 bg-white p-4 transition-shadow hover:shadow-soft"
+                >
+                  <div>
+                    <p className="font-semibold text-slate-800">
+                      {scholarship.name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-slate-400">
+                      Deadline: {scholarship.deadline}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="font-bold text-slate-900">
+                      ${scholarship.amount.toLocaleString()}
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      {scholarship.applicants} applicants
+                    </p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-2 bg-white p-6 rounded-lg shadow">
-              <div>
-                <h2 className="text-xl font-semibold mb-4">
-                  Active Scholarships
-                </h2>
-                <div className="space-y-4">
-                  {scholarships.map((scholarship) => (
-                    <div
-                      key={scholarship.id}
-                      className="flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow"
-                    >
-                      <div>
-                        <h3 className="font-semibold">{scholarship.name}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          Deadline: {scholarship.deadline}
-                        </p>
-                      </div>
-                      <div className="text-right">
-                        <p className="font-bold">
-                          ${scholarship.amount.toLocaleString()}
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          {scholarship.applicants} applicants
-                        </p>
-                      </div>
+          {/* Right column */}
+          <div className="space-y-8">
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6">
+              <h3 className="mb-5 text-lg font-bold text-slate-900">
+                Recent Applicants
+              </h3>
+              <div className="space-y-4">
+                {recentApplicants.map((applicant) => (
+                  <div key={applicant.id} className="flex items-center gap-3">
+                    <div className="flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-bold text-white">
+                      {applicant.name.charAt(0)}
                     </div>
-                  ))}
-                </div>
-                <Link to={"/aallScholership"}>
-                  <button className="w-full mt-4 bg-blue-500 text-white py-2 px-4 rounded-lg">
-                    View All Scholarships
-                  </button>
-                </Link>
-              </div>
-            </div>
-
-            <div className="space-y-8">
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4">
-                  Recent Applicants
-                </h2>
-                <div className="space-y-4">
-                  {recentApplicants.map((applicant) => (
-                    <div
-                      key={applicant.id}
-                      className="flex items-center space-x-4"
-                    >
-                      <div className="w-12 h-12 bg-gray-300 rounded-full flex items-center justify-center">
-                        <span className="text-white text-xl">
-                          {applicant.name.charAt(0)}
-                        </span>
-                      </div>
-                      <div>
-                        <p className="font-semibold">{applicant.name}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {applicant.course}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              <div className="bg-white p-6 rounded-lg shadow">
-                <h2 className="text-xl font-semibold mb-4">
-                  Application Statistics
-                </h2>
-                <div className="space-y-4">
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm font-semibold">
-                        Undergraduate
-                      </span>
-                      <span className="text-sm font-semibold">72%</span>
-                    </div>
-                    <div className="h-2 bg-gray-200 rounded-full">
-                      <div
-                        className="h-2 bg-blue-500 rounded-full"
-                        style={{ width: "72%" }}
-                      ></div>
+                    <div>
+                      <p className="font-semibold text-slate-800">
+                        {applicant.name}
+                      </p>
+                      <p className="text-xs text-slate-400">
+                        {applicant.course}
+                      </p>
                     </div>
                   </div>
-                  <div>
-                    <div className="flex justify-between mb-1">
-                      <span className="text-sm font-semibold">Graduate</span>
-                      <span className="text-sm font-semibold">28%</span>
-                    </div>
-                    <div className="h-2 bg-gray-200 rounded-full">
-                      <div
-                        className="h-2 bg-blue-500 rounded-full"
-                        style={{ width: "28%" }}
-                      ></div>
-                    </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6">
+              <h3 className="mb-5 text-lg font-bold text-slate-900">
+                Application Trends
+              </h3>
+              <div className="space-y-3">
+                {trends.map((trend) => (
+                  <div key={trend.label} className="flex items-center gap-2">
+                    {trend.up ? (
+                      <TrendingUp className="h-4 w-4 text-emerald-500" />
+                    ) : (
+                      <ArrowDownRight className="h-4 w-4 text-rose-500" />
+                    )}
+                    <span className="text-sm font-medium text-slate-600">
+                      {trend.label}
+                    </span>
+                    <span
+                      className={`ml-auto text-sm font-bold ${
+                        trend.up ? "text-emerald-600" : "text-rose-500"
+                      }`}
+                    >
+                      {trend.value}
+                    </span>
                   </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-8">
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">
-                Top Fields of Study
-              </h2>
-              <div className="space-y-4">
-                {["Agriculture", "Engineering", "Doctor"].map(
-                  (field, index) => (
-                    <div key={index} className="flex items-center">
-                      <div className="w-full flex-1">
-                        <div className="flex justify-between mb-1">
-                          <span className="text-sm font-medium">{field}</span>
-                          <span className="text-sm font-medium">
-                            {90 - index * 10}%
-                          </span>
-                        </div>
-                        <div className="h-2 bg-gray-200 rounded-full">
-                          <div
-                            className="h-2 bg-blue-500 rounded-full"
-                            style={{ width: `${90 - index * 10}%` }}
-                          ></div>
-                        </div>
-                      </div>
-                    </div>
-                  )
-                )}
-              </div>
-            </div>
-
-            <div className="bg-white p-6 rounded-lg shadow">
-              <h2 className="text-xl font-semibold mb-4">Application Trends</h2>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <FaArrowUp className="mr-2 h-4 w-4 text-green-500" />
-                  <span className="font-semibold">International Students</span>
-                  <span className="ml-auto text-green-500">+12%</span>
-                </div>
-                <div className="flex items-center">
-                  <FaArrowUp className="mr-2 h-4 w-4 text-green-500" />
-                  <span className="font-semibold">STEM Fields</span>
-                  <span className="ml-auto text-green-500">+8%</span>
-                </div>
-                <div className="flex items-center">
-                  <FaArrowRight className="mr-2 h-4 w-4 text-red-500" />
-                  <span className="font-semibold">Humanities</span>
-                  <span className="ml-auto text-red-500">-3%</span>
-                </div>
-                <div className="flex items-center">
-                  <FaArrowUp className="mr-2 h-4 w-4 text-green-500" />
-                  <span className="font-semibold">
-                    First-Generation Students
-                  </span>
-                  <span className="ml-auto text-green-500">+15%</span>
-                </div>
+                ))}
               </div>
             </div>
           </div>
         </div>
+
+        {/* Top fields */}
+        <div className="mt-8 rounded-2xl border border-slate-100 bg-slate-50 p-6">
+          <h3 className="mb-5 text-lg font-bold text-slate-900">
+            Top Fields of Study
+          </h3>
+          <div className="grid grid-cols-1 gap-x-10 gap-y-4 md:grid-cols-3">
+            {fields.map((field) => (
+              <div key={field.label}>
+                <div className="mb-1.5 flex justify-between text-sm">
+                  <span className="font-medium text-slate-700">
+                    {field.label}
+                  </span>
+                  <span className="font-bold text-brand-600">
+                    {field.value}%
+                  </span>
+                </div>
+                <div className="h-2.5 overflow-hidden rounded-full bg-slate-200">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-700"
+                    style={{ width: `${field.value}%` }}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
-    </div>
+    </section>
   );
 };
 
