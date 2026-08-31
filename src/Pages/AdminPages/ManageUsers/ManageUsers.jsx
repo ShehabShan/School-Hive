@@ -5,11 +5,17 @@ import { FaPeopleGroup } from "react-icons/fa6";
 import Swal from "sweetalert2";
 
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
-import useSuperAdmin from "../../../Hooks/useSuperAdmin";
+
+const showError = (error) => {
+  Swal.fire({
+    title: "Action failed",
+    text: error?.response?.data?.message || "Something went wrong",
+    icon: "error",
+  });
+};
 
 const ManageUsers = () => {
   const axiosSecure = useAxiosSecure();
-  const [isSuperAdmin] = useSuperAdmin();
 
   const { refetch, data: users = [] } = useQuery({
     queryKey: ["users"],
@@ -42,7 +48,7 @@ const ManageUsers = () => {
             refetch();
           }
         } catch (error) {
-          console.log(error);
+          showError(error);
         }
       }
     });
@@ -73,7 +79,7 @@ const ManageUsers = () => {
             refetch();
           }
         } catch (error) {
-          console.log("admin patch error", error);
+          showError(error);
         }
       }
     });
@@ -106,7 +112,7 @@ const ManageUsers = () => {
             refetch();
           }
         } catch (error) {
-          console.log("admin patch error", error);
+          showError(error);
         }
       }
     });
@@ -137,7 +143,7 @@ const ManageUsers = () => {
             refetch();
           }
         } catch (error) {
-          console.log("admin patch error", error);
+          showError(error);
         }
       }
     });
