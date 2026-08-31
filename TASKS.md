@@ -39,7 +39,7 @@ Each item is a visual/UX pass only. Keep behavior and data contracts intact. Fol
 the required order for every item: update this checklist -> commit -> push -> deploy.
 
 ### Global shell and public components
-- [~] `src/Pages/Sheard/Nabvar.jsx` — public navigation (visual pass committed and pushed; Firebase deploy blocked by invalid token)
+- [x] `src/Pages/Sheard/Nabvar.jsx` — public navigation (visual pass + Firebase deploy completed)
 - [ ] `src/Layout/MainLayout.jsx` — public page shell
 - [ ] `src/Component/Footer.jsx` — site footer
 - [ ] `src/Layout/Home.jsx` — home composition
@@ -105,7 +105,7 @@ the required order for every item: update this checklist -> commit -> push -> de
 
 ## IN PROGRESS
 
-- `src/Pages/Sheard/Nabvar.jsx` — code is pushed; deployment is waiting on a valid Firebase token.
+- Nothing currently in progress.
 
 ---
 
