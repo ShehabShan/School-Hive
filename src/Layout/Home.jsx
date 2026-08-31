@@ -1,3 +1,4 @@
+import { motion } from "framer-motion";
 import AboutUs from "../Component/AboutUs/AboutUs";
 import ScholarshipHighlights from "../Component/ExtraFeature/ScholarshipHighlights";
 import ScholershipStatic from "../Component/ExtraFeature/ScholershipStatic";
@@ -7,15 +8,20 @@ import TopScholarship from "../Pages/TopScholarship/TopScholarship";
 
 const Home = () => {
   return (
-    <div className="flex flex-col">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.3 }}
+      className="flex flex-col overflow-x-clip"
+    >
       {/* <Banner></Banner> */}
-      <HeroCarousel></HeroCarousel>
-      <AboutUs></AboutUs>
-      <TopScholarship></TopScholarship>
-      <ScholarshipHighlights></ScholarshipHighlights>
-      <ScholershipStatic></ScholershipStatic>
-      <ContactPage></ContactPage>
-    </div>
+      <HeroCarousel />
+      <AboutUs />
+      <TopScholarship />
+      <ScholarshipHighlights />
+      <ScholershipStatic />
+      <ContactPage />
+    </motion.div>
   );
 };
 

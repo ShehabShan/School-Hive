@@ -42,7 +42,7 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] `src/Pages/Sheard/Nabvar.jsx` — public navigation (visual pass + Firebase deploy completed)
 - [x] `src/Layout/MainLayout.jsx` — public page shell
 - [x] `src/Component/Footer.jsx` — site footer
-- [ ] `src/Layout/Home.jsx` — home composition
+- [x] `src/Layout/Home.jsx` — home composition
 - [ ] `src/Component/HeroCoursor/HeroCarousel.jsx` — hero
 - [ ] `src/Component/AboutUs/AboutUs.jsx` — about section
 - [ ] `src/Pages/TopScholarship/TopScholarship.jsx` — featured scholarships
