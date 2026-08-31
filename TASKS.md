@@ -49,7 +49,7 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] `src/Component/ExtraFeature/ScholarshipHighlights.jsx` — highlights
 - [x] `src/Component/ExtraFeature/ScholershipStatic.jsx` — statistics
 - [x] `src/Component/Banner.jsx` — banner
-- [ ] `src/Pages/Contact/ContactPage.jsx` — contact
+- [x] `src/Pages/Contact/ContactPage.jsx` — contact
 - [ ] `src/Component/ErrorPage/NotFound.jsx` — not found
 - [ ] `src/Component/DataNotAvailable/DataNotAvailable.jsx` — empty data state
 
