@@ -11,7 +11,18 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## IN PROGRESS
 
-- Nothing — transformation shipped 2026-09-01, awaiting manual smoke
+- Nothing — Manage Review + navbar refactor shipped 2026-09-01, awaiting manual smoke
+
+## DONE — Review + Navbar Refactor (2026-09-01)
+
+- [x] **Manage Reviews simplified** — removed category tabs (All/Pending/Approved/Rejected/Hidden/Removed) & `activeTab`; now queries fixed `status=approved` only (auto-approve model); header shows `total/approved/removed` + single `View History` link; removed bulk approve/reject & per-card history; kept Search + per-card `Remove` (with required reason + note) + `Edit` (typo fix)
+- [x] **ReviewCard slimmed** — deleted `Approve/Reject/Hide` branches (dead on live server, `/moderate` 404) and per-card `View history` button; keeps `Remove` + `Edit` + avatar fallback + clickable profile; still supports `MyReviews` (owner delete+edit)
+- [x] **New `ReviewHistory` page** — `GET /reviews/removed` list w/ reason/removedBy/removedAt/note + expandable per-review timeline via `GET /reviews/history/:id`; routes `/adminDashboard/manageReviews/history` + `/modaratorDashboard/myReviews/history`; accessible from ManageReviews header + dashboard navbar dropdown
+- [x] **`useRole` hook** — consolidates 3 role queries (`useAdmin/useModaretor/useUser`) into one `GET /users/me` call returning `{role,isAdmin,isModaretor,isUser,loading}`
+- [x] **Main navbar** — single `useRole`, click-outside + Esc to close profile dropdown, added `Saved Scholarships` dropdown item
+- [x] **AdminNavbar** — `Log Out` now really calls `logOut()` + navigate `/`; avatar/initials fallback; header shows real `displayName + email + role` (not `@Admin`); removed filler (language dropdown, Billing/Invite/Support), kept theme + bell, added role-aware `Review History` link; removed `use client` + unused import
+- [x] **AdminDashboard sidebar** — pruned dead `Widget`/`Application` sections (9 NotFound links); flat role-aware nav (`admin/mod/user` submenus rendered directly); role-aware settings link + avatar fallback + role label in footer
+- [x] Lint-clean for touched files; `npm run build` passes
 
 ## DONE — Scholarship Transformation (2026-09-01)
 

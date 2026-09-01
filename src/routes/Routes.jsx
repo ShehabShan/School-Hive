@@ -13,6 +13,7 @@ import AddScholarship from "../Pages/ModaratorPages/AddScholarship/AddScholarshi
 import ManageAppliedApplication from "../Pages/AdminPages/ManageAppliedApplication/ManageAppliedApplication";
 import ManageUsers from "../Pages/AdminPages/ManageUsers/ManageUsers";
 import ManageReview from "../Pages/AdminPages/ManageReviews/ManageReview";
+import ReviewHistory from "../Pages/AdminPages/ManageReviews/ReviewHistory";
 import AllScholership from "../Pages/AllScholership/AllScholership";
 import ScholarshipDetails from "../Pages/ScholarshipDetails/ScholarshipDetails";
 import EditScholarship from "../Pages/ModaratorPages/ManageScholarships/EditScholarship";
@@ -168,6 +169,10 @@ const router = createBrowserRouter(
         element: <ManageReview></ManageReview>,
       },
       {
+        path: "myReviews/history",
+        element: <ReviewHistory></ReviewHistory>,
+      },
+      {
         path: "allAppliedScholarships",
         element: <AllAppliedScholarship></AllAppliedScholarship>,
       },
@@ -220,6 +225,10 @@ const router = createBrowserRouter(
       {
         path: "manageReviews",
         element: <ManageReview></ManageReview>,
+      },
+      {
+        path: "manageReviews/history",
+        element: <ReviewHistory></ReviewHistory>,
       },
     ],
   },

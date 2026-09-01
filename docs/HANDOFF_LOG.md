@@ -8,6 +8,30 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-01 — Manage Reviews simplified (auto-approve model) + navbar/dashboard refactor
+
+**What was done**
+- **Manage Reviews (auto-approve, no moderation queue):** removed category tabs (`All/Pending/Approved/Rejected/Hidden/Removed`) + `activeTab` + bulk approve/reject + per-card history. Now queries `status=approved` only; header shows `total/approved/removed` + one `View History` link; per-card action is `Remove` (required reason + optional note, soft-delete → history) + `Edit` (typo fix). `ReviewCard` deleted `Approve/Reject/Hide` branches (dead on live server where `PATCH /moderate` 404s) and per-card `View history`; still used by `MyReviews` (owner delete+edit) and now has avatar fallback.
+- **New `ReviewHistory` page** (`src/Pages/AdminPages/ManageReviews/ReviewHistory.jsx`): lists `GET /reviews/removed` with `removedBy/removedAt/removedReason/removedNote`, expandable per-review timeline via `GET /reviews/history/:id`. Routes `/adminDashboard/manageReviews/history` + `/modaratorDashboard/myReviews/history`. Reachable from ManageReviews header and dashboard navbar dropdown.
+- **`useRole` hook** (`src/Hooks/useRole.jsx`): one `GET /users/me` → `{role,isAdmin,isModaretor,isUser,loading}` replaces triple `useAdmin/useModaretor/useUser` calls. `isAdmin` includes `superadmin`.
+- **Main navbar (`Nabvar.jsx`):** uses `useRole`; profile dropdown closes on click-outside + Esc; added `Saved Scholarships` item. Kept filename typo (imports depend on it).
+- **`AdminNavbar.jsx`:** `Log Out` now really calls `logOut()` + `navigate("/")`; avatar/initials fallback; dropdown header shows real `displayName + email + role` (was hardcoded `@Admin`); removed filler (language dropdown, Billing/Invite/Support) & `use client` + unused `Keyboard`; kept theme toggle + bell; added role-aware `Review History` link.
+- **`AdminDashboard.jsx` sidebar:** removed dead `Widget`/`Application` sections (9 `NotFound` links); flat role-aware nav from `useRole`; role-aware settings link + avatar fallback + role label footer.
+- Cleaned unused `ReviewCard` import in `ScholarshipDetails.jsx`.
+- Verification: `npm run build` ok; lint clean for all touched files (residual lint errors are pre-existing elsewhere).
+
+**In progress**
+- None.
+
+**Left / next**
+- **Server Vercel deploy STILL BLOCKED** — `VERCEL_TOKEN` expired. All server code (`removed` status, `GET /reviews/removed`, `GET /reviews/history/:id`, auto-approve, `/users/me`) is on `main` but NOT live. Until deployed: `Remove` returns old-DELETE behavior risk & `/reviews/removed` will 404 → `ReviewHistory` shows empty/error. Rotate token then `npx vercel --prod --yes --token`.
+- Manual smoke: remove a review → confirm it appears in Review History, rating recalcs.
+
+**Decisions & context**
+- Kept `Edit` on review card (admin typo fix > delete+recreate). History is a page not modal (audit-friendly, shareable). `FORM:` no API change needed client-side (`DELETE /allReviews/:id` already supports `{reason,note}` on `main`).
+
+---
+
 ## 2026-09-01 — Scholarship transformation: unified card + faceted discovery + saved/compare
 
 **What was done**

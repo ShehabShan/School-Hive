@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, useNavigate } from "react-router-dom";
 import {
   ChevronDown,
@@ -10,9 +10,7 @@ import {
   X,
 } from "lucide-react";
 import useAuth from "../../Hooks/useAuth";
-import useAdmin from "../../Hooks/useAdmin";
-import useModaretor from "../../Hooks/useModaretor";
-import useUser from "../../Hooks/useUser";
+import useRole from "../../Hooks/useRole";
 import { cn } from "../../lib/cn";
 
 const navLinkClass = ({ isActive }) =>
@@ -25,12 +23,29 @@ const navLinkClass = ({ isActive }) =>
 
 const Navbar = () => {
   const { user, logOut } = useAuth();
-  const [isAdmin] = useAdmin();
-  const [isModaretor] = useModaretor();
-  const [isUser] = useUser();
+  const { isAdmin, isModaretor, isUser } = useRole();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
+  const profileRef = useRef(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!profileOpen) return;
+    const handleClickOutside = (event) => {
+      if (profileRef.current && !profileRef.current.contains(event.target)) {
+        setProfileOpen(false);
+      }
+    };
+    const handleEsc = (event) => {
+      if (event.key === "Escape") setProfileOpen(false);
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEsc);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEsc);
+    };
+  }, [profileOpen]);
 
   const handleSignOut = () => {
     setProfileOpen(false);
@@ -125,7 +140,7 @@ const Navbar = () => {
               Sign In
             </Link>
           ) : (
-            <div className="relative">
+            <div className="relative" ref={profileRef}>
               <button
                 onClick={() => setProfileOpen((o) => !o)}
                 className="flex items-center gap-2 rounded-full p-1 pr-2 transition-colors hover:bg-slate-100"
@@ -168,6 +183,15 @@ const Navbar = () => {
                   >
                     <UserCircle2 className="h-4 w-4 text-slate-400" />
                     {dashboardLabel}
+                  </Link>
+                  <Link
+                    to="/saved"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                    role="menuitem"
+                  >
+                    <Sparkles className="h-4 w-4 text-slate-400" />
+                    Saved Scholarships
                   </Link>
                   <div className="mx-4 my-1 flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-xs font-semibold text-brand-700">
                     <Sparkles className="h-3.5 w-3.5" />

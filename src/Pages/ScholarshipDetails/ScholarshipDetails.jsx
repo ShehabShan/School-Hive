@@ -10,7 +10,6 @@ import useAuth from "../../Hooks/useAuth";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import AllReviews from "./AllReviews";
-import ReviewCard from "../AdminPages/ManageReviews/ReviewCard";
 import Stars from "../../Component/ui/Stars";
 import { getDeadlineState } from "../../Component/scholarship/CountdownBadge";
 import { useSaved, useToggleSave } from "../../Hooks/useSaved";
