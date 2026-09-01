@@ -11,52 +11,79 @@ Deploy credentials are committed to this repo in plaintext (low-stakes test
 project). They live in `docs/CREDENTIALS.md` — use the values from that file when
 deploying. Do NOT assume this pattern is safe for production projects.
 
+## The localhost trap (read first)
+
+The dev `.env` sets `VITE_server_url=http://localhost:5000` so local sessions hit
+the local server. A plain `npm run build` bakes that localhost URL into `dist/` —
+**deploying that breaks production**. Always deploy the client through the READY
+guarded command `npm run deploy` (or `npm run build:prod` for build-only), which:
+
+1. Forces `VITE_server_url=https://server-six-vert.vercel.app` (dev `.env` is ignored),
+2. Builds the bundle, then
+3. Fails with a non-zero exit if any `localhost`/`127.0.0.1` reference survives, or
+   if the Vercel server URL is missing from the bundle.
+
+The guard also runs as part of `npm run deploy` right before the Firebase deploy.
+
 ## Client (Firebase Hosting) — this repo
 
 ```bash
 npm install
-npm run build            # outputs dist/
-# Firebase token is in docs/CREDENTIALS.md, then:
-FIREBASE_TOKEN="1//0gmwHuLmy5qpZCgYIARAAGBASNwF-L9IrdpnUCzFU2ImJLTzfttxIYVT76bookqjajDOrCvvzKJ0v5BWr-s3mwElb6xsJkaR6ww0"
-npx firebase-tools deploy --only hosting --token "$FIREBASE_TOKEN"
+npm run deploy           # guarded build + dist check + firebase deploy (token read from docs/CREDENTIALS.md)
+# or build-only, to inspect first:
+npm run build:prod       # guarded build + dist check, no deploy
+npm run build            # plain build — DEV ONLY (bakes localhost:5000 from .env)
 ```
 
 Firebase project id is `scholarhive-913e4` (see `.firebaserc` / `firebase.json`).
-Alternative to the CLI: `npx firebase-tools login:ci --token "$FIREBASE_TOKEN"` to
-install the token into the local Firebase CLI config before deploying.
+If the committed `FIREBASE_TOKEN` is ever expired, rotate it with
+`npx firebase-tools login:ci` and update `docs/CREDENTIALS.md`.
 
-## Server (Vercel) — Schole-hive-server repo
+## Server (Vercel)
 
-IMPORTANT: The production URL `https://server-six-vert.vercel.app` belongs to the
-existing Vercel project named **`server`** (NOT `schole-hive-server`). If the repo
-is not linked yet, run `npx vercel link --project server --yes --token "$VERCEL_TOKEN"`
-FIRST. Deploying without linking will create a new throwaway project.
+The project is **already linked to GitHub** (`ShehabShan/Schole-hive-server`) with
+auto-deploy enabled: every push to `main` deploys production to
+`https://server-six-vert.vercel.app`. Normal flow:
 
 ```bash
-cd ../Schole-hive-server     # sibling repo
-npm install
-# Vercel token is in docs/CREDENTIALS.md, then:
-VERCEL_TOKEN="vcp_8hSyyrgy1jHEaW2kCRc1RaaxwM5uET1BIMMmhvsIvIBmYpzG9B3QyLd2"
+cd ../Schole-hive-server
+git checkout main && git pull
+git merge feature/login-roles          # promote work to main
+git push origin main                   # Vercel auto-deploys
+```
+
+CLI fallback (e.g. if GitHub integration is off): the project is named **`server`**
+(existing production URL `server-six-vert.vercel.app`). Use the `VERCEL_TOKEN`
+from `docs/CREDENTIALS.md`, and link to the existing project first or you'll create
+a throwaway one:
+
+```bash
+cd ../Schole-hive-server
+VERCEL_TOKEN="<from School-Hive/docs/CREDENTIALS.md>"
 npx vercel link --project server --yes --token "$VERCEL_TOKEN"   # first time only
 npx vercel --prod --yes --token "$VERCEL_TOKEN"
 ```
 
-The Vercel project id is `server` (`server-six-vert.vercel.app`). `vercel.json` routes all traffic to `index.js`
-(`@vercel/node`). The server reads env vars (`MONGO_URI` or `DB_USER`/`DB_PASS`,
-`ACCESS_TOKEN_SECRET`, `ADMIN_EMAILS`, `NODE_ENV`) from the Vercel project's
-Environment Variables panel — those are configured inside Vercel, not in the repo.
+The server reads its env vars (`DB_USER`/`DB_PASS`, `ACCESS_TOKEN_SECRET`,
+`ADMIN_EMAILS`) from the Vercel project's Environment Variables panel — they are
+configured there, not in the repo. For local runs, mirror those values into the
+gitignored `Schole-hive-server/.env`.
 
 ## Order & verification
 
-1. Deploy the server first, confirm https://server-six-vert.vercel.app responds.
-2. Deploy the client, confirm https://scholarhive-913e4.web.app loads.
+1. Deploy the server first (push to `main`), confirm https://server-six-vert.vercel.app responds.
+2. Deploy the client, confirm https://scholarhive-913e4.web.app is NOT built against
+   localhost: `grep -c "localhost:5000" dist/assets/*.js` must return 0 before pushing
+   to Firebase (the `deploy` guard now enforces this automatically).
 3. Smoke-test auth (sign up / log in) since it round-trips client -> server `/jwt`.
 
 ## Local dev
 
 ```bash
-cd School-Hive && cp .env.example .env   # fill VITE_* Firebase values
-cd School-Hive && npm run dev            # Vite on :5173 — always uses https://server-six-vert.vercel.app
+cd School-Hive && cp .env.example .env   # VITE_* Firebase values + VITE_server_url=http://localhost:5000
+cd School-Hive && npm run dev            # Vite on :5173 — talks to the local server on :5000
+cd ../Schole-hive-server && npm start    # local API (needs Schole-hive-server/.env)
 ```
 
-The client always fetches from Vercel (`https://server-six-vert.vercel.app`), even when running locally. Do not switch to `localhost:5000`.
+`VITE_server_url` defaults to the Vercel server if unset, so a deploy build without
+`.env` is still safe — but always use the guarded commands anyway.
