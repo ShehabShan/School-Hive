@@ -1,17 +1,26 @@
-import { motion } from "framer-motion";
-import { GraduationCap, BookOpen, MapPin, CalendarDays, Info, Banknote, BadgeDollarSign, Receipt, CalendarPlus, ArrowRight, MessagesSquare, Bookmark, BookmarkCheck, Share2, Scale, Award, Clock } from "lucide-react";
+import { useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import { Info, BookOpen, Award, Banknote, ShieldCheck, Clock, GraduationCap, MapPin, CalendarDays, MessagesSquare } from "lucide-react";
 import useSingleScholership from "../../Hooks/useSingleScholership";
 import useReviews from "../../Hooks/useReviews";
 import useAdmin from "../../Hooks/useAdmin";
 import useAuth from "../../Hooks/useAuth";
 import AllReviews from "./AllReviews";
 import Stars from "../../Component/ui/Stars";
-import CountdownBadge from "../../Component/scholarship/CountdownBadge";
 import { getDeadlineState } from "../../Component/scholarship/CountdownBadge";
 import { useSaved, useToggleSave } from "../../Hooks/useSaved";
-import { useMemo, useState } from "react";
 import toast from "react-hot-toast";
+import Gallery from "../../Component/scholarship/details/Gallery";
+import SummaryCard from "../../Component/scholarship/details/SummaryCard";
+import StickyApplyBar from "../../Component/scholarship/details/StickyApplyBar";
+import SectionAccordion from "../../Component/scholarship/details/SectionAccordion";
+import EligibilityChecker from "../../Component/scholarship/details/EligibilityChecker";
+import Checklist from "../../Component/scholarship/details/Checklist";
+import Timeline from "../../Component/scholarship/details/Timeline";
+import Faq from "../../Component/scholarship/details/Faq";
+import RelatedCarousel from "../../Component/scholarship/details/RelatedCarousel";
+import AboutUniversity from "../../Component/scholarship/details/AboutUniversity";
 
 const fmt = (n, cur = "USD") => {
   const v = Number(n);
@@ -30,18 +39,22 @@ export default function ScholarshipDetails() {
   const toggleSave = useToggleSave();
   const isSaved = useMemo(() => (savedDocs || []).some((d) => String(d.scholarshipId) === String(id)), [savedDocs, id]);
   const [compareOn, setCompareOn] = useState(() => { try { return new Set(JSON.parse(localStorage.getItem("compareIds") || "[]")).has(String(id)); } catch { return false; } });
+  const dl = getDeadlineState(scholarship?.applicationDeadline);
+  const isExpired = dl.tone === "rose" && dl.label === "Expired";
+  const cur = scholarship?.currency || "USD";
 
-  const deadlineState = getDeadlineState(scholarship?.applicationDeadline);
-  const isExpired = deadlineState.tone === "rose" && deadlineState.label === "Expired";
-  const currency = scholarship?.currency || "USD";
+  const gallery = useMemo(() => {
+    if (Array.isArray(scholarship?.gallery) && scholarship.gallery.length) return scholarship.gallery;
+    if (scholarship?.universityImage) return [scholarship.universityImage];
+    return [];
+  }, [scholarship]);
 
   const handleSave = () => {
     if (!user) return navigate("/signIn");
-    toggleSave.mutate(String(id), { onSuccess: (d) => toast.success(d.saved ? "Saved to wishlist" : "Removed from saved") });
+    toggleSave.mutate(String(id), { onSuccess: (d) => toast.success(d.saved ? "Saved" : "Removed") });
   };
   const handleShare = async () => {
-    const url = window.location.href;
-    try { await navigator.clipboard.writeText(url); toast.success("Link copied"); } catch { window.prompt("Copy link", url); }
+    try { await navigator.clipboard.writeText(window.location.href); toast.success("Link copied"); } catch { window.prompt("Copy", window.location.href); }
   };
   const handleCompare = () => {
     const sid = String(id);
@@ -50,138 +63,147 @@ export default function ScholarshipDetails() {
     if (set.has(sid)) set.delete(sid); else { if (set.size >= 4) return toast.error("Compare up to 4"); set.add(sid); }
     localStorage.setItem("compareIds", JSON.stringify([...set]));
     setCompareOn(set.has(sid));
-    toast.success(set.has(sid) ? "Added to compare" : "Removed from compare");
+    toast.success(set.has(sid) ? "Added to compare" : "Removed");
+  };
+  const handleApply = () => {
+    if (isAdmin) return toast.error("Admin cannot apply");
+    if (isExpired) return toast.error("Deadline passed");
+    navigate(`/apply/${id}`);
   };
 
-  const infoItems = [
-    { icon: GraduationCap, label: "Category", value: scholarship?.scholarshipCategory },
-    { icon: BookOpen, label: "Subject / Field", value: scholarship?.subjectName },
-    { icon: MapPin, label: "Location", value: `${scholarship?.country || "—"}, ${scholarship?.city || "—"}` },
-    { icon: CalendarDays, label: "Deadline", value: scholarship?.applicationDeadline || "—" },
-  ];
+  if (!scholarship) {
+    return <div className="container-page py-20 text-center text-slate-500">Loading scholarship…</div>;
+  }
+
+  const avgRating = Number(scholarship.rating || 0);
+  const dist = [5, 4, 3, 2, 1].map((star) => {
+    const c = (review || []).filter((r) => Math.round(Number(r.rating)) === star).length;
+    return { star, c };
+  });
+  const maxC = Math.max(1, ...dist.map((d) => d.c));
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.4 }} className="min-h-screen bg-slate-50">
-      <div className="relative overflow-hidden bg-gradient-to-br from-brand-700 via-brand-800 to-brand-950 pb-16 pt-16 text-white">
-        <div aria-hidden className="pointer-events-none absolute -left-24 top-0 h-72 w-72 rounded-full bg-brand-500/30 blur-3xl" />
-        <div aria-hidden className="pointer-events-none absolute -right-24 bottom-0 h-72 w-72 rounded-full bg-amber-500/20 blur-3xl" />
-        <div className="container-page relative">
-          <Link to="/allScholership" className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-brand-100 hover:text-white">← Back to scholarships</Link>
-          <div className="flex flex-col items-center gap-6 md:flex-row md:gap-10">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.5 }} className="flex h-24 w-24 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-white p-2 shadow-lift md:h-28 md:w-28">
-              <img src={scholarship?.universityImage} alt={`${scholarship?.universityName} logo`} className="h-full w-full object-contain" onError={(e) => (e.currentTarget.src = "https://via.placeholder.com/300x300?text=Scholarship")} />
-            </motion.div>
-            <div className="text-center md:text-left">
-              <div className="flex flex-wrap items-center justify-center gap-2 md:justify-start">
-                <span className="inline-flex items-center rounded-full bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-amber-300 ring-1 ring-white/20">{scholarship?.scholarshipCategory || "—"}</span>
-                <CountdownBadge deadline={scholarship?.applicationDeadline} />
-                {scholarship?.degree && <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white ring-1 ring-white/20">{scholarship.degree}</span>}
-              </div>
-              <h1 className="mt-3 text-2xl font-extrabold tracking-tight md:text-4xl">{scholarship?.universityName}</h1>
-              <p className="mt-2 text-brand-100">{scholarship?.scholarshipCategory} Scholarship in {scholarship?.subjectName} {scholarship?.city ? `· ${scholarship.city}, ${scholarship.country}` : ""}</p>
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-3 md:justify-start">
-                <Stars rating={scholarship?.rating} showValue />
-                {scholarship?.reviewsCount ? <span className="text-sm text-brand-200">{scholarship.reviewsCount} reviews</span> : null}
-                {scholarship?.universityWorldrank ? <span className="rounded-full bg-white/10 px-2.5 py-1 text-xs font-semibold text-white ring-1 ring-white/20">Rank #{scholarship.universityWorldrank}</span> : null}
-              </div>
-              <div className="mt-4 flex flex-wrap items-center justify-center gap-2 md:justify-start">
-                <button onClick={handleSave} className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold shadow-soft ${isSaved ? "bg-amber-400 text-slate-900" : "bg-white text-slate-900 hover:bg-slate-100"}`}>{isSaved ? <BookmarkCheck className="h-4 w-4" /> : <Bookmark className="h-4 w-4" />}{isSaved ? "Saved" : "Save"}</button>
-                <button onClick={handleShare} className="inline-flex items-center gap-1.5 rounded-xl bg-white/10 px-4 py-2 text-sm font-bold text-white ring-1 ring-white/20 hover:bg-white/20"><Share2 className="h-4 w-4" /> Share</button>
-                <button onClick={handleCompare} className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold ring-1 ${compareOn ? "bg-amber-400 text-slate-900 ring-amber-400" : "bg-white/10 text-white ring-white/20 hover:bg-white/20"}`}><Scale className="h-4 w-4" /> {compareOn ? "In compare" : "Compare"}</button>
-              </div>
-            </div>
-          </div>
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="min-h-screen bg-slate-50 pb-24">
+      <div className="border-b border-slate-100 bg-white">
+        <div className="container-page flex flex-wrap items-center gap-2 py-3 text-sm">
+          <Link to="/" className="text-slate-500 hover:text-slate-700">Home</Link><span className="text-slate-300">/</span>
+          <Link to="/allScholership" className="text-slate-500 hover:text-slate-700">Scholarships</Link><span className="text-slate-300">/</span>
+          <span className="truncate font-semibold text-slate-900">{scholarship.universityName}</span>
         </div>
       </div>
 
-      <div className="container-page -mt-6 pb-20">
-        <motion.div initial={{ opacity: 0, y: 24 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.5, delay: 0.1 }} className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-lift">
-          <div className="p-6 md:p-10">
-            <div className="rounded-2xl bg-slate-50 p-6 ring-1 ring-slate-100">
-              <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white"><Info className="h-4 w-4" /></span> At a glance</h2>
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {infoItems.map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="flex items-center gap-3 rounded-xl bg-white p-4 ring-1 ring-slate-100"><span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600"><Icon className="h-5 w-5" /></span><div><p className="text-xs text-slate-400">{label}</p><p className="font-semibold text-slate-800">{value || "—"}</p></div></div>
-                ))}
-              </div>
-              <div className="mt-4 flex flex-wrap gap-2">
-                {scholarship?.duration && <span className="rounded-full bg-brand-50 px-3 py-1.5 text-xs font-semibold text-brand-700 ring-1 ring-brand-100"><Clock className="mr-1 inline h-3 w-3" />{scholarship.duration}</span>}
-                {(scholarship?.tags || []).map((t) => <span key={t} className="rounded-full bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600">{t}</span>)}
-              </div>
+      <div className="container-page grid grid-cols-1 gap-6 py-6 lg:grid-cols-[1.4fr_0.9fr]">
+        <Gallery images={gallery} videoUrl={scholarship.videoUrl} videoPoster={scholarship.videoPoster} alt={scholarship.universityName} />
+        <SummaryCard scholarship={scholarship} isSaved={isSaved} onSave={handleSave} onShare={handleShare} compareOn={compareOn} onCompare={handleCompare} isAdmin={isAdmin} isExpired={isExpired} onApply={handleApply} />
+      </div>
+
+      <div className="sticky top-0 z-30 -mt-1 hidden border-y border-slate-100 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 lg:block">
+        <div className="container-page flex gap-6 overflow-x-auto py-3 text-sm font-semibold">
+          {["overview", "facts", "eligibility", "benefits", "timeline", "documents", "campus", "faq", "reviews"].map((id) => (
+            <a key={id} href={`#${id}`} className="whitespace-nowrap text-slate-600 hover:text-brand-700">{id.charAt(0).toUpperCase() + id.slice(1)}</a>
+          ))}
+        </div>
+      </div>
+
+      <div className="container-page grid grid-cols-1 gap-6 py-6 lg:grid-cols-[1.4fr_0.9fr]">
+        <div className="space-y-4">
+          <SectionAccordion id="overview" icon={BookOpen} title="Overview" excerpt={scholarship.scholarshipDescription?.slice(0, 80)} defaultOpen>
+            <p className="whitespace-pre-wrap leading-relaxed text-slate-700">{scholarship.scholarshipDescription || "No description."}</p>
+            {(scholarship.highlights?.length) ? <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-slate-700">{scholarship.highlights.map((h) => <li key={h}>{h}</li>)}</ul> : null}
+            {scholarship.scholarshipDescription && scholarship.scholarshipDescription.length > 400 && <p className="mt-3 text-xs text-slate-400">Tip: use save to revisit this scholarship while you prepare.</p>}
+          </SectionAccordion>
+
+          <SectionAccordion id="facts" icon={Info} title="Quick facts" excerpt={`${scholarship.degree} · ${scholarship.country}`}>
+            <div className="grid gap-3 sm:grid-cols-2">
+              {[
+                ["Category", scholarship.scholarshipCategory],
+                ["Subject", scholarship.subjectName],
+                ["Degree", scholarship.degree],
+                ["Location", `${scholarship.city}, ${scholarship.country}`],
+                ["Duration", scholarship.duration || "—"],
+                ["World rank", scholarship.universityWorldrank ? `#${scholarship.universityWorldrank}` : "—"],
+                ["Posted", scholarship.postDate || "—"],
+                ["Deadline", scholarship.applicationDeadline || "—"],
+              ].map(([k, v]) => (
+                <div key={k} className="flex justify-between rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 text-sm"><span className="text-slate-500">{k}</span><span className="font-semibold text-slate-800">{v}</span></div>
+              ))}
             </div>
-
-            {(scholarship?.eligibility?.length || scholarship?.benefits?.length) ? (
-              <div className="mt-6 grid gap-6 md:grid-cols-2">
-                {scholarship?.eligibility?.length ? (
-                  <div className="rounded-2xl bg-amber-50/60 p-6 ring-1 ring-amber-100">
-                    <h3 className="flex items-center gap-2 font-bold text-slate-900"><Award className="h-5 w-5 text-amber-600" /> Eligibility</h3>
-                    <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700">{scholarship.eligibility.map((e) => <li key={e}>{e}</li>)}</ul>
-                  </div>
-                ) : null}
-                {scholarship?.benefits?.length ? (
-                  <div className="rounded-2xl bg-emerald-50/60 p-6 ring-1 ring-emerald-100">
-                    <h3 className="flex items-center gap-2 font-bold text-slate-900"><BadgeDollarSign className="h-5 w-5 text-emerald-600" /> Benefits</h3>
-                    <ul className="mt-3 list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700">{scholarship.benefits.map((b) => <li key={b}>{b}</li>)}</ul>
-                  </div>
-                ) : null}
-              </div>
-            ) : null}
-
-            <div className="mt-6 rounded-2xl bg-slate-50 p-6 ring-1 ring-slate-100">
-              <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-sky-600 text-white"><BookOpen className="h-4 w-4" /></span> Description</h2>
-              <p className="mt-4 leading-relaxed text-slate-600 whitespace-pre-wrap">{scholarship?.scholarshipDescription || "No description provided."}</p>
+            <div className="mt-4 grid gap-3 sm:grid-cols-3">
+              <div className="rounded-xl bg-emerald-50 p-4 ring-1 ring-emerald-100"><p className="text-xs uppercase text-emerald-700">Stipend</p><p className="text-lg font-extrabold text-emerald-700">{scholarship.stipend ? fmt(scholarship.stipend, cur) : "—"}</p></div>
+              <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-slate-100"><p className="text-xs uppercase text-slate-500">Application fee</p><p className="text-lg font-extrabold text-slate-900">{fmt(scholarship.applicationFees, cur)}</p></div>
+              <div className="rounded-xl bg-slate-50 p-4 ring-1 ring-slate-100"><p className="text-xs uppercase text-slate-500">Service charge</p><p className="text-lg font-extrabold text-slate-900">{fmt(scholarship.serviceCharge, cur)}</p></div>
             </div>
+          </SectionAccordion>
 
-            <div className="mt-6 rounded-2xl bg-slate-50 p-6 ring-1 ring-slate-100">
-              <h2 className="flex items-center gap-2 text-lg font-bold text-slate-900"><span className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-600 text-white"><Banknote className="h-4 w-4" /></span> Financial Details</h2>
-              <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-                {[
-                  { icon: BadgeDollarSign, label: "Stipend", value: scholarship?.stipend ? fmt(scholarship.stipend, currency) : "—" },
-                  { icon: Banknote, label: "Application Fee", value: fmt(scholarship?.applicationFees, currency) },
-                  { icon: Receipt, label: "Service Charge", value: fmt(scholarship?.serviceCharge, currency) },
-                  { icon: CalendarPlus, label: "Posted on", value: scholarship?.postDate || "—" },
-                ].map(({ icon: Icon, label, value }) => (
-                  <div key={label} className="group rounded-xl bg-white p-4 ring-1 ring-slate-100 transition-all hover:-translate-y-0.5 hover:shadow-soft">
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600 group-hover:scale-110"><Icon className="h-5 w-5" /></span>
-                    <p className="mt-3 text-xs text-slate-400">{label}</p>
-                    <p className="text-lg font-bold text-slate-900">{value}</p>
-                  </div>
-                ))}
-              </div>
+          <SectionAccordion id="eligibility" icon={ShieldCheck} title="Eligibility" excerpt={(scholarship.eligibility || []).slice(0, 2).join(" · ") || "Degree, country, GPA"} defaultOpen>
+            {scholarship.eligibility?.length ? <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700">{scholarship.eligibility.map((e) => <li key={e}>{e}</li>)}</ul> : <p className="text-sm text-slate-500">No specific eligibility listed — most applicants with <b>{scholarship.degree}</b> in <b>{scholarship.subjectName}</b> can apply.</p>}
+            {scholarship.requirements?.length ? <div className="mt-4"><p className="text-sm font-semibold text-slate-800">Requirements</p><ul className="mt-2 list-disc pl-5 text-sm text-slate-700">{scholarship.requirements.map((r) => <li key={r}>{r}</li>)}</ul></div> : null}
+            <div className="mt-6"><EligibilityChecker scholarship={scholarship} /></div>
+          </SectionAccordion>
+
+          <SectionAccordion id="benefits" icon={Award} title="What you get" excerpt={(scholarship.benefits || []).slice(0, 2).join(" · ") || "Tuition + stipend"}>
+            {scholarship.benefits?.length ? <ul className="list-disc space-y-1.5 pl-5 text-sm leading-relaxed text-slate-700">{scholarship.benefits.map((b) => <li key={b}>{b}</li>)}</ul> : <p className="text-sm text-slate-500">Benefits include tuition support and {scholarship.stipend ? `${fmt(scholarship.stipend, cur)} stipend` : "support"}.</p>}
+            <div className="mt-4 flex flex-wrap gap-2">{(scholarship.tags || []).map((t) => <span key={t} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-600">{t}</span>)}</div>
+          </SectionAccordion>
+
+          <SectionAccordion id="timeline" icon={Clock} title="Timeline & how to apply" excerpt={`Deadline ${scholarship.applicationDeadline}`}>
+            <Timeline deadline={scholarship.applicationDeadline} />
+            <div className="mt-4 rounded-xl bg-amber-50 p-4 text-sm leading-relaxed text-amber-900 ring-1 ring-amber-100">Apply before <b>{scholarship.applicationDeadline}</b> — {dl.label}. Late submissions are not considered.</div>
+          </SectionAccordion>
+
+          <SectionAccordion id="documents" icon={GraduationCap} title="Documents" excerpt="Checklist to track preparation">
+            <Checklist scholarshipId={id} documents={scholarship.documents} />
+          </SectionAccordion>
+
+          <SectionAccordion id="campus" icon={MapPin} title="Campus & gallery" excerpt={`${gallery.length} photos${scholarship.videoUrl ? " + video" : ""}`}>
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-3">
+              {gallery.slice(0, 6).map((src) => <img key={src} src={src} alt="" className="h-32 w-full rounded-xl object-cover ring-1 ring-slate-100" onError={(e) => (e.currentTarget.style.display = "none")} />)}
             </div>
+            {scholarship.mapUrl && <a href={scholarship.mapUrl} target="_blank" rel="noreferrer" className="mt-4 inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-bold text-slate-700 ring-1 ring-slate-200">Open map</a>}
+          </SectionAccordion>
 
-            <div className="mt-8">
-              {isExpired ? (
-                <div className="rounded-2xl bg-rose-50 p-4 text-center text-sm font-semibold text-rose-700 ring-1 ring-rose-200">This scholarship has expired (deadline {scholarship?.applicationDeadline}).</div>
+          <SectionAccordion id="faq" icon={Info} title="FAQ & Ask" excerpt="Common questions">
+            <Faq faqs={scholarship.faqs} scholarshipId={id} />
+          </SectionAccordion>
+
+          <section id="reviews" className="scroll-mt-24 rounded-2xl border border-slate-100 bg-white p-6 shadow-soft">
+            <div className="flex items-center gap-3">
+              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-white"><MessagesSquare className="h-5 w-5" /></span>
+              <h2 className="text-xl font-extrabold text-slate-900">Reviews</h2>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">{review?.length || 0} verified</span>
+              <span className="ml-auto flex items-center gap-2"><Stars rating={avgRating} showValue /><span className="text-sm text-slate-500">{avgRating.toFixed(1)}</span></span>
+            </div>
+            <div className="mt-4 grid gap-2">
+              {dist.map((d) => (
+                <div key={d.star} className="flex items-center gap-2 text-xs">
+                  <span className="w-8 font-medium text-slate-600">{d.star}★</span>
+                  <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-amber-400" style={{ width: `${(d.c / maxC) * 100}%` }} /></div>
+                  <span className="w-6 text-slate-500">{d.c}</span>
+                </div>
+              ))}
+            </div>
+            <div className="mt-6">
+              {review?.length === 0 ? (
+                <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center"><MessagesSquare className="mx-auto h-8 w-8 text-slate-300" /><p className="mt-2 font-bold text-slate-700">No reviews yet</p><p className="text-sm text-slate-500">Verified applicants after acceptance can review. Be first after you’re accepted.</p></div>
               ) : (
-                <Link to={`/apply/${scholarship?._id}`} className="block w-full">
-                  <button disabled={isAdmin || isExpired} className="group inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-brand-600 to-brand-700 px-8 py-4 text-lg font-bold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-60">
-                    {isAdmin ? "Admin Can't Apply" : isExpired ? "Closed — Deadline Passed" : "Apply Now"} {!isAdmin && !isExpired && <ArrowRight className="h-5 w-5 transition-transform group-hover:translate-x-1" />}
-                  </button>
-                </Link>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{review.map((r, i) => <AllReviews key={r._id || i} review={r} />)}</div>
               )}
-              <p className="mt-3 text-center text-xs text-slate-400">Add to calendar: deadline <b className="text-slate-600">{scholarship?.applicationDeadline || "—"}</b> · Fees {fmt(scholarship?.applicationFees, currency)}</p>
             </div>
-          </div>
-        </motion.div>
-      </div>
+          </section>
+        </div>
 
-      <div className="bg-white pb-20">
-        <div className="container-page">
-          <div className="mb-8 flex items-center gap-3">
-            <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-white"><MessagesSquare className="h-5 w-5" /></span>
-            <h2 className="text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">Reviews</h2>
-            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">{review?.length || 0}</span>
+        <div className="space-y-6">
+          <AboutUniversity scholarship={scholarship} />
+          <RelatedCarousel scholarship={scholarship} />
+          <div className="rounded-2xl border border-slate-100 bg-white p-6">
+            <h3 className="font-bold text-slate-900">Need help?</h3>
+            <p className="mt-1 text-sm text-slate-500">Ask about eligibility or documents — we’ll route to moderators.</p>
+            <a href="#faq" className="mt-3 inline-flex rounded-xl bg-slate-900 px-4 py-2 text-sm font-bold text-white">Ask a question</a>
           </div>
-          {review?.length === 0 ? (
-            <div className="rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-16 text-center">
-              <MessagesSquare className="mx-auto h-10 w-10 text-slate-300" /><h2 className="mt-4 text-xl font-bold text-slate-700">No reviews yet</h2><p className="mt-1 text-sm text-slate-400">Be the first to share your experience after acceptance.</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-3">{review?.map((r, i) => <AllReviews key={r._id || i} review={r} />)}</div>
-          )}
         </div>
       </div>
+
+      <StickyApplyBar scholarship={scholarship} isSaved={isSaved} onSave={handleSave} onApply={handleApply} isExpired={isExpired} isAdmin={isAdmin} />
     </motion.div>
   );
 }

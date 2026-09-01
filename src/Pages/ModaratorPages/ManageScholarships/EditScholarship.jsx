@@ -76,14 +76,49 @@ export default function EditScholarship() {
       }
     }
 
+    // gallery multi-upload
+    const galleryFiles = formData.getAll("galleryFiles");
+    const galleryUrls = [];
+    for (const f of galleryFiles) {
+      if (f && f.name && f.size > 0) {
+        try {
+          const res = await axiosPublic.post(image_hosting_api, { image: f }, { headers: { "Content-Type": "multipart/form-data" } });
+          galleryUrls.push(res.data.data.url);
+        } catch {
+          toast.error(`Gallery upload failed for ${f.name}`);
+        }
+      }
+    }
+    if (galleryUrls.length) initialData.gallery = galleryUrls;
+    else {
+      const galleryText = String(formData.get("galleryUrls") || "").trim();
+      if (galleryText) initialData.gallery = galleryText.split(",").map((s) => s.trim()).filter(Boolean);
+      else if (Array.isArray(scholarship.gallery) && scholarship.gallery.length) initialData.gallery = scholarship.gallery;
+    }
+
     initialData.postDate = format(postDate, "yyyy-MM-dd");
     initialData.applicationDeadline = format(date, "yyyy-MM-dd");
     // new optional fields — normalize comma-separated
     if (initialData.eligibility !== undefined) initialData.eligibility = String(initialData.eligibility || "").split(",").map((s) => s.trim()).filter(Boolean);
     if (initialData.benefits !== undefined) initialData.benefits = String(initialData.benefits || "").split(",").map((s) => s.trim()).filter(Boolean);
     if (initialData.tags !== undefined) initialData.tags = String(initialData.tags || "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (initialData.highlights !== undefined) initialData.highlights = String(initialData.highlights || "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (initialData.documents !== undefined) initialData.documents = String(initialData.documents || "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (initialData.requirements !== undefined) initialData.requirements = String(initialData.requirements || "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (initialData.videoUrl !== undefined) initialData.videoUrl = String(initialData.videoUrl || "").trim() || null;
+    if (initialData.videoPoster !== undefined) initialData.videoPoster = String(initialData.videoPoster || "").trim() || null;
+    if (initialData.brochureUrl !== undefined) initialData.brochureUrl = String(initialData.brochureUrl || "").trim() || null;
+    if (initialData.mapUrl !== undefined) initialData.mapUrl = String(initialData.mapUrl || "").trim() || null;
+    if (initialData.faqs !== undefined) {
+      const raw = String(initialData.faqs || "").trim();
+      if (raw) {
+        try { initialData.faqs = JSON.parse(raw); } catch { initialData.faqs = raw.split("|").map((pair) => { const [q, a] = pair.split("=>"); return q && a ? { q: q.trim(), a: a.trim() } : null; }).filter(Boolean); }
+      } else initialData.faqs = scholarship.faqs || [];
+    }
     if (initialData.currency) initialData.currency = String(initialData.currency).toUpperCase().slice(0, 3);
     delete initialData.subjectName2;
+    delete initialData.galleryFiles;
+    delete initialData.galleryUrls;
 
     try {
       const { data } = await axiosSecure.patch(`/allScholership/${id}`, initialData);
@@ -257,7 +292,46 @@ export default function EditScholarship() {
                 className="w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-none file:bg-brand-600 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-white"
               />
             </div>
-            <p className="mt-2 text-xs text-slate-400">Leave empty to keep the current image.</p>
+            <p className="mt-2 text-xs text-slate-400">Leave empty to keep current image.</p>
+
+            <div className="mt-6">
+              <SectionTitle icon={FaImage} title="Gallery & media (optional)" />
+              <div className="grid gap-4">
+                <FormField label="Gallery images" hint="Up to 5 more, leave empty to keep existing">
+                  <input type="file" name="galleryFiles" accept="image/*" multiple className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-none file:bg-slate-900 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-white" />
+                </FormField>
+                {Array.isArray(scholarship.gallery) && scholarship.gallery.length ? <p className="text-xs text-slate-500">Current: {scholarship.gallery.length} images</p> : null}
+                <FormField label="Gallery URLs fallback" hint="Comma-separated">
+                  <input type="text" name="galleryUrls" defaultValue={(scholarship.gallery || []).join(", ")} className={inputClass} placeholder="https://..., https://..." />
+                </FormField>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField label="Video URL" hint="YouTube">
+                    <input type="url" name="videoUrl" defaultValue={scholarship.videoUrl || ""} className={inputClass} placeholder="https://youtube.com/watch?v=..." />
+                  </FormField>
+                  <FormField label="Video poster URL">
+                    <input type="url" name="videoPoster" defaultValue={scholarship.videoPoster || ""} className={inputClass} placeholder="https://..." />
+                  </FormField>
+                  <FormField label="Brochure URL">
+                    <input type="url" name="brochureUrl" defaultValue={scholarship.brochureUrl || ""} className={inputClass} placeholder="https://..." />
+                  </FormField>
+                  <FormField label="Map URL">
+                    <input type="url" name="mapUrl" defaultValue={scholarship.mapUrl || ""} className={inputClass} placeholder="https://maps.google.com/..." />
+                  </FormField>
+                </div>
+                <FormField label="Highlights" hint="Comma-separated">
+                  <input type="text" name="highlights" defaultValue={(scholarship.highlights || []).join(", ")} className={inputClass} placeholder="Fully funded, 4 years" />
+                </FormField>
+                <FormField label="Documents" hint="Comma-separated">
+                  <input type="text" name="documents" defaultValue={(scholarship.documents || []).join(", ")} className={inputClass} placeholder="Transcript, SOP, LOR" />
+                </FormField>
+                <FormField label="Requirements" hint="Comma-separated">
+                  <input type="text" name="requirements" defaultValue={(scholarship.requirements || []).join(", ")} className={inputClass} placeholder="GPA 3.0+, IELTS 6.5" />
+                </FormField>
+                <FormField label="FAQs" hint='JSON or q=>a | q=>a'>
+                  <textarea name="faqs" defaultValue={JSON.stringify(scholarship.faqs || [], null, 2)} className="min-h-[80px] w-full rounded-xl border border-slate-200 bg-white p-3 text-sm" placeholder='[{"q":"Who?","a":"..."}]' />
+                </FormField>
+              </div>
+            </div>
           </section>
 
           <section className="rounded-2xl border border-slate-100 bg-slate-50/70 p-5">

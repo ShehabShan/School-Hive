@@ -65,6 +65,26 @@ export default function AddScholarship() {
       initialData.universityImage = Image;
     }
 
+    // gallery multi-upload (up to 5)
+    const galleryFiles = formData.getAll("galleryFiles");
+    const galleryUrls = [];
+    for (const f of galleryFiles) {
+      if (f && f.name && f.size > 0) {
+        try {
+          const res = await axiosPublic.post(image_hosting_api, { image: f }, { headers: { "Content-Type": "multipart/form-data" } });
+          galleryUrls.push(res.data.data.url);
+        } catch {
+          toast.error(`Gallery upload failed for ${f.name}`);
+        }
+      }
+    }
+    if (galleryUrls.length) initialData.gallery = galleryUrls;
+    // also allow comma-separated gallery URLs text fallback
+    const galleryText = String(formData.get("galleryUrls") || "").trim();
+    if (galleryText && !galleryUrls.length) {
+      initialData.gallery = galleryText.split(",").map((s) => s.trim()).filter(Boolean);
+    }
+
     const formattedPostDate = format(postDate, "yyyy-MM-dd");
     const formattedDate = format(date, "yyyy-MM-dd");
 
@@ -79,6 +99,17 @@ export default function AddScholarship() {
     initialData.eligibility = String(formData.get("eligibility") || "").split(",").map((s) => s.trim()).filter(Boolean);
     initialData.benefits = String(formData.get("benefits") || "").split(",").map((s) => s.trim()).filter(Boolean);
     initialData.tags = String(formData.get("tags") || "").split(",").map((s) => s.trim()).filter(Boolean);
+    initialData.highlights = String(formData.get("highlights") || "").split(",").map((s) => s.trim()).filter(Boolean);
+    initialData.documents = String(formData.get("documents") || "").split(",").map((s) => s.trim()).filter(Boolean);
+    initialData.requirements = String(formData.get("requirements") || "").split(",").map((s) => s.trim()).filter(Boolean);
+    initialData.videoUrl = String(formData.get("videoUrl") || "").trim() || null;
+    initialData.videoPoster = String(formData.get("videoPoster") || "").trim() || null;
+    initialData.brochureUrl = String(formData.get("brochureUrl") || "").trim() || null;
+    initialData.mapUrl = String(formData.get("mapUrl") || "").trim() || null;
+    const faqsRaw = String(formData.get("faqs") || "").trim();
+    if (faqsRaw) {
+      try { initialData.faqs = JSON.parse(faqsRaw); } catch { initialData.faqs = faqsRaw.split("|").map((pair) => { const [q, a] = pair.split("=>"); return q && a ? { q: q.trim(), a: a.trim() } : null; }).filter(Boolean); }
+    }
 
     try {
       const { data } = await axiosSecure.post("/allScholership", initialData);
@@ -250,7 +281,45 @@ export default function AddScholarship() {
                 required
               />
             </div>
-            <p className="mt-2 text-xs text-slate-400">PNG, JPG up to 5MB. Will be hosted on imgbb.</p>
+            <p className="mt-2 text-xs text-slate-400">Primary image — also used as gallery fallback.</p>
+
+            <div className="mt-6">
+              <SectionTitle icon={FaImage} title="Gallery & media (optional)" />
+              <div className="grid gap-4">
+                <FormField label="Gallery images" hint="Up to 5, PNG/JPG">
+                  <input type="file" name="galleryFiles" accept="image/*" multiple className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-none file:bg-slate-900 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-white" />
+                </FormField>
+                <FormField label="Gallery URLs fallback" hint="Comma-separated https URLs if not uploading">
+                  <input type="text" name="galleryUrls" className={inputClass} placeholder="https://..., https://..." />
+                </FormField>
+                <div className="grid gap-4 md:grid-cols-2">
+                  <FormField label="Video URL" hint="YouTube link, e.g. https://youtu.be/...">
+                    <input type="url" name="videoUrl" className={inputClass} placeholder="https://youtube.com/watch?v=..." />
+                  </FormField>
+                  <FormField label="Video poster URL" hint="Thumbnail for video">
+                    <input type="url" name="videoPoster" className={inputClass} placeholder="https://..." />
+                  </FormField>
+                  <FormField label="Brochure URL" hint="PDF link">
+                    <input type="url" name="brochureUrl" className={inputClass} placeholder="https://..." />
+                  </FormField>
+                  <FormField label="Map URL" hint="Google maps link">
+                    <input type="url" name="mapUrl" className={inputClass} placeholder="https://maps.google.com/..." />
+                  </FormField>
+                </div>
+                <FormField label="Highlights" hint="Comma-separated: 3 bullets above fold">
+                  <input type="text" name="highlights" className={inputClass} placeholder="Fully funded, 4 years, Starts Sep 2026" />
+                </FormField>
+                <FormField label="Documents" hint="Comma-separated: Transcript, SOP, LOR">
+                  <input type="text" name="documents" className={inputClass} placeholder="Transcript, SOP, LOR, IELTS" />
+                </FormField>
+                <FormField label="Requirements" hint="Comma-separated: GPA 3.0+, IELTS 6.5">
+                  <input type="text" name="requirements" className={inputClass} placeholder="GPA 3.0+, IELTS 6.5" />
+                </FormField>
+                <FormField label="FAQs" hint='JSON or q=>a | q=>a  e.g. [{"q":"Who?","a":"..."}]'>
+                  <textarea name="faqs" className="min-h-[80px] w-full rounded-xl border border-slate-200 bg-white p-3 text-sm" placeholder='[{"q":"Who can apply?","a":"..."}]  or  Who?=>Answer | When?=>Date' />
+                </FormField>
+              </div>
+            </div>
           </section>
 
           {/* Fees Information */}
