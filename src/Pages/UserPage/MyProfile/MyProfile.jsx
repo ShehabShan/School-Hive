@@ -313,9 +313,9 @@ export default function ProfilePage() {
                   {/* Preview like avatar - rectangular banner */}
                   <div className="mt-1.5 overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200">
                     {form.coverPhoto ? (
-                      <img src={form.coverPhoto} alt="Cover preview" className="h-28 w-full object-cover" />
+                      <img src={form.coverPhoto} alt="Cover preview" className="h-36 w-full object-cover" />
                     ) : (
-                      <div className="flex h-28 w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 text-xs text-slate-400">
+                      <div className="flex h-36 w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 text-xs text-slate-400">
                         No cover photo — paste URL or upload
                       </div>
                     )}
