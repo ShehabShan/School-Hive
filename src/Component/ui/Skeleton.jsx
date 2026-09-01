@@ -5,7 +5,7 @@ export default function Skeleton({ className }) {
   return (
     <div
       className={cn(
-        "animate-pulse rounded-xl bg-slate-200/80",
+        "animate-pulse rounded-xl bg-gradient-to-r from-slate-200/80 via-slate-200/50 to-slate-200/80",
         className
       )}
       aria-hidden="true"

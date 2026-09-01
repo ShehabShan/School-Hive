@@ -13,13 +13,15 @@ export default function Stars({ rating = 0, size = "h-4 w-4", showValue = false 
             key={i}
             className={cn(
               size,
-              i < rounded ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-200"
+              i < rounded
+                ? "fill-amber-400 text-amber-400 drop-shadow-[0_1px_1px_rgba(245,158,11,0.35)]"
+                : "fill-slate-200 text-slate-200"
             )}
           />
         ))}
       </span>
       {showValue && (
-        <span className="text-xs font-semibold text-slate-500">
+        <span className="ml-1 rounded-md bg-amber-50 px-1.5 py-0.5 text-xs font-bold text-amber-600 ring-1 ring-amber-100">
           {Number(rating || 0).toFixed(1)}
         </span>
       )}

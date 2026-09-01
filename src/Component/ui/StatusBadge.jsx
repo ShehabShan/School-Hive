@@ -23,7 +23,7 @@ export default function StatusBadge({ status }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1 text-xs font-semibold capitalize ring-1 ring-inset",
+        "inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-3 py-1 text-xs font-semibold capitalize shadow-sm ring-1 ring-inset",
         statusStyles[s] || "bg-slate-100 text-slate-600 ring-slate-200"
       )}
     >

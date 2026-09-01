@@ -12,11 +12,11 @@ export default function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center rounded-2xl border border-dashed border-slate-300 bg-white px-6 py-16 text-center",
+        "flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 bg-gradient-to-b from-white to-slate-50/60 px-6 py-16 text-center transition-colors hover:border-brand-200",
         className
       )}
     >
-      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-brand-50 text-brand-500">
+      <div className="mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-brand-50 to-brand-100 text-brand-500 ring-1 ring-brand-100">
         <Icon className="h-8 w-8" />
       </div>
       <h3 className="text-lg font-bold text-slate-900">{title}</h3>

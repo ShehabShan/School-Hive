@@ -54,14 +54,14 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] `src/Component/DataNotAvailable/DataNotAvailable.jsx` — empty data state
 
 ### Shared UI primitives
-- [ ] `src/Component/ui/EmptyState.jsx`
-- [ ] `src/Component/ui/FormField.jsx`
-- [ ] `src/Component/ui/PageHeader.jsx`
-- [ ] `src/Component/ui/Skeleton.jsx`
-- [ ] `src/Component/ui/Spinner.jsx`
-- [ ] `src/Component/ui/Stars.jsx`
-- [ ] `src/Component/ui/StatCard.jsx`
-- [ ] `src/Component/ui/StatusBadge.jsx`
+- [x] `src/Component/ui/EmptyState.jsx`
+- [x] `src/Component/ui/FormField.jsx`
+- [x] `src/Component/ui/PageHeader.jsx`
+- [x] `src/Component/ui/Skeleton.jsx`
+- [x] `src/Component/ui/Spinner.jsx`
+- [x] `src/Component/ui/Stars.jsx`
+- [x] `src/Component/ui/StatCard.jsx`
+- [x] `src/Component/ui/StatusBadge.jsx`
 
 ### Authentication
 - [ ] `src/Pages/Authentication/Login.jsx`
