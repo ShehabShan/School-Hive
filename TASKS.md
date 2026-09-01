@@ -82,7 +82,7 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] `src/Pages/UserPage/MyApplication/ApplicationCardForUser.jsx`
 - [x] `src/Pages/UserPage/MyReviews/MyReviews.jsx`
 - [x] `src/Pages/UserPage/Apply/Apply.jsx`
-- [ ] `src/Pages/AddReview/AddReview.jsx`
+- [x] `src/Pages/AddReview/AddReview.jsx`
 
 ### Moderator dashboard
 - [ ] `src/Layout/ModaratorDashboard.jsx`
