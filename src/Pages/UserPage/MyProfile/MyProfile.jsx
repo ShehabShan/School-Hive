@@ -9,6 +9,7 @@ import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import useAdmin from "../../../Hooks/useAdmin";
 import useModaretor from "../../../Hooks/useModaretor";
+import { useSaved } from "../../../Hooks/useSaved";
 import Spinner from "../../../Component/ui/Spinner";
 import ProfileHeader from "../../../Component/profile/ProfileHeader";
 import AboutSection from "../../../Component/profile/AboutSection";
@@ -60,8 +61,11 @@ export default function ProfilePage() {
     },
   });
 
+  const { data: savedDocs = [] } = useSaved();
+
   const { data: scholership = [] } = useQuery({
     queryKey: ["profile-scholarships"],
+    enabled: !!isAdminOrMod,
     queryFn: async () => {
       const { data } = await axiosPublic.get("/allScholership");
       return data.data;
@@ -181,9 +185,9 @@ export default function ProfilePage() {
   }
 
   const userStats = [
-    { label: "Applications", value: String(myApply.length), icon: FileText, color: "text-brand-600 bg-brand-50" },
-    { label: "Reviews", value: String(myReviews.length), icon: Star, color: "text-amber-600 bg-amber-50" },
-    { label: "Saved", value: String(scholership.length), icon: GraduationCap, color: "text-emerald-600 bg-emerald-50" },
+    { label: "Applications", value: String(myApply.length), icon: FileText, color: "text-brand-600 bg-brand-50", to: "/userDashboard/myApplication" },
+    { label: "Reviews", value: String(myReviews.length), icon: Star, color: "text-amber-600 bg-amber-50", to: "/userDashboard/myReviews" },
+    { label: "Saved", value: String(savedDocs.length), icon: GraduationCap, color: "text-emerald-600 bg-emerald-50", to: "/saved" },
   ];
   const adminStats = [
     { label: "Users", value: String(allUsers.length || "—"), icon: Users, color: "text-brand-600 bg-brand-50" },

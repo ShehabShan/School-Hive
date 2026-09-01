@@ -1,4 +1,5 @@
 import { MapPin, CalendarDays, Edit3 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import RoleBadge from "./RoleBadge";
 import bg from "../../assist/bgImg/profileBg.jpg";
@@ -61,18 +62,23 @@ export default function ProfileHeader({ user, isOwnProfile, onEdit, stats }) {
         {/* Stats row */}
         {stats && stats.length > 0 && (
           <div className="flex gap-3 overflow-x-auto pb-1">
-            {stats.map((s) => (
-              <div
-                key={s.label}
-                className="flex min-w-[80px] flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 hover:-translate-y-0.5 hover:shadow-sm"
-              >
-                <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${s.color}`}>
-                  <s.icon className="h-3.5 w-3.5" />
-                </span>
-                <span className="mt-1 text-sm font-extrabold text-slate-900">{s.value}</span>
-                <span className="text-[11px] font-medium text-slate-500">{s.label}</span>
-              </div>
-            ))}
+            {stats.map((s) => {
+              const Tag = s.to ? Link : "div";
+              const props = s.to ? { to: s.to } : {};
+              return (
+                <Tag
+                  key={s.label}
+                  {...props}
+                  className="flex min-w-[80px] flex-col items-center rounded-xl border border-slate-100 bg-slate-50 px-3 py-2.5 hover:-translate-y-0.5 hover:shadow-sm"
+                >
+                  <span className={`flex h-7 w-7 items-center justify-center rounded-lg ${s.color}`}>
+                    <s.icon className="h-3.5 w-3.5" />
+                  </span>
+                  <span className="mt-1 text-sm font-extrabold text-slate-900">{s.value}</span>
+                  <span className="text-[11px] font-medium text-slate-500">{s.label}</span>
+                </Tag>
+              );
+            })}
           </div>
         )}
 

@@ -6,6 +6,7 @@ import useSingleScholership from "../../Hooks/useSingleScholership";
 import useReviews from "../../Hooks/useReviews";
 import useAdmin from "../../Hooks/useAdmin";
 import useModaretor from "../../Hooks/useModaretor";
+import useRole from "../../Hooks/useRole";
 import useAuth from "../../Hooks/useAuth";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
@@ -39,6 +40,7 @@ export default function ScholarshipDetails() {
   const [review] = useReviews(id);
   const [isAdmin] = useAdmin();
   const [isModaretor] = useModaretor();
+  const { isInstitution } = useRole();
   const isStaff = isAdmin || isModaretor;
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
@@ -86,6 +88,7 @@ export default function ScholarshipDetails() {
   };
   const handleApply = () => {
     if (isAdmin) return toast.error("Admin cannot apply");
+    if (isInstitution) return toast.error("Institution accounts cannot apply");
     if (isExpired) return toast.error("Deadline passed");
     navigate(`/apply/${id}`);
   };

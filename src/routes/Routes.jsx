@@ -276,14 +276,6 @@ const router = createBrowserRouter(
         path: "manageScholarships/:id",
         element: <EditScholarship></EditScholarship>,
       },
-      {
-        path: "allAppliedScholarships",
-        element: <AllAppliedScholarship></AllAppliedScholarship>,
-      },
-      {
-        path: "allAppliedScholarships/:id",
-        element: <ApplicationCard></ApplicationCard>,
-      },
     ],
   },
   ],

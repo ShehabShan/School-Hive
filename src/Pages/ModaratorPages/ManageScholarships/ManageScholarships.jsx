@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import useScholership from "../../../Hooks/useScholership";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
+import useAuth from "../../../Hooks/useAuth";
+import useRole from "../../../Hooks/useRole";
 import Swal from "sweetalert2";
 import PageHeader from "../../../Component/ui/PageHeader";
 import EmptyState from "../../../Component/ui/EmptyState";
@@ -14,13 +16,25 @@ import toast from "react-hot-toast";
 export default function ManageScholarships() {
   const [allScholership, refetch] = useScholership();
   const axiosSecure = useAxiosSecure();
+  const { user } = useAuth();
+  const { isInstitution } = useRole();
   const [q, setQ] = useState("");
+
+  const myScholarships = useMemo(() => {
+    if (!isInstitution) return allScholership;
+    const email = (user?.email || "").toLowerCase();
+    return allScholership.filter((s) => String(s.createdBy || "").toLowerCase() === email);
+  }, [allScholership, isInstitution, user?.email]);
 
   const filtered = useMemo(() => {
     const v = q.trim().toLowerCase();
-    if (!v) return allScholership;
-    return allScholership.filter((s) => `${s.universityName} ${s.subjectName} ${s.scholarshipCategory} ${s.country}`.toLowerCase().includes(v));
-  }, [allScholership, q]);
+    if (!v) return myScholarships;
+    return myScholarships.filter((s) => `${s.universityName} ${s.subjectName} ${s.scholarshipCategory} ${s.country}`.toLowerCase().includes(v));
+  }, [myScholarships, q]);
+
+  const addLink = isInstitution
+    ? "/institutionDashboard/addScholarships"
+    : "/modaratorDashboard/addScholarships";
 
   const handleDelete = (_id) => {
     Swal.fire({
@@ -53,21 +67,19 @@ export default function ManageScholarships() {
     });
   };
 
-  const isLoading = allScholership.length === 0 && filtered.length === 0;
-
   return (
     <div className="space-y-6">
       <PageHeader
         icon={LayoutGrid}
-        title="Manage Scholarships"
-        subtitle={`${filtered.length} scholarship${filtered.length === 1 ? "" : "s"} — edit, view or remove listings`}
+        title={isInstitution ? "My Scholarships" : "Manage Scholarships"}
+        subtitle={`${filtered.length} scholarship${filtered.length === 1 ? "" : "s"} — ${isInstitution ? "your posted listings" : "edit, view or remove listings"}`}
         actions={
           <div className="flex items-center gap-2">
             <div className="hidden items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2 sm:flex">
               <Search className="h-4 w-4 text-slate-400" />
               <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search..." className="w-40 bg-transparent text-sm outline-none placeholder:text-slate-400" />
             </div>
-            <Link to="/modaratorDashboard/addScholarships" className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white">Add Scholarship</Link>
+            <Link to={addLink} className="rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white">Add Scholarship</Link>
           </div>
         }
       />
@@ -86,9 +98,15 @@ export default function ManageScholarships() {
       ) : filtered.length === 0 ? (
         <div className="rounded-2xl bg-white p-8 shadow-soft ring-1 ring-slate-100">
           <EmptyState
-            title="No matching scholarships"
-            message="Try a different search term."
-            action={<button onClick={() => setQ("")} className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white">Clear search</button>}
+            title={isInstitution ? "No scholarships posted yet" : "No matching scholarships"}
+            message={isInstitution ? "Create your first scholarship to see it here." : "Try a different search term."}
+            action={
+              isInstitution ? (
+                <Link to={addLink} className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white">Add Scholarship</Link>
+              ) : (
+                <button onClick={() => setQ("")} className="rounded-xl bg-slate-900 px-5 py-2.5 text-sm font-bold text-white">Clear search</button>
+              )
+            }
           />
         </div>
       ) : (
