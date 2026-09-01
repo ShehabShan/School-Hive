@@ -111,6 +111,11 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] Client: `ManageReview` queue — tabs Pending/Approved/Rejected/Hidden, search, bulk approve/reject, stats, `ReviewCard` verified shield + moderation meta + checkbox
 - [x] Client: `AddReview` gate — accepted-only + 1-per-scholarship + `useAxiosSecure` + pending toast, `MyApplication` conditional star, `MyReviews` edit via PATCH
 
+### User & Admin Profile — Full-Fledged (2026-09-01)
+- [x] Server: `POST /users` persists `photoURL` + `createdAt/updatedAt`, `GET /user` secured, `GET /users` staff-only, `GET /users/me` + `PATCH /users/me` whitelist (name/photoURL/coverPhoto/phone/bio/city/country/skills) with validation
+- [x] Client: `MyProfile` rewrite — cover+avatar upload via imgbb, role badge (Student/Moderator/Admin/Owner), real stats (apply/reviews/scholarships vs platform metrics), tabs About/Activity/Settings, inline edit via `PATCH /users/me` + `updateUserProfile` sync, skills chips, Admin authorities panel with quick links
+- [x] Auth: `Registation` + `Login` now send `photoURL` on `POST /users` so DB and Firebase stay synced
+
 ---
 
 ## IN PROGRESS

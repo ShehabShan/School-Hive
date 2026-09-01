@@ -8,6 +8,26 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-01 — Full-fledged user/admin profile (same component, role-aware authorities)
+
+**What was done**
+- Decided fields for best result: keep `name/email/photoURL`, add `phone/city/country/bio/skills[]/coverPhoto/createdAt` (remove dummy `Age/Georgia/113/12.2k/128/hardcoded 12 skills`). User and Admin share `MyProfile.jsx` (`2e37678`) — role-aware render via `useAdmin/useModaretor`.
+- Server `Schole-hive-server/index.js:ab9b2c1`: `POST /users` now persists `photoURL/createdAt/updatedAt` + sync on dup, `GET /user` secured (`verifyToken+email===decoded` unless staff), `GET /users` staff-only, new `GET /users/me` + `PATCH /users/me` whitelist (`name/photoURL/coverPhoto/phone/bio/city/country/skills`) with 2-600 validation.
+- Client `MyProfile.jsx` rewrite: cover `profileBg.jpg` fallback or `coverPhoto`, avatar `ring-4` upload via `imgbb` (`VITE_IMAGE_HOSTING_KEY` same as `AddScholarship`), role badge `Student|Moderator|Administrator|Owner` (`Crown/ShieldCheck/Award/GraduationCap`), stats `Applications/Reviews/Saved` (user) vs `Users/Scholarships/My Applications/Pending Reviews` (admin, via `/users`, `/allScholership`, `/reviews/stats`), tabs `About|Activity|Settings` (removed dead `edit/timeline/gallery/friends`), `About` = Personal Info + bio + skills chips + Contact + Admin authorities quick links (`Manage Users/Scholarships/Applications/Reviews`), `Activity` = recent `apply` (`StatusBadge`) + reviews (`Stars`), `Settings` = form `PATCH /users/me` + `updateUserProfile` sync + `toast` + `refetch`; loading `Spinner`, `motion` hero.
+- Auth `Registation.jsx:39` + `Login.jsx:31` now send `photoURL` on `POST /users` so DB and Firebase stay synced (prior `photo` was dropped).
+- Built `1.13 MB` (`vite build` ok), pushed `2e37678` to `main`, Firebase `✔ Deploy complete` to `https://scholarhive-913e4.web.app`. Server pushed `ab9b2c1` but Vercel `token invalid` still blocks live deploy (same `VERCEL_TOKEN` blocker).
+
+**In progress**
+- Nothing — profile feature complete.
+
+**Left / next**
+- Rotate `VERCEL_TOKEN` then deploy server; verify `PATCH /users/me` live. BACKLOG still open.
+
+**Decisions & context**
+- Same component for both roles keeps maintenance low; admin authorities shown as amber `Admin Panel` card only when `isAdmin||isModaretor`. Skills capped 20, bio 600, phone 30.
+
+---
+
 ## 2026-09-01 — Fix navigation blank + upgrade react-router to 7.18.3
 
 **What was done**
