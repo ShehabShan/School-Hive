@@ -49,7 +49,9 @@ export default function ScholarshipDetails() {
     enabled: !!id && isStaff,
     queryFn: async () => {
       const res = await axiosSecure.get(`/allReviews?scholarShip_id=${id}&limit=100`);
-      return res.data.data || [];
+      const list = res.data.data || [];
+      // Live old server ignores scholarShip_id filter — fallback client filter
+      return list.filter((r) => String(r.scholarShip_id) === String(id));
     },
   });
   const displayReviews = isStaff && staffReviews ? staffReviews : review;
