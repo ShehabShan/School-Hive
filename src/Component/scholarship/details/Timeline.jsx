@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { Clock, FileText, GraduationCap, Send } from "lucide-react";
 
 export default function Timeline({ deadline }) {

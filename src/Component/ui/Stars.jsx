@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { Star } from "lucide-react";
 import { cn } from "../../lib/cn";
 

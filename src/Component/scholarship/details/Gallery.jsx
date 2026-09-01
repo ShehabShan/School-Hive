@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { ChevronLeft, ChevronRight, Play, Maximize2, X } from "lucide-react";
 
@@ -11,7 +10,7 @@ function ytEmbed(url) {
       const v = u.searchParams.get("v");
       if (v) return `https://www.youtube.com/embed/${v}`;
     }
-  } catch {}
+  } catch { /* empty */ }
   return String(url).includes("youtube.com/embed") ? url : null;
 }
 

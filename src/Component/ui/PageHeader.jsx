@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 export default function PageHeader({ title, subtitle, actions, icon: Icon }) {
   return (
     <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">

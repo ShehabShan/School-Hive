@@ -1,283 +1,128 @@
 import { createBrowserRouter } from "react-router-dom";
+import { lazy, Suspense } from "react";
 
-import Home from "../Layout/Home";
 import MainLayout from "../Layout/MainLayout";
-import Login from "../Pages/Authentication/Login";
+import Home from "../Layout/Home";
 import AdminDashboard from "../Layout/AdminDashboard";
-import MyProfile from "../Pages/UserPage/MyProfile/MyProfile";
-import MyApplication from "../Pages/UserPage/MyApplication/MyApplication";
-import MyReviews from "../Pages/UserPage/MyReviews/MyReviews";
-import ManageScholarships from "../Pages/ModaratorPages/ManageScholarships/ManageScholarships";
-import AllAppliedScholarship from "../Pages/ModaratorPages/AllAppliedScholarship/AllAppliedScholarship";
-import AddScholarship from "../Pages/ModaratorPages/AddScholarship/AddScholarship";
-import ManageAppliedApplication from "../Pages/AdminPages/ManageAppliedApplication/ManageAppliedApplication";
-import ManageUsers from "../Pages/AdminPages/ManageUsers/ManageUsers";
-import ManageReview from "../Pages/AdminPages/ManageReviews/ManageReview";
-import ReviewHistory from "../Pages/AdminPages/ManageReviews/ReviewHistory";
-import AllScholership from "../Pages/AllScholership/AllScholership";
-import ScholarshipDetails from "../Pages/ScholarshipDetails/ScholarshipDetails";
-import EditScholarship from "../Pages/ModaratorPages/ManageScholarships/EditScholarship";
-import Registation from "../Pages/Authentication/Registation";
+import NotFound from "../Component/ErrorPage/NotFound";
+import RouteFallback from "../Component/ui/RouteFallback";
 import PrivateRoute from "./PrivetRouter";
 import ModaretorRoute from "./ModaretorRoute";
 import AdminRoute from "./AdminRoute";
 import InstitutionRoute from "./InstitutionRoute";
 import SuperAdminRoute from "./SuperAdminRoute";
-import { PendingApproval, RejectedApproval } from "../Pages/Authentication/InstitutionStatus";
-import InstitutionApprovals from "../Pages/AdminPages/ManageUsers/InstitutionApprovals";
-import Apply from "../Pages/UserPage/Apply/Apply";
-import ContactPage from "../Pages/Contact/ContactPage";
-import NotFound from "../Component/ErrorPage/NotFound";
-import ApplicationCard from "../Pages/ModaratorPages/AllAppliedScholarship/ViewDetails/ApplicationCard";
-import ApplicationCardForUser from "../Pages/UserPage/MyApplication/ApplicationCardForUser";
-import AddReview from "../Pages/AddReview/AddReview";
 import UserRoute from "./UserRoute";
-import AboutUs from "../Component/AboutUs/AboutUs";
-import Compare from "../Pages/Compare/Compare";
-import SavedScholarships from "../Pages/UserPage/Saved/SavedScholarships";
-import PublicProfile from "../Pages/PublicProfile/PublicProfile";
+
+// Lazy pages — code-split per route
+const Login = lazy(() => import("../Pages/Authentication/Login"));
+const Registation = lazy(() => import("../Pages/Authentication/Registation"));
+const PendingApproval = lazy(() =>
+  import("../Pages/Authentication/InstitutionStatus").then((m) => ({ default: m.PendingApproval }))
+);
+const RejectedApproval = lazy(() =>
+  import("../Pages/Authentication/InstitutionStatus").then((m) => ({ default: m.RejectedApproval }))
+);
+const MyProfile = lazy(() => import("../Pages/UserPage/MyProfile/MyProfile"));
+const MyApplication = lazy(() => import("../Pages/UserPage/MyApplication/MyApplication"));
+const MyReviews = lazy(() => import("../Pages/UserPage/MyReviews/MyReviews"));
+const ManageScholarships = lazy(() => import("../Pages/ModaratorPages/ManageScholarships/ManageScholarships"));
+const AllAppliedScholarship = lazy(() => import("../Pages/ModaratorPages/AllAppliedScholarship/AllAppliedScholarship"));
+const AddScholarship = lazy(() => import("../Pages/ModaratorPages/AddScholarship/AddScholarship"));
+const ManageAppliedApplication = lazy(() => import("../Pages/AdminPages/ManageAppliedApplication/ManageAppliedApplication"));
+const ManageUsers = lazy(() => import("../Pages/AdminPages/ManageUsers/ManageUsers"));
+const ManageReview = lazy(() => import("../Pages/AdminPages/ManageReviews/ManageReview"));
+const ReviewHistory = lazy(() => import("../Pages/AdminPages/ManageReviews/ReviewHistory"));
+const AllScholership = lazy(() => import("../Pages/AllScholership/AllScholership"));
+const ScholarshipDetails = lazy(() => import("../Pages/ScholarshipDetails/ScholarshipDetails"));
+const EditScholarship = lazy(() => import("../Pages/ModaratorPages/ManageScholarships/EditScholarship"));
+const InstitutionApprovals = lazy(() => import("../Pages/AdminPages/ManageUsers/InstitutionApprovals"));
+const Apply = lazy(() => import("../Pages/UserPage/Apply/Apply"));
+const ContactPage = lazy(() => import("../Pages/Contact/ContactPage"));
+const ApplicationCard = lazy(() => import("../Pages/ModaratorPages/AllAppliedScholarship/ViewDetails/ApplicationCard"));
+const ApplicationCardForUser = lazy(() => import("../Pages/UserPage/MyApplication/ApplicationCardForUser"));
+const AddReview = lazy(() => import("../Pages/AddReview/AddReview"));
+const AboutUs = lazy(() => import("../Component/AboutUs/AboutUs"));
+const Compare = lazy(() => import("../Pages/Compare/Compare"));
+const SavedScholarships = lazy(() => import("../Pages/UserPage/Saved/SavedScholarships"));
+const PublicProfile = lazy(() => import("../Pages/PublicProfile/PublicProfile"));
+
+// helper to wrap lazy in Suspense
+const susp = (el) => <Suspense fallback={<RouteFallback />}>{el}</Suspense>;
 
 const router = createBrowserRouter(
   [
     {
       path: "/",
       element: <MainLayout />,
-      errorElement: <NotFound></NotFound>,
+      errorElement: <NotFound />,
       children: [
-        {
-          index: true,
-          element: <Home />,
-        },
-        {
-          path: "allScholership",
-          element: <AllScholership></AllScholership>,
-        },
-      {
-        path: "allScholership/:id",
-        element: <ScholarshipDetails></ScholarshipDetails>,
-      },
-
-      {
-        path: "apply/:id",
-        element: (
-          <PrivateRoute>
-            <Apply></Apply>
-          </PrivateRoute>
-        ),
-      },
-
-      {
-        path: "myProfile",
-        element: <MyProfile></MyProfile>,
-      },
-
-      {
-        path: "contact",
-        element: <ContactPage></ContactPage>,
-      },
-      {
-        path: "aboutUs",
-        element: <AboutUs></AboutUs>,
-      },
-
-      {
-        path: "signIn",
-        element: <Login></Login>,
-      },
-      {
-        path: "registration",
-        element: <Registation></Registation>,
-      },
-      {
-        path: "pendingApproval",
-        element: <PendingApproval></PendingApproval>,
-      },
-      {
-        path: "rejectedApproval",
-        element: <RejectedApproval></RejectedApproval>,
-      },
-      {
-        path: "compare",
-        element: <Compare></Compare>,
-      },
-      {
-        path: "saved",
-        element: (
-          <PrivateRoute>
-            <SavedScholarships></SavedScholarships>
-          </PrivateRoute>
-        ),
-      },
-      {
-        path: "scholarships",
-        element: <AllScholership></AllScholership>,
-      },
-      {
-        path: "scholarships/:id",
-        element: <ScholarshipDetails></ScholarshipDetails>,
-      },
-      {
-        path: "profile/:email",
-        element: <PublicProfile></PublicProfile>,
-      },
-    ],
-  },
-  {
-    path: "userDashboard",
-    element: (
-      <UserRoute>
-        <AdminDashboard></AdminDashboard>
-      </UserRoute>
-    ),
-    children: [
-      {
-        path: "myProfile",
-        element: <MyProfile></MyProfile>,
-      },
-      {
-        path: "myApplication",
-        element: <MyApplication></MyApplication>,
-      },
-      {
-        path: "myApplication/:id",
-        element: <ApplicationCardForUser></ApplicationCardForUser>,
-      },
-      {
-        path: "myApplication/addReviews/:id",
-        element: <AddReview></AddReview>,
-      },
-      {
-        path: "myReviews",
-        element: <MyReviews></MyReviews>,
-      },
-      {
-        path: "saved",
-        element: <SavedScholarships></SavedScholarships>,
-      },
-    ],
-  },
-  {
-    path: "modaratorDashboard",
-    element: (
-      <ModaretorRoute>
-        <AdminDashboard></AdminDashboard>
-      </ModaretorRoute>
-    ),
-    children: [
-      {
-        path: "myProfile",
-        element: <MyProfile></MyProfile>,
-      },
-      {
-        path: "myReviews",
-        element: <ManageReview></ManageReview>,
-      },
-      {
-        path: "myReviews/history",
-        element: <ReviewHistory></ReviewHistory>,
-      },
-      {
-        path: "allAppliedScholarships",
-        element: <AllAppliedScholarship></AllAppliedScholarship>,
-      },
-      {
-        path: "allAppliedScholarships/:id",
-        element: <ApplicationCard></ApplicationCard>,
-      },
-    ],
-  },
-  {
-    path: "adminDashboard",
-    element: (
-      <AdminRoute>
-        <AdminDashboard></AdminDashboard>
-      </AdminRoute>
-    ),
-    children: [
-      {
-        path: "adminProfile",
-        element: <MyProfile></MyProfile>,
-      },
-      {
-        path: "addScholarships",
-        element: (
-          <SuperAdminRoute>
-            <AddScholarship></AddScholarship>
-          </SuperAdminRoute>
-        ),
-      },
-      {
-        path: "manageScholarships",
-        element: (
-          <SuperAdminRoute>
-            <ManageScholarships></ManageScholarships>
-          </SuperAdminRoute>
-        ),
-      },
-      {
-        path: "manageScholarships/:id",
-        element: (
-          <SuperAdminRoute>
-            <EditScholarship></EditScholarship>
-          </SuperAdminRoute>
-        ),
-      },
-      {
-        path: "manageAppliedApplication",
-        element: <ManageAppliedApplication></ManageAppliedApplication>,
-      },
-      {
-        path: "allAppliedScholarships/:id",
-        element: <ApplicationCard></ApplicationCard>,
-      },
-      {
-        path: "manageUsers",
-        element: <ManageUsers></ManageUsers>,
-      },
-      {
-        path: "institutionApprovals",
-        element: (
-          <SuperAdminRoute>
-            <InstitutionApprovals></InstitutionApprovals>
-          </SuperAdminRoute>
-        ),
-      },
-      {
-        path: "manageReviews",
-        element: <ManageReview></ManageReview>,
-      },
-      {
-        path: "manageReviews/history",
-        element: <ReviewHistory></ReviewHistory>,
-      },
-    ],
-  },
-  {
-    path: "institutionDashboard",
-    element: (
-      <InstitutionRoute>
-        <AdminDashboard></AdminDashboard>
-      </InstitutionRoute>
-    ),
-    children: [
-      {
-        path: "myProfile",
-        element: <MyProfile></MyProfile>,
-      },
-      {
-        path: "addScholarships",
-        element: <AddScholarship></AddScholarship>,
-      },
-      {
-        path: "manageScholarships",
-        element: <ManageScholarships></ManageScholarships>,
-      },
-      {
-        path: "manageScholarships/:id",
-        element: <EditScholarship></EditScholarship>,
-      },
-    ],
-  },
+        { index: true, element: <Home /> },
+        { path: "allScholership", element: susp(<AllScholership />) },
+        { path: "allScholership/:id", element: susp(<ScholarshipDetails />) },
+        { path: "apply/:id", element: <PrivateRoute>{susp(<Apply />)}</PrivateRoute> },
+        { path: "myProfile", element: susp(<MyProfile />) },
+        { path: "contact", element: susp(<ContactPage />) },
+        { path: "aboutUs", element: susp(<AboutUs />) },
+        { path: "signIn", element: susp(<Login />) },
+        { path: "registration", element: susp(<Registation />) },
+        { path: "pendingApproval", element: susp(<PendingApproval />) },
+        { path: "rejectedApproval", element: susp(<RejectedApproval />) },
+        { path: "compare", element: susp(<Compare />) },
+        { path: "saved", element: <PrivateRoute>{susp(<SavedScholarships />)}</PrivateRoute> },
+        { path: "scholarships", element: susp(<AllScholership />) },
+        { path: "scholarships/:id", element: susp(<ScholarshipDetails />) },
+        { path: "profile/:email", element: susp(<PublicProfile />) },
+      ],
+    },
+    {
+      path: "userDashboard",
+      element: <UserRoute><AdminDashboard /></UserRoute>,
+      children: [
+        { path: "myProfile", element: susp(<MyProfile />) },
+        { path: "myApplication", element: susp(<MyApplication />) },
+        { path: "myApplication/:id", element: susp(<ApplicationCardForUser />) },
+        { path: "myApplication/addReviews/:id", element: susp(<AddReview />) },
+        { path: "myReviews", element: susp(<MyReviews />) },
+        { path: "saved", element: susp(<SavedScholarships />) },
+      ],
+    },
+    {
+      path: "modaratorDashboard",
+      element: <ModaretorRoute><AdminDashboard /></ModaretorRoute>,
+      children: [
+        { path: "myProfile", element: susp(<MyProfile />) },
+        { path: "myReviews", element: susp(<ManageReview />) },
+        { path: "myReviews/history", element: susp(<ReviewHistory />) },
+        { path: "allAppliedScholarships", element: susp(<AllAppliedScholarship />) },
+        { path: "allAppliedScholarships/:id", element: susp(<ApplicationCard />) },
+      ],
+    },
+    {
+      path: "adminDashboard",
+      element: <AdminRoute><AdminDashboard /></AdminRoute>,
+      children: [
+        { path: "adminProfile", element: susp(<MyProfile />) },
+        { path: "addScholarships", element: <SuperAdminRoute>{susp(<AddScholarship />)}</SuperAdminRoute> },
+        { path: "manageScholarships", element: <SuperAdminRoute>{susp(<ManageScholarships />)}</SuperAdminRoute> },
+        { path: "manageScholarships/:id", element: <SuperAdminRoute>{susp(<EditScholarship />)}</SuperAdminRoute> },
+        { path: "manageAppliedApplication", element: susp(<ManageAppliedApplication />) },
+        { path: "allAppliedScholarships/:id", element: susp(<ApplicationCard />) },
+        { path: "manageUsers", element: susp(<ManageUsers />) },
+        { path: "institutionApprovals", element: <SuperAdminRoute>{susp(<InstitutionApprovals />)}</SuperAdminRoute> },
+        { path: "manageReviews", element: susp(<ManageReview />) },
+        { path: "manageReviews/history", element: susp(<ReviewHistory />) },
+      ],
+    },
+    {
+      path: "institutionDashboard",
+      element: <InstitutionRoute><AdminDashboard /></InstitutionRoute>,
+      children: [
+        { path: "myProfile", element: susp(<MyProfile />) },
+        { path: "addScholarships", element: susp(<AddScholarship />) },
+        { path: "manageScholarships", element: susp(<ManageScholarships />) },
+        { path: "manageScholarships/:id", element: susp(<EditScholarship />) },
+      ],
+    },
   ],
   {
     future: {

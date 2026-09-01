@@ -3,7 +3,6 @@ import { Quote, CalendarDays, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import Stars from "../../Component/ui/Stars";
 
-/* eslint-disable react/prop-types */
 const AllReviews = ({ review }) => {
   const initials =
     review?.reviewer_email?.charAt(0)?.toUpperCase() || "U";

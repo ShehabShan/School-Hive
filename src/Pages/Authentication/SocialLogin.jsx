@@ -2,7 +2,6 @@ import { motion } from "framer-motion";
 import { FcGoogle } from "react-icons/fc";
 import useAuth from "../../Hooks/useAuth";
 
-/* eslint-disable react/prop-types */
 const SocialLogin = ({ onSuccess }) => {
   const { googleSingIn } = useAuth();
 

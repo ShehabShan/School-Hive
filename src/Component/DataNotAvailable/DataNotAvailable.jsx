@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { motion } from "framer-motion";
 import { CloudOff, RefreshCw } from "lucide-react";
 

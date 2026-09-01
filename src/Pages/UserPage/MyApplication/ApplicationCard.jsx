@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { FaEye, FaStar } from "react-icons/fa";
 import { ShieldCheck, MapPin, GraduationCap, BookOpen, DollarSign } from "lucide-react";
 import StatusBadge from "../../../Component/ui/StatusBadge";

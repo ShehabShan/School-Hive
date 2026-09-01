@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { Link } from "react-router-dom";
 import { GraduationCap, MapPin, ArrowRight, Eye, Pencil, Trash2, Bookmark, BookmarkCheck, Scale } from "lucide-react";
 import Stars from "../ui/Stars";

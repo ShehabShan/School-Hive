@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useNavigate, Link } from "react-router-dom";
-import { motion } from "framer-motion";
+
 import { Search, GraduationCap, SlidersHorizontal, X, LayoutGrid, List, ChevronLeft, ChevronRight, Scale } from "lucide-react";
 import useScholership from "../../Hooks/useScholership";
 import { useSaved, useToggleSave } from "../../Hooks/useSaved";
@@ -70,7 +70,7 @@ export default function AllScholership() {
 
   useEffect(() => {
     if (debouncedQ !== q) updateParams({ q: debouncedQ });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+
   }, [debouncedQ]);
 
   const serverParams = useMemo(() => {

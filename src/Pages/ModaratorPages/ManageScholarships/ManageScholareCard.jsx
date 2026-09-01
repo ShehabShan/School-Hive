@@ -2,7 +2,6 @@ import { Link } from "react-router-dom";
 import { GraduationCap, MapPin, Clock, Eye, Pencil, Trash2 } from "lucide-react";
 import Stars from "../../../Component/ui/Stars";
 
-/* eslint-disable react/prop-types */
 const ManageScholarCard = ({ scholarship, handleDelete }) => {
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-soft transition-all duration-300 hover:-translate-y-1 hover:shadow-lift">

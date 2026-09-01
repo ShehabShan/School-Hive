@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { X } from "lucide-react";
 
 export default function FilterChip({ label, onRemove }) {

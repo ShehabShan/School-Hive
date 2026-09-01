@@ -15,7 +15,6 @@ import useAuth from "../Hooks/useAuth";
 import useRole from "../Hooks/useRole";
 import { Link, useNavigate } from "react-router-dom";
 
-/* eslint-disable react/prop-types */
 export function AdminNavbar({ setMobileSidebarOpen }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);

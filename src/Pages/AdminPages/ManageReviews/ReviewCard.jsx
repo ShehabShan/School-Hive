@@ -3,7 +3,6 @@ import StatusBadge from "../../../Component/ui/StatusBadge";
 import { Trash2, CalendarDays, Hash, ShieldCheck, Pencil } from "lucide-react";
 import { Link } from "react-router-dom";
 
-/* eslint-disable react/prop-types */
 export default function ReviewCard({
   review,
   handleDelete,

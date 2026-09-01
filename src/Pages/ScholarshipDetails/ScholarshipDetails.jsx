@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Info, BookOpen, Award, Banknote, ShieldCheck, Clock, GraduationCap, MapPin, CalendarDays, MessagesSquare } from "lucide-react";
+import { Info, BookOpen, Award, ShieldCheck, Clock, GraduationCap, MapPin, MessagesSquare } from "lucide-react";
 import useSingleScholership from "../../Hooks/useSingleScholership";
 import useReviews from "../../Hooks/useReviews";
 import useAdmin from "../../Hooks/useAdmin";

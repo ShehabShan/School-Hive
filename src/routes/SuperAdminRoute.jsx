@@ -2,7 +2,6 @@ import { Navigate, useLocation } from "react-router-dom";
 import useAuth from "../Hooks/useAuth";
 import useRole from "../Hooks/useRole";
 
-/* eslint-disable react/prop-types */
 const SuperAdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const { isSuperAdmin, loading: roleLoading } = useRole();

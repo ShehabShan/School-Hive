@@ -2,7 +2,6 @@ import { Navigate, useLocation } from "react-router-dom";
 import useAuth from "../Hooks/useAuth";
 import useRole from "../Hooks/useRole";
 
-/* eslint-disable react/prop-types */
 const InstitutionRoute = ({ children }) => {
   const { user, loading } = useAuth();
   const { isInstitution, isApprovedInstitution, isPending, isRejected, loading: roleLoading } = useRole();

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Bookmark, Trash2 } from "lucide-react";
+import { Bookmark,  } from "lucide-react";
 import { useSaved, useToggleSave } from "../../../Hooks/useSaved";
 import ScholarshipGrid from "../../../Component/scholarship/ScholarshipGrid";
 import PageHeader from "../../../Component/ui/PageHeader";

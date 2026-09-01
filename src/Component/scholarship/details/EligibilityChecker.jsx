@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { CheckCircle2, XCircle, HelpCircle } from "lucide-react";
 

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { useState } from "react";
 import { ChevronDown, MessageCircle } from "lucide-react";
 

@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { cn } from "../../lib/cn";
 
 export default function Skeleton({ className }) {

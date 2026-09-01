@@ -14,7 +14,6 @@ import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import { useQuery } from "@tanstack/react-query";
 import { dashboardForRole } from "../../lib/dashboardForRole";
 
-/* eslint-disable react/prop-types */
 const InstitutionStatus = ({ mode }) => {
   const pending = mode === "pending";
   const { user, logOut } = useAuth();

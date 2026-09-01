@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { MapPin, ExternalLink, GraduationCap } from "lucide-react";
 
 export default function AboutUniversity({ scholarship }) {

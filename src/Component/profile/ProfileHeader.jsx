@@ -6,7 +6,7 @@ import bg from "../../assist/bgImg/profileBg.jpg";
 
 export default function ProfileHeader({ user, isOwnProfile, onEdit, stats }) {
   const name = user?.name || "Anonymous";
-  const email = user?.email || "";
+  // email available via user.email if needed
   const photo = user?.photoURL;
   const cover = user?.coverPhoto || bg;
   const role = user?.role || "user";

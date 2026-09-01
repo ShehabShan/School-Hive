@@ -11,52 +11,7 @@ const navItems = [
 const UserDashboard = () => {
   const { user } = useAuth();
 
-  const navList = (
-    <ul className="menu gap-1.5 p-2 lg:p-0">
-      {navItems.map((item) => (
-        <li key={item.to}>
-          <NavLink
-            to={item.to}
-            className={({ isActive }) =>
-              `group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${
-                isActive
-                  ? "bg-brand-50 text-brand-700 shadow-soft"
-                  : "text-slate-600 hover:bg-slate-50 hover:text-brand-600"
-              }`
-            }
-          >
-            {({ isActive }) => (
-              <>
-                <span
-                  className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${
-                    isActive
-                      ? "bg-brand-600 text-white"
-                      : "bg-slate-100 text-slate-500 group-hover:bg-brand-100 group-hover:text-brand-600"
-                  }`}
-                >
-                  {item.icon}
-                </span>
-                {item.label}
-                {isActive && <FaArrowRight className="ml-auto text-xs text-brand-400" />}
-              </>
-            )}
-          </NavLink>
-        </li>
-      ))}
-      <div className="my-2 border-t border-slate-100"></div>
-      <li>
-        <Link
-          to="/"
-          className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-500 transition-all duration-200 hover:bg-slate-50 hover:text-brand-600"
-        >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
-            <FaHome />
-          </span>
-          Back to Home
-        </Link>
-      </li>
-    </ul>
-  );
+
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -101,8 +56,35 @@ const UserDashboard = () => {
                 </div>
               </div>
             </div>
+            <nav className="hidden p-2 lg:block">
+              <ul className="menu gap-1.5 p-2 lg:p-0">
+                {navItems.map((item) => (
+                  <li key={item.to}>
+                    <NavLink
+                      to={item.to}
+                      className={({ isActive }) =>
+                        `group flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all duration-200 ${isActive ? "bg-brand-50 text-brand-700 shadow-soft" : "text-slate-600 hover:bg-slate-50 hover:text-brand-600"}`
+                      }
+                    >
+                      {({ isActive }) => (
+                        <>
+                          <span className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${isActive ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-500 group-hover:bg-brand-100 group-hover:text-brand-600"}`}>{item.icon}</span>
+                          {item.label}
+                          {isActive && <FaArrowRight className="ml-auto text-xs text-brand-400" />}
+                        </>
+                      )}
+                    </NavLink>
+                  </li>
+                ))}
+                <div className="my-2 border-t border-slate-100"></div>
+                <li>
+                  <Link to="/" className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-500 transition-all duration-200 hover:bg-slate-50 hover:text-brand-600">
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500"><FaHome /></span>Back to Home
+                  </Link>
+                </li>
+              </ul>
+            </nav>
           </div>
-
           <nav className="flex gap-1 overflow-x-auto border-t border-slate-100 px-3 py-3 lg:hidden">
             {navItems.map((item) => (
               <NavLink

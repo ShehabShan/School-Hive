@@ -1,4 +1,3 @@
-/* eslint-disable react/prop-types */
 import { Bookmark, BookmarkCheck, Share2, Scale, CalendarPlus, ShieldCheck, Clock, MapPin, Award } from "lucide-react";
 import Stars from "../../ui/Stars";
 import CountdownBadge from "../CountdownBadge";
