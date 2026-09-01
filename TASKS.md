@@ -51,7 +51,7 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] `src/Component/Banner.jsx` — banner
 - [x] `src/Pages/Contact/ContactPage.jsx` — contact
 - [x] `src/Component/ErrorPage/NotFound.jsx` — not found
-- [ ] `src/Component/DataNotAvailable/DataNotAvailable.jsx` — empty data state
+- [x] `src/Component/DataNotAvailable/DataNotAvailable.jsx` — empty data state
 
 ### Shared UI primitives
 - [ ] `src/Component/ui/EmptyState.jsx`
