@@ -11,7 +11,21 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## IN PROGRESS
 
-- Nothing — Manage Review + navbar refactor shipped 2026-09-01, awaiting manual smoke
+- E2E smoke test of login/roles vs `localhost:5000` — **blocked**: `Schole-hive-server/.env` not yet created (user must add MONGO/DB creds + ACCESS_TOKEN_SECRET + ADMIN_EMAILS).
+
+## DONE — Role Portals, Institution Signup & Approvals (2026-09-02)
+
+- [x] **3-role login** (`Login.jsx`): Student / Staff / Institution portal picker, password show-hide, inline forgot-password (reset email), busy states, role-routed post-login via `waitForToken` + `GET /users/me` + `dashboardForRole`; Google sign-in posts `accountType: student`
+- [x] **Registration split** (`Registation.jsx`): Student vs Institution selector; institution collects org fields (orgName/orgType/orgCountry/orgWebsite/orgDescription) → `accountType:"institution"` → pending → `/pendingApproval`; SocialLogin only for students
+- [x] **New pages/guards**: `PendingApproval` + `RejectedApproval` (`InstitutionStatus.jsx`), `InstitutionRoute` (approved-institution only), `SuperAdminRoute` (owner-only scholarship/approvals)
+- [x] **Routes**: `/pendingApproval`, `/rejectedApproval`, `/institutionDashboard/*`; scholarship CRUD stripped from admin/mod dashboards; admin scholarship + `institutionApprovals` wrapped in `SuperAdminRoute`
+- [x] **Dashboards/nav role-aware**: `AdminDashboard` sidebar (institution profile/add/manage/applications; superadmin + approvals; admin/mod lose scholarship items), `AdminNavbar` (institution label, review-history hidden for institutions), `Nabvar` (institution dashboard link + status link)
+- [x] **Approvals page** (`InstitutionApprovals`): pending/approved/rejected tabs, approve, reject-with-reason, move-to-pending; `ManageUsers` shows institution + status badges
+- [x] **`useRole` extended**: `status`, `me`, `isSuperAdmin`, `isInstitution`, `isApprovedInstitution`, `isPending`, `isRejected`; `MyProfile`/`PublicProfile` roleMeta + institution badge
+- [x] **AuthProvider**: `sendResetPassword` (Firebase password reset) exposed
+- [x] New helpers: `waitForToken.js`, `dashboardForRole.js`, `friendlyAuthError.js`
+- [x] Lint-clean for touched files (pre-existing AuthProvider + PublicProfile warnings untouched); `npm run build` passes (localhost baked — dev only)
+- [x] Committed `f0e683c`, pushed `origin/feature/login-roles`
 
 ## DONE — Review + Navbar Refactor (2026-09-01)
 
@@ -36,9 +50,8 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## BACKLOG / KNOWN GAPS
 
-- [ ] Rotate `VERCEL_TOKEN` (expired, `docs/CREDENTIALS.md:15` invalid) then `npx vercel --prod --yes --token` to publish server `a811734` live.
+- [ ] Rotate `VERCEL_TOKEN` (expired, `docs/CREDENTIALS.md:15` invalid) then `npx vercel --prod --yes --token` to publish server login-roles live.
 - [ ] Add automated tests (no test framework — `npm test` undefined).
-- [ ] Move hardcoded server URL (`server-six-vert.vercel.app`) into `VITE_` env var.
 - [ ] Centralize remaining duplicated cards (application/review).
 - [ ] Accessibility & responsive polish for Home/hero.
 - [ ] Consider `zod` validation centralization for `ScholarshipForm` dedup (partial done — fields added but not full `zod`).

@@ -8,6 +8,35 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-02 — Role portals, institution signup & approvals (branch `feature/login-roles`)
+
+**What was done** (client side of the login/roles upgrade; server work in `Schole-hive-server` is committed `295e71e`)
+- **`Login.jsx` rewritten** — 3-portal picker (Student / Staff / Institution), password show/hide, inline forgot-password flow (Firebase reset email via new `AuthProvider.sendResetPassword`), busy/loading states, friendly errors (`friendlyAuthError.js`). After login, waits for the JWT (`waitForToken.js`), fetches `/users/me`, then `dashboardForRole(me)` → `/adminDashboard/adminProfile` (superadmin/admin), `/modaratorDashboard/myProfile` (moderator), `/pendingApproval` / `/rejectedApproval` / `/institutionDashboard/myProfile` (institution by status), else original target. Google sign-in posts `accountType: "student"`.
+- **`Registation.jsx` rewritten** — Student / Institution selector. Institution collects org fields (`orgName / orgType / orgCountry / orgWebsite / orgDescription`) and posts `accountType: "institution"` → success Swal → `/pendingApproval`. `SocialLogin` shown only for student portal. Google sign-in → `/`.
+- **New `InstitutionStatus.jsx`** — default `PendingApproval` (role/status redirection guard + org summary) and `RejectedApproval` (shows `statusNote` when rejected). Routes `/pendingApproval`, `/rejectedApproval` under `MainLayout`.
+- **New guards** — `InstitutionRoute` (approved-institution only; pending/rejected redirect to status pages), `SuperAdminRoute` (owner-only). `useRole` now returns `status, me, isSuperAdmin, isInstitution, isApprovedInstitution, isPending, isRejected` (single `/users/me` query).
+- **`Routes.jsx`** — `/institutionDashboard/*` (myProfile, addScholarships, manageScholarships + `:id`, allAppliedScholarships + `:id`) under `InstitutionRoute`; scholarship CRUD **removed** from mod/admin dashboards; admin-side scholarship routes + `institutionApprovals` wrapped in `SuperAdminRoute`.
+- **`AdminDashboard.jsx`** — role-aware sidebar: institution (Profile/Add Scholarship/My Scholarships/Applications), superadmin (adds Manage Scholarships + Manage Users + Institution Approvals), plain admin (reviews/history/applications/users — no scholarships), moderator (reviews/history/applications).
+- **`AdminNavbar.jsx`** — institution label, Review History item hidden for non-staff.
+- **`Nabvar.jsx`** — institution dashboard/status link; `links` now include institutions.
+- **`MyProfile.jsx` / `PublicProfile.jsx`** — `institution` added to `roleMeta` (badge shows "Institution").
+- **New `InstitutionApprovals.jsx`** (`/adminDashboard/institutionApprovals`, superadmin) — pending/approved/rejected tabs, approve, reject-with-reason (Swal textarea), move-to-pending, shows `statusNote`/`reviewedBy`/`reviewedAt`. `ManageUsers.jsx` shows institution status badges instead of role-assign buttons.
+- **Helpers** — `src/lib/waitForToken.js`, `src/lib/dashboardForRole.js`, `src/lib/friendlyAuthError.js`.
+
+**Commit/push** — client `f0e683c` on `origin/feature/login-roles`. Server `295e71e` pushed (see server handoff log).
+
+**DEPLOY HAZARD (important)** — the client `.env` currently has `VITE_server_url=http://localhost:5000`. Any plain `npm run build` **bakes localhost:5000 into `dist`** (verified: 7 references, 0 Vercel refs in last build). Production deploy MUST use `VITE_server_url=https://server-six-vert.vercel.app npm run build` then `grep "localhost:5000" dist/assets/*.js` must return 0 before `firebase deploy`.
+
+**IN PROGRESS / BLOCKED**
+- E2E smoke test of the full role flow vs `localhost:5000` — **blocked until the user creates `Schole-hive-server/.env`** (Option A: local Mongo creds + `ACCESS_TOKEN_SECRET` + `ADMIN_EMAILS`; values mirror the Vercel dashboard). Also blocked further up by expired `VERCEL_TOKEN` for production deploy/testing.
+
+**LEFT / NEXT**
+1. User creates `Schole-hive-server/.env` → run E2E: student login, institution register→pending screen, superadmin approve (adminProfile → Manage Users → Institution Approvals), institution adds/edits own scholarship, admin/mod confirm create/edit/delete now blocked (server 403), institution reject → rejected screen, forgot-password email.
+2. Optional polish — "Published by" org attribution on scholarship cards/details; `Registation` Google path → role-routed `/` instead of hardcoded.
+3. Production deploy requires fresh `VERCEL_TOKEN` for server, then client rebuild with Vercel URL override (hazard above) before `firebase deploy`.
+
+---
+
 ## 2026-09-01 — Server URL switchable via env var
 
 **What was done**
