@@ -2,10 +2,13 @@ import useScholership from "../../../Hooks/useScholership";
 import ManageScholarCard from "./ManageScholareCard";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import Swal from "sweetalert2";
+import PageHeader from "../../../Component/ui/PageHeader";
+import EmptyState from "../../../Component/ui/EmptyState";
+import { motion } from "framer-motion";
+import { LayoutGrid } from "lucide-react";
 
 const AllScholership = () => {
   const [allScholership, refetch] = useScholership();
-
   const axiosPublic = useAxiosPublic();
 
   const handleDelete = (_id) => {
@@ -14,46 +17,70 @@ const AllScholership = () => {
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: "#4f46e5",
+      cancelButtonColor: "#e11d48",
       confirmButtonText: "Yes, delete it!",
+      background: "#ffffff",
+      customClass: {
+        popup: "rounded-2xl",
+        confirmButton: "rounded-xl",
+        cancelButton: "rounded-xl",
+      },
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const { data } = await axiosPublic.delete(`/allScholership/${_id}`);
-          console.log(data.data);
-          if (data.data.deletedCount > 0) {
+          if (data.data?.deletedCount > 0 || data.deletedCount > 0) {
             Swal.fire({
               title: "Deleted!",
-              text: "Your file has been deleted.",
+              text: "Scholarship has been removed.",
               icon: "success",
+              confirmButtonColor: "#4f46e5",
             });
             refetch();
           }
-        } catch (error) {
-          console.log("Scholership delete ERROR", error);
+        } catch {
+          Swal.fire({ title: "Error", text: "Delete failed.", icon: "error" });
         }
       }
     });
   };
 
-  console.log(allScholership);
-
   return (
-    <div className="mx-8">
-      <h2 className="text-3xl text-black font-extrabold text-center my-8">
-        Manage Scholership
-      </h2>
+    <div className="space-y-6">
+      <PageHeader
+        icon={LayoutGrid}
+        title="Manage Scholarships"
+        subtitle={`${allScholership.length} scholarship${allScholership.length === 1 ? "" : "s"} — edit, view or remove listings`}
+      />
 
-      <div className="grid grid-cols-1  md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {allScholership.map((scholarship, index) => (
-          <ManageScholarCard
-            key={index}
-            scholarship={scholarship}
-            handleDelete={handleDelete}
-          ></ManageScholarCard>
-        ))}
-      </div>
+      {allScholership.length === 0 ? (
+        <div className="rounded-2xl bg-white p-8 shadow-soft ring-1 ring-slate-100">
+          <EmptyState
+            title="No scholarships yet"
+            message="Create your first scholarship using the Add Scholarship button."
+            actionLabel="Add Scholarship"
+            actionTo="/modaratorDashboard/addScholarships"
+          />
+        </div>
+      ) : (
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={{ visible: { transition: { staggerChildren: 0.06 } } }}
+          className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4"
+        >
+          {allScholership.map((scholarship) => (
+            <motion.div
+              key={scholarship._id}
+              variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }}
+              transition={{ duration: 0.3 }}
+            >
+              <ManageScholarCard scholarship={scholarship} handleDelete={handleDelete} />
+            </motion.div>
+          ))}
+        </motion.div>
+      )}
     </div>
   );
 };

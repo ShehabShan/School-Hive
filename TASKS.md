@@ -87,7 +87,7 @@ the required order for every item: update this checklist -> commit -> push -> de
 ### Moderator dashboard
 - [x] `src/Layout/ModaratorDashboard.jsx`
 - [x] `src/Pages/ModaratorPages/AddScholarship/AddScholarship.jsx`
-- [ ] `src/Pages/ModaratorPages/ManageScholarships/ManageScholarships.jsx`
+- [x] `src/Pages/ModaratorPages/ManageScholarships/ManageScholarships.jsx`
 - [ ] `src/Pages/ModaratorPages/ManageScholarships/ManageScholareCard.jsx`
 - [ ] `src/Pages/ModaratorPages/ManageScholarships/EditScholarship.jsx`
 - [ ] `src/Pages/ModaratorPages/AllAppliedScholarship/AllAppliedScholarship.jsx`
