@@ -76,7 +76,7 @@ the required order for every item: update this checklist -> commit -> push -> de
 
 ### User dashboard
 - [x] `src/Layout/UserDashboard.jsx`
-- [ ] `src/Pages/UserPage/MyProfile/MyProfile.jsx`
+- [x] `src/Pages/UserPage/MyProfile/MyProfile.jsx`
 - [ ] `src/Pages/UserPage/MyApplication/MyApplication.jsx`
 - [ ] `src/Pages/UserPage/MyApplication/MyApplicationCard.jsx`
 - [ ] `src/Pages/UserPage/MyApplication/ApplicationCardForUser.jsx`
