@@ -1,17 +1,14 @@
 import { useQuery } from "@tanstack/react-query";
-import useAuth from "./useAuth";
 import useAxiosPublic from "./useAxiosPublic";
 
 const useReviews = (id) => {
   const axiosPublic = useAxiosPublic();
 
-  const { user } = useAuth();
-
   const { refetch, data: review = [] } = useQuery({
-    queryKey: ["review", user?.email],
+    queryKey: ["review", id],
+    enabled: !!id,
     queryFn: async () => {
       const res = await axiosPublic.get(`/allReviews/${id}`);
-
       return res.data.data;
     },
   });
