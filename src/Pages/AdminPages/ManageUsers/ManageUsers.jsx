@@ -5,6 +5,7 @@ import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import PageHeader from "../../../Component/ui/PageHeader";
 import EmptyState from "../../../Component/ui/EmptyState";
 import { Users } from "lucide-react";
+import { roleMeta } from "../../../Component/profile/RoleBadge";
 
 const showError = (error) => {
   Swal.fire({
@@ -15,13 +16,9 @@ const showError = (error) => {
   });
 };
 
-const roleBadge = (role) => {
-  const r = String(role || "").toLowerCase();
-  if (r === "superadmin") return "bg-amber-100 text-amber-700 ring-amber-200";
-  if (r === "admin") return "bg-brand-100 text-brand-700 ring-brand-200";
-  if (r === "modaretor") return "bg-sky-100 text-sky-700 ring-sky-200";
-  if (r === "institution") return "bg-violet-100 text-violet-700 ring-violet-200";
-  return "bg-slate-100 text-slate-600 ring-slate-200";
+const roleBadgeClass = (role) => {
+  const meta = roleMeta[role];
+  return meta ? meta.color : "bg-slate-100 text-slate-600 ring-slate-200";
 };
 
 const statusBadge = (status) => {
@@ -127,7 +124,7 @@ const ManageUsers = () => {
                       </td>
                       <td className="px-4 py-3.5 text-slate-600">{u?.email}</td>
                       <td className="px-4 py-3.5">
-                        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold capitalize ring-1 ${roleBadge(u?.role)}`}>
+                        <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold capitalize ring-1 ${roleBadgeClass(u?.role)}`}>
                           {isOwner && <FaCrown className="h-3 w-3" />}
                           {isOwner ? "Owner" : u?.role === "institution" ? "Institution" : u?.role}
                         </span>
