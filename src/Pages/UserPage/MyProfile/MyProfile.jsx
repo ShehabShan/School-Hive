@@ -308,24 +308,32 @@ export default function ProfilePage() {
                 </div>
 
                 {/* Cover photo */}
-                <label>
+                <div>
                   <span className="text-sm font-semibold text-slate-700">Cover Photo</span>
+                  {/* Preview like avatar - rectangular banner */}
+                  <div className="mt-1.5 overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200">
+                    {form.coverPhoto ? (
+                      <img src={form.coverPhoto} alt="Cover preview" className="h-28 w-full object-cover" />
+                    ) : (
+                      <div className="flex h-28 w-full items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 text-xs text-slate-400">
+                        No cover photo — paste URL or upload
+                      </div>
+                    )}
+                  </div>
                   <input
                     value={form.coverPhoto}
                     onChange={(e) => setForm((f) => ({ ...f, coverPhoto: e.target.value }))}
                     placeholder="https://..."
-                    className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                    className="mt-2 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
                   />
-                  <label className="mt-1.5 cursor-pointer">
-                    <span className="inline-flex items-center gap-1 text-xs text-slate-400 hover:text-slate-600">
-                      <Upload className="h-3 w-3" /> Or upload cover image
-                    </span>
+                  <label className="mt-1.5 inline-flex cursor-pointer items-center gap-1 text-xs font-medium text-slate-500 hover:text-slate-700">
+                    <Upload className="h-3 w-3" /> Or upload cover image
                     <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, "coverPhoto")} className="hidden" />
                   </label>
-                </label>
+                </div>
 
                 {/* Name */}
-                <label>
+                <label className="block">
                   <span className="text-sm font-semibold text-slate-700">Display Name *</span>
                   <input
                     value={form.name}
