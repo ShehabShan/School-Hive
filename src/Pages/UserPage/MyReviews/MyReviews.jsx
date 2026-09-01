@@ -26,39 +26,64 @@ const MyReviews = () => {
       text: "You won't be able to revert this!",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
+      confirmButtonColor: "#4f46e5",
+      cancelButtonColor: "#e11d48",
       confirmButtonText: "Yes, delete it!",
+      background: "#ffffff",
+      customClass: { popup: "rounded-2xl", confirmButton: "rounded-xl", cancelButton: "rounded-xl" },
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const { data } = await axiosSecure.delete(`/allReviews/${_id}`);
-          if (data.data.deletedCount > 0) {
-            Swal.fire({
-              title: "Deleted!",
-              text: "Your review has been deleted.",
-              icon: "success",
-            });
+          if (data.data?.deletedCount > 0 || data.deletedCount > 0) {
+            Swal.fire({ title: "Deleted!", text: "Your review has been deleted.", icon: "success", confirmButtonColor: "#4f46e5" });
             refetch();
           }
         } catch (error) {
-          Swal.fire({
-            title: "Delete failed",
-            text: error?.response?.data?.message || "Something went wrong",
-            icon: "error",
-          });
+          Swal.fire({ title: "Delete failed", text: error?.response?.data?.message || "Something went wrong", icon: "error" });
         }
       }
     });
   };
 
+  const handleEdit = async (review) => {
+    const { value: formValues } = await Swal.fire({
+      title: "Edit your review",
+      html: `<textarea id="swal-comment" class="swal2-textarea w-full" placeholder="5-500 chars">${review.comment || ""}</textarea>
+             <input id="swal-rating" type="number" min="1" max="5" value="${review.rating}" class="swal2-input w-full" placeholder="1-5"/>`,
+      focusConfirm: false,
+      showCancelButton: true,
+      confirmButtonColor: "#4f46e5",
+      confirmButtonText: "Save — re-queue for moderation",
+      customClass: { popup: "rounded-2xl" },
+      preConfirm: () => {
+        const comment = document.getElementById("swal-comment").value;
+        const rating = document.getElementById("swal-rating").value;
+        if (!comment.trim() || comment.trim().length < 5) {
+          Swal.showValidationMessage("Comment 5-500 chars required");
+          return false;
+        }
+        const nr = Number(rating);
+        if (!Number.isFinite(nr) || nr < 1 || nr > 5) {
+          Swal.showValidationMessage("Rating 1-5 required");
+          return false;
+        }
+        return { comment: comment.trim(), rating: nr };
+      },
+    });
+    if (!formValues) return;
+    try {
+      await axiosSecure.patch(`/allReviews/${review._id}`, formValues);
+      Swal.fire({ icon: "success", title: "Updated — pending moderation", timer: 1400, showConfirmButton: false });
+      refetch();
+    } catch (err) {
+      Swal.fire({ icon: "error", title: "Update failed", text: err?.response?.data?.message || err.message });
+    }
+  };
+
   return (
     <div>
-      <PageHeader
-        icon={FaStar}
-        title="My Reviews"
-        subtitle={`Reviews you've written (${myReviews?.length || 0})`}
-      />
+      <PageHeader icon={FaStar} title="My Reviews" subtitle={`Reviews you've written (${myReviews?.length || 0}) — 1 per scholarship, edits re-queue as pending`} />
 
       {isLoading ? (
         <div className="flex justify-center py-20">
@@ -69,11 +94,7 @@ const MyReviews = () => {
       ) : (
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
           {myReviews?.map((reviews) => (
-            <ReviewCard
-              key={reviews?._id}
-              review={reviews}
-              handleDelete={handleDelete}
-            />
+            <ReviewCard key={reviews?._id} review={reviews} handleDelete={handleDelete} onEdit={() => handleEdit(reviews)} />
           ))}
         </div>
       )}

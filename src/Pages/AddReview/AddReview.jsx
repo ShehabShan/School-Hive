@@ -1,7 +1,8 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useQuery } from "@tanstack/react-query";
 import {
   Star,
   CalendarDays,
@@ -9,57 +10,99 @@ import {
   Send,
   Sparkles,
   GraduationCap,
+  ShieldCheck,
+  AlertTriangle,
 } from "lucide-react";
 import { FaCalendarAlt } from "react-icons/fa";
 import toast from "react-hot-toast";
 import useAuth from "../../Hooks/useAuth";
-import useAxiosPublic from "../../Hooks/useAxiosPublic";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useSingleScholership from "../../Hooks/useSingleScholership";
 import FormField from "../../Component/ui/FormField";
+import Spinner from "../../Component/ui/Spinner";
 
 function AddReview() {
   const { id } = useParams();
   const [postDate] = useState(new Date());
   const { user } = useAuth();
-  const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const [scholarship] = useSingleScholership(id);
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
   const [submitting, setSubmitting] = useState(false);
 
+  // gate: must have accepted application for this scholarship
+  const { data: myApply = [], isLoading: applyLoading } = useQuery({
+    queryKey: ["myApply-gate", user?.email, id],
+    enabled: !!user?.email && !!id,
+    queryFn: async () => {
+      const { data } = await axiosSecure.get(`/apply?email=${user.email}`);
+      return data.data;
+    },
+  });
+
+  const hasAcceptedApply = myApply.some(
+    (a) => String(a.scholarship_id) === String(id) && a.applicationStatus === "accepted"
+  );
+
+  // dup check: already reviewed?
+  const { data: myReviews = [], isLoading: reviewLoading } = useQuery({
+    queryKey: ["myReviews-gate", user?.email, id],
+    enabled: !!user?.email && !!id,
+    queryFn: async () => {
+      const { data } = await axiosSecure.get(`/allReviews?email=${user.email}&scholarShip_id=${id}`);
+      return data.data;
+    },
+  });
+
+  const alreadyReviewed = myReviews.length > 0;
+  const existingReview = myReviews[0] || null;
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (submitting) return;
+    if (!hasAcceptedApply) {
+      toast.error("You can only review after your application is accepted by moderator");
+      return;
+    }
+    if (alreadyReviewed) {
+      toast.error("You have already reviewed this scholarship. You can edit your review in My Reviews.");
+      return;
+    }
     setSubmitting(true);
 
     const formData = new FormData(e.target);
     const initialData = Object.fromEntries(formData.entries());
 
     const formattedPostDate = format(postDate, "yyyy-MM-dd");
-
     initialData.reviewer_postDate = formattedPostDate;
+    initialData.scholarShip_id = id;
+    initialData.rating = String(rating);
+    // reviewer_email/name/photo derived server-side from token, but keep for compat
     initialData.reviewer_email = user?.email;
     initialData.reviewer_name = user?.displayName;
     initialData.reviewer_photo = user?.photoURL;
-    initialData.scholarShip_id = id;
-    initialData.rating = String(rating);
+    initialData.comment = String(initialData.comment || "").trim();
 
     try {
-      const { data } = await axiosPublic.post("/addReviews", initialData);
+      const { data } = await axiosSecure.post("/addReviews", initialData);
       if (data.data?.insertedId || data.insertedId) {
-        toast.success("Review submitted successfully!");
+        toast.success("Review submitted — pending moderation. It will appear once approved.");
         e.target.reset();
         setRating(5);
       } else {
-        toast.success("Review submitted!");
+        toast.success("Review submitted — pending moderation!");
         e.target.reset();
       }
-    } catch {
-      toast.error("Failed to submit review. Please try again.");
+    } catch (err) {
+      const msg = err?.response?.data?.message || "Failed to submit review. Please try again.";
+      toast.error(msg);
     } finally {
       setSubmitting(false);
     }
   };
+
+  const isGateLoading = applyLoading || reviewLoading;
 
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
@@ -97,147 +140,175 @@ function AddReview() {
             <p className="mx-auto mt-1.5 max-w-xl text-sm font-medium leading-relaxed text-brand-100">
               {scholarship?.scholarshipName || "Tell future applicants what made this scholarship stand out"}
             </p>
-            {scholarship?.universityName && (
-              <div className="mt-3 flex flex-wrap items-center justify-center gap-2 text-xs font-semibold text-brand-200">
-                <span className="rounded-full bg-white/10 px-2.5 py-1 ring-1 ring-white/15">
-                  {scholarship?.scholarshipCategory || "Scholarship"}
-                </span>
-                {scholarship?.subjectName && (
-                  <span className="rounded-full bg-white/10 px-2.5 py-1 ring-1 ring-white/15">
-                    {scholarship.subjectName}
-                  </span>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-7 p-6 md:p-8">
-          {/* Rating */}
-          <div>
-            <div className="mb-3 flex items-center gap-2.5">
-              <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 ring-1 ring-amber-100">
-                <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
-              </span>
-              <h3 className="text-sm font-bold tracking-tight text-slate-800">
-                Your Rating
-              </h3>
-              <span className="ml-auto rounded-full bg-amber-50 px-2.5 py-1 text-xs font-extrabold text-amber-700 ring-1 ring-amber-100">
-                {rating}.0 / 5.0
-              </span>
-            </div>
-            <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
-              <div className="flex items-center justify-center gap-1.5">
-                {[1, 2, 3, 4, 5].map((value) => {
-                  const active = (hoverRating || rating) >= value;
-                  return (
-                    <button
-                      key={value}
-                      type="button"
-                      onMouseEnter={() => setHoverRating(value)}
-                      onMouseLeave={() => setHoverRating(0)}
-                      onClick={() => setRating(value)}
-                      aria-label={`Rate ${value} out of 5`}
-                      className="rounded-xl p-1.5 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
-                    >
-                      <Star
-                        className={`h-9 w-9 transition-colors md:h-10 md:w-10 ${
-                          active
-                            ? "fill-amber-400 text-amber-400 drop-shadow-sm"
-                            : "fill-slate-200 text-slate-300"
-                        }`}
-                      />
-                    </button>
-                  );
-                })}
-              </div>
-              <p className="mt-2 text-center text-xs font-medium text-slate-500">
-                Tap a star to set your rating
+        {isGateLoading ? (
+          <div className="flex justify-center p-10">
+            <Spinner className="h-8 w-8 text-brand-600" />
+          </div>
+        ) : !hasAcceptedApply ? (
+          <div className="p-6 md:p-8">
+            <div className="rounded-2xl border border-amber-200 bg-amber-50 p-6 text-center">
+              <AlertTriangle className="mx-auto h-8 w-8 text-amber-600" />
+              <h3 className="mt-3 text-lg font-bold text-amber-900">Application not yet accepted</h3>
+              <p className="mt-2 text-sm leading-relaxed text-amber-800">
+                You can only review after your application for <span className="font-bold">{scholarship?.scholarshipName || "this scholarship"}</span> is
+                <span className="font-bold"> accepted</span> by a moderator. This ensures only verified applicants leave reviews.
               </p>
-              {/* hidden input so FormData captures rating if needed, but we override with state */}
-              <input type="hidden" name="rating" value={rating} />
+              <div className="mt-5 flex justify-center gap-3">
+                <Link to="/userDashboard/myApplication" className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-700">
+                  View Applications
+                </Link>
+                <Link to={`/allScholership/${id}`} className="rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-slate-700 ring-1 ring-slate-200">
+                  Back to Details
+                </Link>
+              </div>
+            </div>
+            <div className="mt-6 flex items-center justify-center gap-2 text-xs text-slate-400">
+              <ShieldCheck className="h-4 w-4 text-emerald-500" /> Verified-applicant reviews only
             </div>
           </div>
-
-          {/* Comment */}
-          <FormField
-            label="Your Review"
-            required
-            hint={`${scholarship?.universityName ? `Help others decide about ${scholarship.universityName}` : "Be honest and constructive — your feedback helps future scholars."}`}
-          >
-            <div className="relative">
-              <MessageSquare className="pointer-events-none absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
-              <textarea
-                rows={5}
-                name="comment"
-                placeholder="What did you love about this scholarship? How was the application process, support, campus experience?"
-                className="min-h-[128px] w-full resize-none rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm leading-relaxed text-slate-800 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
-                required
-              />
-            </div>
-          </FormField>
-
-          {/* Meta row */}
-          <div className="grid gap-4 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 md:grid-cols-2 md:p-5">
-            <div className="flex items-center gap-3">
-              <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand-600 shadow-soft ring-1 ring-slate-100">
-                <CalendarDays className="h-5 w-5" />
-              </span>
-              <div>
-                <p className="text-xs font-bold uppercase tracking-widest text-slate-400">
-                  Review date
-                </p>
-                <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-800">
-                  <FaCalendarAlt className="h-3.5 w-3.5 text-brand-500" />
-                  {format(postDate, "PPP")}
-                </p>
+        ) : alreadyReviewed ? (
+          <div className="p-6 md:p-8">
+            <div className="rounded-2xl border border-brand-100 bg-brand-50 p-6 text-center">
+              <ShieldCheck className="mx-auto h-8 w-8 text-brand-600" />
+              <h3 className="mt-3 text-lg font-bold text-slate-900">Already reviewed</h3>
+              <p className="mt-2 text-sm text-slate-600">
+                You have already left 1 review for this scholarship (max 1 per scholarship). You can edit it in <span className="font-bold">My Reviews</span>.
+              </p>
+              {existingReview && (
+                <div className="mt-4 rounded-xl bg-white p-4 text-left ring-1 ring-slate-100">
+                  <p className="text-xs font-bold uppercase tracking-wide text-slate-400">Your review — {existingReview.status}</p>
+                  <p className="mt-1 text-sm text-slate-700">{existingReview.comment}</p>
+                  <p className="mt-1 text-xs text-slate-500">Rating: {existingReview.rating}/5</p>
+                </div>
+              )}
+              <div className="mt-5 flex justify-center gap-3">
+                <Link to="/userDashboard/myReviews" className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white hover:bg-brand-700">
+                  Go to My Reviews
+                </Link>
+                <Link to={`/allScholership/${id}`} className="rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-slate-700 ring-1 ring-slate-200">
+                  Back to Details
+                </Link>
               </div>
             </div>
-            <div className="flex items-center gap-3 border-t border-slate-100 pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0">
-              <div className="h-10 w-10 overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-brand-700 ring-2 ring-white">
-                {user?.photoURL ? (
-                  <img
-                    src={user.photoURL}
-                    alt={user?.displayName || "Reviewer"}
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <span className="flex h-full w-full items-center justify-center text-sm font-bold text-white">
-                    {(user?.displayName || user?.email || "U").charAt(0).toUpperCase()}
-                  </span>
-                )}
-              </div>
-              <div className="min-w-0">
-                <p className="truncate text-sm font-bold text-slate-900">
-                  {user?.displayName || "Anonymous"}
-                </p>
-                <p className="truncate text-xs text-slate-500">{user?.email}</p>
-              </div>
-            </div>
+            <p className="mt-4 text-center text-xs text-slate-400">Editing will re-send your review for moderation.</p>
           </div>
+        ) : (
+          <form onSubmit={handleSubmit} className="space-y-7 p-6 md:p-8">
+            <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 ring-1 ring-emerald-100">
+              <ShieldCheck className="h-4 w-4" /> Verified applicant — your review will be queued as <span className="rounded bg-white px-1.5 py-0.5">pending</span> and appear once approved by admin/mod.
+            </div>
+            {/* Rating */}
+            <div>
+              <div className="mb-3 flex items-center gap-2.5">
+                <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-amber-50 text-amber-600 ring-1 ring-amber-100">
+                  <Star className="h-4 w-4 fill-amber-500 text-amber-500" />
+                </span>
+                <h3 className="text-sm font-bold tracking-tight text-slate-800">Your Rating</h3>
+                <span className="ml-auto rounded-full bg-amber-50 px-2.5 py-1 text-xs font-extrabold text-amber-700 ring-1 ring-amber-100">
+                  {rating}.0 / 5.0
+                </span>
+              </div>
+              <div className="rounded-2xl border border-slate-100 bg-slate-50/70 p-4">
+                <div className="flex items-center justify-center gap-1.5">
+                  {[1, 2, 3, 4, 5].map((value) => {
+                    const active = (hoverRating || rating) >= value;
+                    return (
+                      <button
+                        key={value}
+                        type="button"
+                        onMouseEnter={() => setHoverRating(value)}
+                        onMouseLeave={() => setHoverRating(0)}
+                        onClick={() => setRating(value)}
+                        aria-label={`Rate ${value} out of 5`}
+                        className="rounded-xl p-1.5 transition-transform hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500"
+                      >
+                        <Star
+                          className={`h-9 w-9 transition-colors md:h-10 md:w-10 ${active ? "fill-amber-400 text-amber-400 drop-shadow-sm" : "fill-slate-200 text-slate-300"}`}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+                <p className="mt-2 text-center text-xs font-medium text-slate-500">Tap a star to set your rating</p>
+                <input type="hidden" name="rating" value={rating} />
+              </div>
+            </div>
 
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-sm font-bold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
-          >
-            {submitting ? (
-              <>
-                <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                Submitting...
-              </>
-            ) : (
-              <>
-                <Send className="h-4 w-4" />
-                Publish Review
-              </>
-            )}
-          </button>
+            {/* Comment */}
+            <FormField
+              label="Your Review"
+              required
+              hint={`${scholarship?.universityName ? `Help others decide about ${scholarship.universityName}` : "Be honest and constructive — your feedback helps future scholars."}`}
+            >
+              <div className="relative">
+                <MessageSquare className="pointer-events-none absolute left-3.5 top-3.5 h-4 w-4 text-slate-400" />
+                <textarea
+                  rows={5}
+                  name="comment"
+                  placeholder="What did you love about this scholarship? How was the application process, support, campus experience?"
+                  className="min-h-[128px] w-full resize-none rounded-xl border border-slate-200 bg-white py-3 pl-10 pr-4 text-sm leading-relaxed text-slate-800 placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+                  required
+                  minLength={5}
+                  maxLength={500}
+                />
+              </div>
+            </FormField>
 
-          <p className="text-center text-xs leading-relaxed text-slate-400">
-            Your review will be visible on the scholarship details page after submission.
-          </p>
-        </form>
+            {/* Meta row */}
+            <div className="grid gap-4 rounded-2xl border border-slate-100 bg-slate-50/60 p-4 md:grid-cols-2 md:p-5">
+              <div className="flex items-center gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-white text-brand-600 shadow-soft ring-1 ring-slate-100">
+                  <CalendarDays className="h-5 w-5" />
+                </span>
+                <div>
+                  <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Review date</p>
+                  <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-800">
+                    <FaCalendarAlt className="h-3.5 w-3.5 text-brand-500" />
+                    {format(postDate, "PPP")}
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3 border-t border-slate-100 pt-4 md:border-l md:border-t-0 md:pl-4 md:pt-0">
+                <div className="h-10 w-10 overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-brand-700 ring-2 ring-white">
+                  {user?.photoURL ? (
+                    <img src={user.photoURL} alt={user?.displayName || "Reviewer"} className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="flex h-full w-full items-center justify-center text-sm font-bold text-white">
+                      {(user?.displayName || user?.email || "U").charAt(0).toUpperCase()}
+                    </span>
+                  )}
+                </div>
+                <div className="min-w-0">
+                  <p className="truncate text-sm font-bold text-slate-900">{user?.displayName || "Anonymous"}</p>
+                  <p className="truncate text-xs text-slate-500">{user?.email}</p>
+                </div>
+              </div>
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-sm font-bold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0"
+            >
+              {submitting ? (
+                <>
+                  <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                  Submitting...
+                </>
+              ) : (
+                <>
+                  <Send className="h-4 w-4" />
+                  Publish Review
+                </>
+              )}
+            </button>
+
+            <p className="text-center text-xs leading-relaxed text-slate-400">Your review will be queued as pending and appear on the scholarship after moderator approval. Rating will update then.</p>
+          </form>
+        )}
       </motion.div>
     </div>
   );
