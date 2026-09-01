@@ -25,6 +25,7 @@ export default function ProfilePage() {
   const axiosPublic = useAxiosPublic();
   const [isAdmin] = useAdmin();
   const [isModaretor] = useModaretor();
+  const isAdminOrMod = isAdmin || isModaretor;
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState({ name: "", phone: "", city: "", country: "", bio: "", skills: "", photoURL: "", coverPhoto: "" });
@@ -97,8 +98,6 @@ export default function ProfilePage() {
       }
     },
   });
-
-  const isAdminOrMod = isAdmin || isModaretor;
 
   const openEdit = () => {
     setForm({
