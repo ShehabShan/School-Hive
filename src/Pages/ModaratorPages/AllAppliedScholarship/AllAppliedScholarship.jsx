@@ -1,10 +1,13 @@
-import { FaEye, FaEdit, FaTimes, FaCheckCircle } from "react-icons/fa";
-
+import { FaEye, FaCheckCircle, FaTimes } from "react-icons/fa";
 import { useQuery } from "@tanstack/react-query";
 import useAuth from "../../../Hooks/useAuth";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import Swal from "sweetalert2";
 import { Link } from "react-router-dom";
+import PageHeader from "../../../Component/ui/PageHeader";
+import StatusBadge from "../../../Component/ui/StatusBadge";
+import EmptyState from "../../../Component/ui/EmptyState";
+import { ClipboardList } from "lucide-react";
 
 const MyApplication = () => {
   const { user } = useAuth();
@@ -17,174 +20,140 @@ const MyApplication = () => {
       return data.data;
     },
   });
-  console.log(allApply);
-  const handleViewDetails = (_id) => {
-    console.log(_id);
-  };
-  const handleEdit = (_id) => {
-    console.log(_id);
 
+  const handleEdit = (_id) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
-      icon: "warning",
+      title: "Accept application?",
+      text: "This will mark the application as accepted.",
+      icon: "question",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, accepted it!",
+      confirmButtonColor: "#4f46e5",
+      cancelButtonColor: "#e11d48",
+      confirmButtonText: "Yes, accept",
+      background: "#ffffff",
+      customClass: { popup: "rounded-2xl", confirmButton: "rounded-xl", cancelButton: "rounded-xl" },
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const { data } = await axiosSecure.patch(`/allapply/accepted/${_id}`);
-
-          if (data.data.modifiedCount > 0) {
-            Swal.fire({
-              title: "accepted!",
-              text: "The Apply is rejected.",
-              icon: "success",
-            });
+          if (data.data?.modifiedCount > 0 || data.modifiedCount > 0) {
+            Swal.fire({ title: "Accepted!", text: "Application accepted.", icon: "success", confirmButtonColor: "#4f46e5" });
             refetch();
           }
-          console.log("hangleCancel", data);
-        } catch (error) {
-          console.log(error);
+        } catch {
+          Swal.fire({ title: "Error", text: "Action failed.", icon: "error" });
         }
       }
     });
   };
+
   const handleCancel = (_id) => {
     Swal.fire({
-      title: "Are you sure?",
-      text: "You won't be able to revert this!",
+      title: "Reject application?",
+      text: "This will mark the application as rejected.",
       icon: "warning",
       showCancelButton: true,
-      confirmButtonColor: "#3085d6",
-      cancelButtonColor: "#d33",
-      confirmButtonText: "Yes, Reject it!",
+      confirmButtonColor: "#4f46e5",
+      cancelButtonColor: "#e11d48",
+      confirmButtonText: "Yes, reject",
+      customClass: { popup: "rounded-2xl" },
     }).then(async (result) => {
       if (result.isConfirmed) {
         try {
           const { data } = await axiosSecure.patch(`/allapply/cancel/${_id}`);
-
-          if (data.data.modifiedCount > 0) {
-            Swal.fire({
-              title: "Rejected!",
-              text: "The Apply is rejected.",
-              icon: "success",
-            });
+          if (data.data?.modifiedCount > 0 || data.modifiedCount > 0) {
+            Swal.fire({ title: "Rejected!", text: "Application rejected.", icon: "success", confirmButtonColor: "#4f46e5" });
             refetch();
           }
-          console.log("hangleCancel", data);
-        } catch (error) {
-          console.log(error);
+        } catch {
+          Swal.fire({ title: "Error", text: "Action failed.", icon: "error" });
         }
       }
     });
   };
 
-  console.log(allApply);
-
   return (
-    <div className="container mx-auto py-10 px-4">
-      <h2 className="text-2xl font-bold mb-6 text-gray-800">
-        Your Applied applicants
-      </h2>
-      <div className="overflow-x-auto">
-        <table className="table w-full border border-gray-200 rounded-lg">
-          <thead className="bg-gray-100">
-            <tr className="text-gray-700 text-sm">
-              <th className="p-3">University</th>
-              <th className="p-3">Address</th>
-              <th className="p-3">Feedback</th>
-              <th className="p-3">Subject</th>
-              <th className="p-3">Degree</th>
-              <th className="p-3">Fees</th>
-              <th className="p-3">Service Charge</th>
-              <th className="p-3">Status</th>
-              <th className="p-3">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {allApply.map((applicant, index) => (
-              <tr key={index} className="border-t text-sm text-gray-700">
-                <td className="p-3">{applicant?.universityName}</td>
-                <td className="p-3">
-                  {applicant?.applicantDistrict}
-                  {applicant?.applicantDistrict}
-                </td>
-                <td className="p-3">{applicant?.Feedback}</td>
-                <td className="p-3">{applicant?.subjectName}</td>
-                <td className="p-3">{applicant?.subjectName}</td>
-                <td className="p-3">${applicant?.applicationFees}</td>
-                <td className="p-3">${applicant?.serviceCharge}</td>
-                <td className="p-3">
-                  <span
-                    className={`px-2 py-1 rounded text-xs font-semibold ${
-                      applicant?.applicationStatus === "accepted"
-                        ? "bg-green-200 text-green-800"
-                        : applicant?.applicationStatus === "pending"
-                        ? "bg-blue-200 text-blue-800"
-                        : applicant?.applicationStatus === "rejected"
-                        ? "bg-red-200 text-red-800"
-                        : "bg-yellow-200 text-yellow-800"
-                    }`}
-                  >
-                    {applicant?.applicationStatus}
-                  </span>
-                </td>
-                <td className="p-3">
-                  <div className="flex space-x-2">
-                    <Link
-                      to={`/modaratorDashboard/allAppliedScholarships/${applicant?._id}`}
-                    >
-                      <button
-                        className="btn btn-outline btn-sm"
-                        onClick={() => handleViewDetails(applicant?._id)}
-                      >
-                        <FaEye className="h-4 w-4" />
-                      </button>
-                    </Link>
+    <div className="space-y-6">
+      <PageHeader
+        icon={ClipboardList}
+        title="All Applied Scholarships"
+        subtitle={`${allApply.length} application${allApply.length === 1 ? "" : "s"} awaiting review`}
+      />
 
-                    {applicant?.applicationStatus === "accepted" ? (
-                      <button
-                        disabled
-                        className="btn btn-outline btn-sm"
-                        onClick={() => handleEdit(applicant?._id)}
-                      >
-                        <FaCheckCircle className="h-4 w-4" />
-                      </button>
-                    ) : (
-                      <button
-                        className="btn btn-outline btn-sm"
-                        onClick={() => handleEdit(applicant?._id)}
-                      >
-                        <FaCheckCircle className="h-4 w-4" />
-                      </button>
-                    )}
-
-                    {applicant?.applicationStatus === "rejected" ? (
-                      <button
-                        disabled
-                        className="btn btn-outline btn-sm text-red-500 border-red-500"
-                        onClick={() => handleCancel(applicant?._id)}
-                      >
-                        <FaTimes className="h-4 w-4" />
-                      </button>
-                    ) : (
-                      <button
-                        className="btn btn-outline btn-sm text-red-500 border-red-500"
-                        onClick={() => handleCancel(applicant?._id)}
-                      >
-                        <FaTimes className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {allApply.length === 0 ? (
+        <div className="rounded-2xl bg-white p-8 shadow-soft ring-1 ring-slate-100">
+          <EmptyState title="No applications yet" message="Applied scholarships will appear here once users submit them." />
+        </div>
+      ) : (
+        <div className="overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-100">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left">
+              <thead className="bg-slate-50 text-xs font-bold uppercase tracking-widest text-slate-500">
+                <tr>
+                  <th className="px-4 py-3.5">University</th>
+                  <th className="px-4 py-3.5">District</th>
+                  <th className="px-4 py-3.5">Feedback</th>
+                  <th className="px-4 py-3.5">Subject</th>
+                  <th className="px-4 py-3.5">Degree</th>
+                  <th className="px-4 py-3.5">Fees</th>
+                  <th className="px-4 py-3.5">Service</th>
+                  <th className="px-4 py-3.5">Status</th>
+                  <th className="px-4 py-3.5 text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {allApply.map((applicant) => (
+                  <tr key={applicant._id} className="text-sm text-slate-700 transition-colors hover:bg-slate-50/70">
+                    <td className="px-4 py-3.5 font-semibold text-slate-900">{applicant?.universityName}</td>
+                    <td className="px-4 py-3.5 text-slate-500">{applicant?.applicantDistrict || "—"}</td>
+                    <td className="max-w-[180px] truncate px-4 py-3.5 text-slate-500" title={applicant?.Feedback}>
+                      {applicant?.Feedback || <span className="text-slate-400">—</span>}
+                    </td>
+                    <td className="px-4 py-3.5">{applicant?.subjectName}</td>
+                    <td className="px-4 py-3.5">
+                      <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-semibold text-brand-700 ring-1 ring-brand-100">
+                        {applicant?.applyingDegree || applicant?.subjectName}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3.5 font-semibold">${applicant?.applicationFees}</td>
+                    <td className="px-4 py-3.5">${applicant?.serviceCharge}</td>
+                    <td className="px-4 py-3.5">
+                      <StatusBadge status={applicant?.applicationStatus} />
+                    </td>
+                    <td className="px-4 py-3.5">
+                      <div className="flex justify-end gap-1.5">
+                        <Link
+                          to={`/modaratorDashboard/allAppliedScholarships/${applicant?._id}`}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-white transition-colors hover:bg-slate-800"
+                          aria-label="View details"
+                        >
+                          <FaEye className="h-3.5 w-3.5" />
+                        </Link>
+                        <button
+                          disabled={applicant?.applicationStatus === "accepted"}
+                          onClick={() => handleEdit(applicant?._id)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white transition-colors hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                          aria-label="Accept"
+                        >
+                          <FaCheckCircle className="h-3.5 w-3.5" />
+                        </button>
+                        <button
+                          disabled={applicant?.applicationStatus === "rejected"}
+                          onClick={() => handleCancel(applicant?._id)}
+                          className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-white text-rose-600 ring-1 ring-slate-200 transition-colors hover:bg-rose-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                          aria-label="Reject"
+                        >
+                          <FaTimes className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
