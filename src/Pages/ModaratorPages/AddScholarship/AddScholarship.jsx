@@ -1,23 +1,38 @@
 import { useState } from "react";
 import { format } from "date-fns";
-import { FaCalendarAlt, FaGraduationCap, FaUniversity } from "react-icons/fa";
+import { FaCalendarAlt, FaGraduationCap, FaUniversity, FaPaperPlane, FaMoneyBillWave, FaImage } from "react-icons/fa";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "../../../assist/add-data.png";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import useAuth from "../../../Hooks/useAuth";
+import toast from "react-hot-toast";
+import FormField from "../../../Component/ui/FormField";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
-
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
+const inputClass =
+  "input input-bordered w-full rounded-xl border-slate-200 bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
+const selectClass =
+  "select w-full rounded-xl border-slate-200 bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
+
+const SectionTitle = ({ icon: Icon, title }) => (
+  <h3 className="mb-4 flex items-center gap-2.5 text-base font-bold text-slate-800">
+    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+      <Icon className="h-4 w-4" />
+    </span>
+    {title}
+  </h3>
+);
+
 export default function AddScholarship() {
-  const [postDate, setPostDate] = useState(new Date());
+  const [postDate] = useState(new Date());
   const [date, setDate] = useState(new Date());
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const { user } = useAuth();
-
   const axiosPublic = useAxiosPublic();
+  const [submitting, setSubmitting] = useState(false);
 
   const handleCalendarToggle = () => {
     setIsCalendarVisible(!isCalendarVisible);
@@ -25,28 +40,27 @@ export default function AddScholarship() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
+    setSubmitting(true);
 
     const formData = new FormData(e.target);
-    console.log(formData);
-
     const initialData = Object.fromEntries(formData.entries());
-
     const universityImage = formData.get("universityImage");
 
-    if (universityImage.name) {
-      console.log("door");
-
+    if (universityImage?.name) {
       const imageFile = { image: universityImage };
       try {
         const res = await axiosPublic.post(image_hosting_api, imageFile, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+          headers: { "Content-Type": "multipart/form-data" },
         });
         initialData.universityImage = res.data.data.url;
-      } catch (error) {
-        console.log(error);
+      } catch {
+        toast.error("Image upload failed. Try again.");
+        setSubmitting(false);
+        return;
       }
+    } else {
+      initialData.universityImage = Image;
     }
 
     const formattedPostDate = format(postDate, "yyyy-MM-dd");
@@ -54,240 +68,184 @@ export default function AddScholarship() {
 
     initialData.postDate = formattedPostDate;
     initialData.applicationDeadline = formattedDate;
-
     initialData.email = user?.email;
     initialData.rating = 0;
     initialData.Feedback = "";
 
-    console.log(initialData);
-
     try {
       const { data } = await axiosPublic.post("/allScholership", initialData);
-      console.log(data.data);
-      if (data.data.insertedId) {
+      if (data.data?.insertedId || data.insertedId) {
+        toast.success("Scholarship added successfully!");
+        e.target.reset();
+      } else {
+        toast.success("Scholarship submitted!");
         e.target.reset();
       }
-    } catch (error) {
-      console.log("add scholership error", error);
+    } catch {
+      toast.error("Failed to add scholarship.");
+    } finally {
+      setSubmitting(false);
     }
-
-    // console.log(initialData);
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
       <form
         onSubmit={handleSubmit}
-        className="card w-full  mx-auto shadow-lg bg-white"
+        className="mx-auto w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-100"
       >
-        <div className="card-header text-center p-4 border-b">
-          <div className="mx-auto mb-4 h-16 w-16 overflow-hidden rounded-full">
-            <img
-              src={Image}
-              width={64}
-              height={64}
-              className="h-full w-full object-cover"
-            />
+        {/* Header */}
+        <div className="relative bg-gradient-to-br from-brand-600 to-brand-800 px-6 py-8 text-center">
+          <div className="absolute inset-0 opacity-10 [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:20px_20px]" />
+          <div className="relative mx-auto mb-3 h-16 w-16 overflow-hidden rounded-2xl bg-white shadow-lift ring-4 ring-white/30">
+            <img src={Image} alt="Scholarship" className="h-full w-full object-cover" />
           </div>
-          <h2 className="text-2xl font-bold">Oxford University Scholarship</h2>
-          <p className="text-gray-600">
-            Computer Science Undergraduate Program
-          </p>
+          <h2 className="text-2xl font-extrabold tracking-tight text-white">Add Scholarship</h2>
+          <p className="text-sm font-medium text-brand-200">Create a new opportunity for future scholars</p>
         </div>
-        <div className="card-body p-6 space-y-6">
+
+        <div className="space-y-8 p-6 md:p-8">
           {/* University Information */}
-          <div>
-            <h3 className="flex items-center gap-2 text-lg font-semibold">
-              <FaUniversity className="text-gray-500" />
-              University Details
-            </h3>
-            <div className="grid gap-4 md:grid-cols-2 mt-4">
-              <div className="form-control">
-                <label className="label">University Name</label>
-                <input
-                  type="text"
-                  name="universityName"
-                  className="input input-bordered"
-                />
-              </div>
-              <div className="form-control">
-                <label className="label">Scholarship Name</label>
+          <section>
+            <SectionTitle icon={FaUniversity} title="University Details" />
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField label="University Name" required>
+                <input type="text" name="universityName" className={inputClass} placeholder="Oxford University" required />
+              </FormField>
+              <FormField label="Scholarship Name" required>
                 <input
                   type="text"
                   name="scholarshipName"
-                  className="input input-bordered"
-                />
-              </div>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 mt-4">
-              <div className="form-control">
-                <label className="label">Country</label>
-
-                <input
-                  type="text"
-                  name="country"
-                  className="input input-bordered"
-                />
-              </div>
-              <div className="form-control">
-                <label className="label">City</label>
-                <input
-                  type="text"
-                  name="city"
-                  className="input input-bordered"
-                />
-              </div>
-            </div>
-            <div className="grid gap-4 md:grid-cols-2 mt-4">
-              <div className="form-control">
-                <label className="label">University World rank</label>
-                <input
-                  type="number"
-                  name="universityWorldrank"
-                  className="input input-bordered"
-                />
-              </div>
-            </div>
-          </div>
-
-          {/* Scholarship Details */}
-          <div>
-            <h3 className="flex items-center gap-2 text-lg font-semibold">
-              <FaGraduationCap className="text-gray-500" />
-              Scholarship Information
-            </h3>
-            <div className="grid gap-4 md:grid-cols-2 mt-4">
-              <div className="form-control">
-                <label>Scholership type</label>
-                <select
-                  className="select w-full max-w-xs"
-                  name="scholarshipCategory"
-                  defaultValue="Partial"
+                  className={inputClass}
+                  placeholder="Computer Science Undergraduate"
                   required
-                >
-                  <option disabled>Scholership Type</option>
-                  <option value="Partial"> Partial</option>
-                  <option value="Full-fund"> Full-fund</option>
-                  <option value="Self-fund"> Self-fund</option>
-                </select>
-              </div>
-              <div className="form-control">
-                <label>Subject category</label>
-                <select
-                  className="select w-full max-w-xs"
-                  name="subjectName"
-                  defaultValue="Agriculture"
-                  required
-                >
-                  <option disabled>Scholership Type</option>
-                  <option value="Agriculture"> Agriculture</option>
-                  <option value="Engineering"> Engineering</option>
-                  <option value="Doctor"> Doctor</option>
-                </select>
-              </div>
-              <div className="form-control">
-                <label>Degree</label>
-                <select
-                  className="select w-full max-w-xs"
-                  name="degree"
-                  defaultValue="Diploma"
-                  required
-                >
-                  <option disabled>Scholership Type</option>
-                  <option value="Diploma"> Diploma</option>
-                  <option value="Bachelor"> Bachelor</option>
-                  <option value="masters"> masters</option>
-                </select>
-              </div>
-              <div className="form-control">
-                <label className="label">Annual Stipend</label>
-                <input
-                  type="number"
-                  name="stipend"
-                  className="input input-bordered"
                 />
-              </div>
-              <div className="form-control md:col-span-2 ">
-                <label className="label">scholarship Description</label>
-                <textarea
-                  type="text"
-                  name="scholarshipDescription"
-                  className="input input-bordered h-32 p-3"
-                  placeholder="Enter the Scholership short description"
-                />
-              </div>
+              </FormField>
+              <FormField label="Country" required>
+                <input type="text" name="country" className={inputClass} placeholder="United Kingdom" required />
+              </FormField>
+              <FormField label="City" required>
+                <input type="text" name="city" className={inputClass} placeholder="Oxford" required />
+              </FormField>
+              <FormField label="University World Rank" hint="e.g. 1-1000" required>
+                <input type="number" name="universityWorldrank" className={inputClass} placeholder="5" required />
+              </FormField>
+              <FormField label="Annual Stipend" hint="USD per year">
+                <input type="number" name="stipend" className={inputClass} placeholder="15000" />
+              </FormField>
             </div>
-            <div className="form-control mt-4">
-              <label className="label">Post Date</label>
+          </section>
 
-              <div
-                className="btn btn-outline w-full flex items-center justify-between"
-                name="postDate"
-                onClick={() => setPostDate(new Date())}
-              >
-                <FaCalendarAlt className="mr-2" />
-                {postDate ? format(postDate, "PPP") : "March 15, 2025"}
+          {/* Scholarship Information */}
+          <section className="border-t border-slate-100 pt-8">
+            <SectionTitle icon={FaGraduationCap} title="Scholarship Information" />
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField label="Scholarship Category" required>
+                <select className={selectClass} name="scholarshipCategory" defaultValue="Partial" required>
+                  <option disabled>Scholarship Type</option>
+                  <option value="Partial">Partial</option>
+                  <option value="Full-fund">Full-fund</option>
+                  <option value="Self-fund">Self-fund</option>
+                </select>
+              </FormField>
+              <FormField label="Subject Category" required>
+                <select className={selectClass} name="subjectName" defaultValue="Agriculture" required>
+                  <option disabled>Choose subject</option>
+                  <option value="Agriculture">Agriculture</option>
+                  <option value="Engineering">Engineering</option>
+                  <option value="Doctor">Doctor</option>
+                </select>
+              </FormField>
+              <FormField label="Degree" required>
+                <select className={selectClass} name="degree" defaultValue="Diploma" required>
+                  <option disabled>Choose degree</option>
+                  <option value="Diploma">Diploma</option>
+                  <option value="Bachelor">Bachelor</option>
+                  <option value="masters">Masters</option>
+                </select>
+              </FormField>
+              <div className="md:col-span-2">
+                <FormField label="Scholarship Description" required>
+                  <textarea
+                    name="scholarshipDescription"
+                    className="min-h-[112px] w-full rounded-xl border border-slate-200 bg-white p-3 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
+                    placeholder="Briefly describe eligibility, benefits, and perks..."
+                    required
+                  />
+                </FormField>
               </div>
             </div>
 
-            <div className="form-control mt-4">
-              <label className="label">Application Deadline</label>
-              <div
-                className="btn btn-outline w-full flex items-center justify-between"
-                name="applicationDeadline"
-                onClick={handleCalendarToggle}
-              >
-                <FaCalendarAlt className="mr-2" />
-                {date ? format(date, "PPP") : "March 15, 2025"}
-              </div>
-
-              {isCalendarVisible && (
-                <DatePicker
-                  selected={date}
-                  onChange={(selectedDate) => setDate(selectedDate)}
-                  minDate={new Date()}
-                  dateFormat="PPP"
-                  inline
-                />
-              )}
+            <div className="mt-4 grid gap-4 md:grid-cols-2">
+              <FormField label="Post Date">
+                <div className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700">
+                  <span className="flex items-center gap-2">
+                    <FaCalendarAlt className="text-brand-500" />
+                    {format(postDate, "PPP")}
+                  </span>
+                  <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">Today</span>
+                </div>
+              </FormField>
+              <FormField label="Application Deadline" required>
+                <button
+                  type="button"
+                  className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition-colors hover:border-brand-500"
+                  onClick={handleCalendarToggle}
+                >
+                  <span className="flex items-center gap-2">
+                    <FaCalendarAlt className="text-brand-500" />
+                    {format(date, "PPP")}
+                  </span>
+                  <span className="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700 ring-1 ring-amber-100">
+                    Pick
+                  </span>
+                </button>
+                {isCalendarVisible && (
+                  <div className="mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-soft">
+                    <DatePicker selected={date} onChange={(d) => setDate(d)} minDate={new Date()} dateFormat="PPP" inline />
+                  </div>
+                )}
+              </FormField>
             </div>
-          </div>
+          </section>
 
-          <div className="form-control">
-            <label className="label">Photo</label>
-            <input type="file" name="universityImage" required />
-          </div>
+          {/* Photo */}
+          <section className="border-t border-slate-100 pt-8">
+            <SectionTitle icon={FaImage} title="Cover Photo" />
+            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
+              <span className="shrink-0 rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-bold text-brand-600">Upload</span>
+              <input
+                type="file"
+                name="universityImage"
+                accept="image/*"
+                className="w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-none file:bg-brand-600 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-white"
+                required
+              />
+            </div>
+            <p className="mt-2 text-xs text-slate-400">PNG, JPG up to 5MB. Will be hosted on imgbb.</p>
+          </section>
 
           {/* Fees Information */}
-          <div className="rounded-lg bg-gray-50 p-4">
-            <h3 className="mb-4 text-lg font-semibold">Fees Breakdown</h3>
-            <div className="space-y-2">
-              <div className="flex justify-between lg:mx-20">
-                <div className="form-control">
-                  <label className="label">Service Charge</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      name="serviceCharge"
-                      className="input input-bordered"
-                    />
-                  </div>
-                </div>
-                <div className="form-control">
-                  <label className="label">Application Fees</label>
-                  <div className="flex items-center gap-2">
-                    <input
-                      type="number"
-                      name="applicationFees"
-                      className="input input-bordered"
-                    />
-                  </div>
-                </div>
-              </div>
+          <section className="rounded-2xl border border-slate-100 bg-slate-50/70 p-5">
+            <SectionTitle icon={FaMoneyBillWave} title="Fees Breakdown" />
+            <div className="grid gap-4 md:grid-cols-2">
+              <FormField label="Service Charge" hint="Platform fee" required>
+                <input type="number" name="serviceCharge" className={inputClass} placeholder="50" required />
+              </FormField>
+              <FormField label="Application Fees" hint="Payable by applicant" required>
+                <input type="number" name="applicationFees" className={inputClass} placeholder="100" required />
+              </FormField>
             </div>
-          </div>
+          </section>
 
-          <button className="btn btn-primary w-full">Submit Application</button>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-base font-bold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift disabled:opacity-60"
+          >
+            <FaPaperPlane className="h-4 w-4" />
+            {submitting ? "Publishing..." : "Publish Scholarship"}
+          </button>
         </div>
       </form>
     </div>
