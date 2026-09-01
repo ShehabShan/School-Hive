@@ -8,6 +8,26 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-01 — Fix navigation blank + upgrade react-router to 7.18.3
+
+**What was done**
+- Fixed white blank on Home → Scholarships navigation reported by user: root cause was `useScholership`/`useSingleScholership` queryKey including `user?.email` (cache thrash on auth load) + `AllScholership` derived state via `useEffect` race that could leave `filteredScholarships` empty during fast client navigation. Fixed `src/Hooks/useScholership.jsx:11` and `src/Hooks/useSingleScholership.jsx:6` to stable `queryKey` (`["scholership"]` / `["singleScholership", id]`), remove `useAuth`, add `staleTime`/`gcTime`; rewrote `AllScholership.jsx:8` to `useMemo` derive filtered from `searchTerm` (no effect). Also changed `MainLayout.jsx:56` `AnimatePresence mode="wait" → "sync"` + `initial={false}` so route transition never blocks render (was 250ms white flash that stuck if exit never fired). Verified `npm run build` (`1.11 MB` with router 7) and `npm run lint` (pre-existing errors only).
+- Upgraded `react-router-dom` `6.23.0 → 7.18.3` (latest): `npm install react-router-dom@7.18.3`, added `future: { v7_startTransition:true, v7_relativeSplatPath:true }` to `createBrowserRouter` in `src/routes/Routes.jsx:32` and `future` to `RouterProvider` in `src/main.jsx:18`. Build passes.
+- Commits `2d3fd98` (nav fix) + `8e78577` (router upgrade), both pushed to `School-Hive/main`, Firebase hosting deployed `✔ Deploy complete` to `https://scholarhive-913e4.web.app`.
+
+**In progress**
+- Nothing.
+
+**Left / next**
+- Manual verify live navigation Home→Scholarships without refresh; no further router work needed. Consider `npm audit fix` for 26 vulns (2 low/7 moderate) and updating `react` 18.2.0 → 19 if desired (2-year drift).
+
+**Decisions & context**
+- Kept misspelled path `allScholership` for backward compat (consistent across `Nabvar.jsx:63` + `Routes.jsx:43`); fixing spelling would require server collection rename.
+- Chose minimal `future` flags only (not `v7_fetcherPersist` etc.) as those two are the ones that will become default in v7 and were flagged by `npm view` deprecation warnings.
+- Did not bump `react`/`react-dom` to keep risk low; router 7 supports React 18.
+
+---
+
 ## 2026-09-01 — Proper review system: verified-applicant, 1-per-scholarship, admin/mod queue
 
 **What was done**
