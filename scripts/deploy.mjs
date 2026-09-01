@@ -8,6 +8,24 @@ const prodBuild = join(here, "prod-build.mjs");
 const repoRoot = join(here, "..");
 const credentialsPath = join(repoRoot, "docs", "CREDENTIALS.md");
 
+// --- DEPLOY PERMISSION GUARD (see AGENTS.md §2) ---
+const allowDeploy =
+  process.env.DEPLOY_APPROVED === "yes" ||
+  process.argv.includes("--allow-deploy") ||
+  process.argv.includes("--force");
+if (!allowDeploy) {
+  console.error(
+    "[deploy] ⛔ BLOCKED: owner permission required.\n" +
+      "  Do not deploy without explicit owner approval in this session.\n" +
+      "  To deploy, either:\n" +
+      "    1) Run with DEPLOY_APPROVED=yes  (e.g. DEPLOY_APPROVED=yes npm run deploy)\n" +
+      "    2) Pass --allow-deploy           (e.g. npm run deploy -- --allow-deploy)\n" +
+      "  Or have the owner write 'deploy approved' and re-run.\n" +
+      "  See AGENTS.md §2 'DEPLOY BLOCK' and docs/DEPLOY.md."
+  );
+  process.exit(1);
+}
+
 await import(prodBuild);
 
 const credentials = readFileSync(credentialsPath, "utf8");

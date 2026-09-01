@@ -1,5 +1,8 @@
 # DEPLOY.md — How to build & deploy
 
+> **⛔ DEPLOY PERMISSION REQUIRED — DO NOT DEPLOY WITHOUT OWNER APPROVAL**
+> Agents (and humans following agent instructions) MUST NOT run `npm run deploy`, `npm run build:prod` for deploy, `npx firebase deploy`, `npx vercel --prod`, or `git push origin main` (server) without the owner's explicit `deploy approved` / `yes deploy` message in the current session. Ask via the `question` tool and wait. See `AGENTS.md` §2 "DEPLOY BLOCK". Pushing to `feature/*` is allowed; production deploys are blocked.
+
 Two independent deployments:
 
 | Piece | Host | Repo | URL |
