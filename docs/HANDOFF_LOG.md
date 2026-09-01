@@ -8,6 +8,29 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-01 — Scholarship transformation: unified card + faceted discovery + saved/compare
+
+**What was done**
+- Archived `TASKS.md` DONE → `docs/TASK_HISTORY.md` (`3eebf6d` client, `a811734` server).
+- Server `Schole-hive-server/index.js:a811734`: `GET /allScholership` (+ aliases) faceted `q/category/subject/degree/country/city/maxFees/deadlineAfter/sort/page/limit` + pagination `{data,total,page,totalPages}` + indexes (`country+category+degree`, `subject`, `deadline`, `rating`, `fees`, `text`), secured `POST/PATCH/DELETE` with `verifyToken+verifyModaretor`, saved collection `POST/GET/DELETE /saved` + `GET /saved/check/:id` unique `(userEmail,scholarshipId)`, `GET /scholarships/stats` live counts (totalStipend/avgFees/byCategory/byCountry). Vercel deploy blocked — `VERCEL_TOKEN` invalid (`vcp_8h...` expired).
+- Client `557e540`: new `src/Component/scholarship/` — `ScholarshipCard` (browse/manage/compact, `Intl.NumberFormat`, `CountdownBadge`, saved/compare, image fallback, `line-clamp-2`) replaces 85% duplicate `ScholarshipCard`/`ManageScholareCard`; `ScholarshipGrid`/`ScholarshipList` + `FilterChip` + `CountdownBadge` (`getDeadlineState` emerald/amber/rose). `useScholership` params-aware, `useSaved/useToggleSave/useScholarshipStats`.
+- `AllScholership.jsx` rebuild: debounced `q` 400ms across 7 fields, faceted sidebar (category/degree/subject/country fee slider `0-2000`) + bottom-sheet mobile, chips `Clear all`, sort `recommended/deadline/rating/newest/fees`, Grid/List `12/10`, pagination `5` window, URL sync `?q=&category=&degree=&country=&maxFees=&sort=&page&view`, compare bar `≤4` + saved toggle (`PrivateRoute` gate). `EmptyState` fix (now `action` ReactNode).
+- `TopScholarship` now `sort=rating limit 6` (not `slice(0,6)`), `Highlights` wired to `/stats` (live `total/ stipend/ apps/ pending`), `ScholershipStatic` rewritten from fake `24/1,284/$1.2M/2025` to `How it works` 3 steps + `Trending destinations` (`byCountry`) + `Why School-Hive` CTA.
+- `ScholarshipDetails` (+251→~180 lines): `CountdownBadge` + save/share/compare (clipboard + `localStorage compareIds`), `eligibility/benefits/tags/duration` pills, `Intl` fees, expired guard `Admin Can't Apply`/`Closed`, breadcrumb.
+- New routes `/compare` (`ids=a,b,c` side-by-side 4 + add more), `/saved` (`PrivateRoute`) + `/userDashboard/saved`, aliases `/scholarships`/`/scholarships/:id`; `ManageScholarships` unified manage card + search + `useAxiosSecure` delete; `Add/Edit` secured + new fields `currency/duration/eligibility/benefits/tags`, fix `masters→Masters` + `subjectName2` phantom, `serviceCharge` numeric cast.
+- Verification: `npm run build 1.16MB` ok, `dev http://localhost:5173` (pid 16725) ok, `lint` pre-existing errors only.
+
+**In progress**
+- Nothing — discovery + saved/compare + details shipped.
+
+**Left / next**
+- Rotate `VERCEL_TOKEN` then `npx vercel --prod --yes --token "$VERCEL_TOKEN"` to publish server live (code on `main` but `https://server-six-vert.vercel.app` still old). Verify `GET /allScholership?q=oxford&country=UK&sort=deadline` + saved toggle + `/compare` smoke on live. `TASKS.md` BACKLOG still open (tests, `VITE_` server URL env, remaining card dedup, `zod` full form).
+
+**Decisions & context**
+- Kept misspelled `allScholership` + collection `scholership` for backward compat, added `/scholarships` aliases. Saved requires login (standard). Compare is client `localStorage` (no backend). Deadline countdown is `yyyy-MM-dd` string math (today 0). Build chunk 1.16MB unchanged (no heavy dep, only `zod` deferred).
+
+---
+
 ## 2026-09-01 — Full-fledged user/admin profile (same component, role-aware authorities)
 
 **What was done**
