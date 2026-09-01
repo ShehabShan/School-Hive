@@ -20,7 +20,7 @@ import SocialLogin from "./SocialLogin";
 
 const Registration = () => {
   const navigate = useNavigate();
-  const { googleSingIn, createUser, updateUserProfile, setUser } = useAuth();
+  const { createUser, updateUserProfile, setUser } = useAuth();
   const axiosPublic = useAxiosPublic();
 
   const handleSignUp = async (e) => {

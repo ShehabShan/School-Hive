@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { CheckCircle2, Award, ShieldCheck, Sparkles } from "lucide-react";
+import { Award, ShieldCheck, Sparkles } from "lucide-react";
 import img1 from "../../assist/image/AboutUs/student1.jpg";
 import img2 from "../../assist/image/AboutUs/student2.jpg";
 import img3 from "../../assist/image/AboutUs/student4.png";

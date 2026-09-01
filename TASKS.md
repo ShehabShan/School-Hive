@@ -69,10 +69,10 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] `src/Pages/Authentication/SocialLogin.jsx`
 
 ### Scholarship discovery and details
-- [ ] `src/Pages/AllScholership/AllScholership.jsx`
-- [ ] `src/Pages/AllScholership/ScholarshipCard.jsx`
-- [ ] `src/Pages/ScholarshipDetails/ScholarshipDetails.jsx`
-- [ ] `src/Pages/ScholarshipDetails/AllReviews.jsx`
+- [x] `src/Pages/AllScholership/AllScholership.jsx`
+- [x] `src/Pages/AllScholership/ScholarshipCard.jsx`
+- [x] `src/Pages/ScholarshipDetails/ScholarshipDetails.jsx`
+- [x] `src/Pages/ScholarshipDetails/AllReviews.jsx`
 
 ### User dashboard
 - [ ] `src/Layout/UserDashboard.jsx`
