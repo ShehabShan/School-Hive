@@ -1,6 +1,7 @@
 import Stars from "../../../Component/ui/Stars";
 import StatusBadge from "../../../Component/ui/StatusBadge";
 import { Trash2, CalendarDays, Hash, ShieldCheck, Pencil, Check, X, EyeOff } from "lucide-react";
+import { Link } from "react-router-dom";
 
 /* eslint-disable react/prop-types */
 export default function ReviewCard({
@@ -11,7 +12,9 @@ export default function ReviewCard({
   onApprove,
   onReject,
   onHide,
+  onRemove,
   onEdit,
+  onHistory,
 }) {
   const isPending = review?.status === "pending";
   const isApproved = review?.status === "approved";
@@ -23,7 +26,7 @@ export default function ReviewCard({
           {onToggleSelect && (
             <input type="checkbox" checked={!!selected} onChange={onToggleSelect} className="mt-1 h-4 w-4 rounded border-slate-300 text-brand-600 focus:ring-brand-500" />
           )}
-          <div className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-brand-700 ring-2 ring-brand-100">
+          <Link to={`/profile/${encodeURIComponent(review?.reviewer_email || "")}`} className="h-12 w-12 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-brand-700 ring-2 ring-brand-100 hover:ring-brand-300">
             {review?.reviewer_photo ? (
               <img src={review.reviewer_photo} alt={review?.reviewer_name || "Reviewer"} className="h-full w-full object-cover" />
             ) : (
@@ -31,12 +34,15 @@ export default function ReviewCard({
                 {(review?.reviewer_name || review?.reviewer_email || "U").charAt(0).toUpperCase()}
               </span>
             )}
-          </div>
+          </Link>
           <div className="min-w-0 flex-1">
             <h3 className="truncate text-sm font-bold text-slate-900">
               {review?.scholership_details?.universityName || review?.reviewer_name || "Scholarship"}
             </h3>
-            <p className="truncate text-xs text-slate-500">{review?.reviewer_email}</p>
+            <Link to={`/profile/${encodeURIComponent(review?.reviewer_email || "")}`} className="truncate text-xs text-slate-500 hover:text-brand-600 hover:underline flex items-center gap-1">
+              {review?.reviewer_name || review?.reviewer_email}
+              {review?.isVerified && <ShieldCheck className="h-3 w-3 text-emerald-500" />}
+            </Link>
           </div>
           <StatusBadge status={review?.status || "pending"} />
         </div>
@@ -74,6 +80,15 @@ export default function ReviewCard({
             Moderated by <span className="font-semibold">{review.moderatedBy}</span> {review.moderatedAt ? `on ${new Date(review.moderatedAt).toLocaleDateString()}` : ""}
             {review.moderationReason ? ` — ${review.moderationReason}` : ""}
           </p>
+        )}
+        {review?.removedBy && (
+          <p className="mt-1 text-xs text-rose-600">
+            Removed by <span className="font-semibold">{review.removedBy}</span> {review.removedAt ? `on ${new Date(review.removedAt).toLocaleDateString()}` : ""} — {review.removedReason || "No reason"}
+            {review.removedNote ? ` (${review.removedNote})` : ""}
+          </p>
+        )}
+        {onHistory && (
+          <button onClick={() => onHistory(review)} className="mt-2 text-xs font-semibold text-brand-600 hover:text-brand-700">View history</button>
         )}
       </div>
 
@@ -119,9 +134,23 @@ export default function ReviewCard({
                 onClick={() => handleDelete(review?._id)}
                 className="inline-flex items-center justify-center gap-1 rounded-xl bg-white px-3 py-2 text-xs font-bold text-rose-600 ring-1 ring-slate-200 hover:bg-rose-50"
               >
-                <Trash2 className="h-3.5 w-3.5" /> Delete
+                <Trash2 className="h-3.5 w-3.5" /> Remove
               </button>
             </div>
+            {(onRemove || onHistory) && (
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                {onRemove && (
+                  <button onClick={onRemove} className="inline-flex items-center justify-center gap-1 rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white hover:bg-slate-800">
+                    <EyeOff className="h-3.5 w-3.5" /> Remove (hard)
+                  </button>
+                )}
+                {onHistory && (
+                  <button onClick={() => onHistory(review)} className="inline-flex items-center justify-center gap-1 rounded-xl bg-white px-3 py-2 text-xs font-bold text-brand-600 ring-1 ring-slate-200 hover:bg-brand-50">
+                    History
+                  </button>
+                )}
+              </div>
+            )}
           </>
         ) : (
           <div className="grid grid-cols-2 gap-2">
@@ -134,7 +163,7 @@ export default function ReviewCard({
               onClick={() => handleDelete(review?._id)}
               className={`inline-flex items-center justify-center gap-1 rounded-xl bg-white px-3 py-2 text-xs font-bold text-rose-600 ring-1 ring-slate-200 hover:bg-rose-50 ${!onEdit ? "col-span-2" : ""}`}
             >
-              <Trash2 className="h-3.5 w-3.5" /> Delete
+              <Trash2 className="h-3.5 w-3.5" /> Remove
             </button>
           </div>
         )}

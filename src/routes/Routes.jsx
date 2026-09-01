@@ -30,6 +30,7 @@ import UserRoute from "./UserRoute";
 import AboutUs from "../Component/AboutUs/AboutUs";
 import Compare from "../Pages/Compare/Compare";
 import SavedScholarships from "../Pages/UserPage/Saved/SavedScholarships";
+import PublicProfile from "../Pages/PublicProfile/PublicProfile";
 
 const router = createBrowserRouter(
   [
@@ -101,6 +102,10 @@ const router = createBrowserRouter(
       {
         path: "scholarships/:id",
         element: <ScholarshipDetails></ScholarshipDetails>,
+      },
+      {
+        path: "profile/:email",
+        element: <PublicProfile></PublicProfile>,
       },
     ],
   },

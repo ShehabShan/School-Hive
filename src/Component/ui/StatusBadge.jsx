@@ -9,6 +9,7 @@ const statusStyles = {
   processing: "bg-amber-100 text-amber-700 ring-amber-200",
   rejected: "bg-rose-100 text-rose-700 ring-rose-200",
   hidden: "bg-slate-100 text-slate-600 ring-slate-200",
+  removed: "bg-rose-50 text-rose-700 ring-rose-200",
 };
 
 const dotStyles = {
@@ -19,6 +20,7 @@ const dotStyles = {
   processing: "bg-amber-500",
   rejected: "bg-rose-500",
   hidden: "bg-slate-400",
+  removed: "bg-rose-500",
 };
 
 export default function StatusBadge({ status }) {

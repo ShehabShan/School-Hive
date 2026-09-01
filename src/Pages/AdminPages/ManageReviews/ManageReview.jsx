@@ -14,6 +14,7 @@ const tabs = [
   { key: "approved", label: "Approved" },
   { key: "rejected", label: "Rejected" },
   { key: "hidden", label: "Hidden" },
+  { key: "removed", label: "Removed" },
 ];
 
 const ManageReview = () => {
@@ -51,21 +52,29 @@ const ManageReview = () => {
   };
 
   const handleModerate = async (id, status) => {
-    const reason = status === "rejected" || status === "hidden"
-      ? (await Swal.fire({
-          title: `Reason for ${status}?`,
-          input: "text",
-          inputPlaceholder: "Spam, profanity ... (optional)",
-          showCancelButton: true,
-          confirmButtonColor: "#4f46e5",
-          confirmButtonText: "Confirm",
-        })).value
-      : null;
-    // if dismissed on reason input, abort
-    if (status === "rejected" && reason === undefined) return;
-
+    const needReason = ["rejected", "hidden", "removed"].includes(status);
+    let reason = null;
+    let note = null;
+    if (needReason) {
+      const res = await Swal.fire({
+        title: `Reason for ${status}?`,
+        html: `<input id="swal-reason" class="swal2-input" placeholder="Reason (required)"><textarea id="swal-note" class="swal2-textarea" placeholder="Note for history (optional)"></textarea>`,
+        showCancelButton: true,
+        confirmButtonColor: "#4f46e5",
+        confirmButtonText: "Confirm",
+        preConfirm: () => {
+          const r = document.getElementById("swal-reason").value.trim();
+          const n = document.getElementById("swal-note").value.trim();
+          if (!r) { Swal.showValidationMessage("Reason required"); return false; }
+          return { reason: r, note: n };
+        },
+      });
+      if (!res.isConfirmed) return;
+      reason = res.value.reason;
+      note = res.value.note || undefined;
+    }
     try {
-      await axiosSecure.patch(`/allReviews/${id}/moderate`, { status, reason: reason || undefined });
+      await axiosSecure.patch(`/allReviews/${id}/moderate`, { status, reason: reason || undefined, note });
       Swal.fire({ icon: "success", title: `Marked ${status}`, timer: 1200, showConfirmButton: false });
       refetch();
     } catch (err) {
@@ -75,26 +84,40 @@ const ManageReview = () => {
 
   const handleDelete = async (_id) => {
     const res = await Swal.fire({
-      title: "Delete review?",
-      text: "This review will be permanently removed.",
+      title: "Remove review?",
+      html: `<p class="text-sm text-slate-600">This review will be soft-removed and saved to history with reason. Admin can review history later.</p><input id="swal-del-reason" class="swal2-input" placeholder="Reason (required)"><textarea id="swal-del-note" class="swal2-textarea" placeholder="Note for history (optional)"></textarea>`,
       icon: "warning",
       showCancelButton: true,
       confirmButtonColor: "#4f46e5",
       cancelButtonColor: "#e11d48",
-      confirmButtonText: "Yes, delete",
-      background: "#ffffff",
-      customClass: { popup: "rounded-2xl", confirmButton: "rounded-xl", cancelButton: "rounded-xl" },
+      confirmButtonText: "Yes, remove",
+      focusConfirm: false,
+      preConfirm: () => {
+        const r = document.getElementById("swal-del-reason").value.trim();
+        const n = document.getElementById("swal-del-note").value.trim();
+        if (!r) { Swal.showValidationMessage("Reason required"); return false; }
+        return { reason: r, note: n };
+      },
     });
     if (!res.isConfirmed) return;
     try {
-      const { data } = await axiosSecure.delete(`/allReviews/${_id}`);
-      if (data.data?.deletedCount > 0 || data.deletedCount > 0) {
-        Swal.fire({ title: "Deleted!", text: "Review has been deleted.", icon: "success", confirmButtonColor: "#4f46e5" });
-        refetch();
-        setSelected((prev) => prev.filter((x) => x !== _id));
-      }
+      await axiosSecure.delete(`/allReviews/${_id}`, { data: { reason: res.value.reason, note: res.value.note } });
+      Swal.fire({ title: "Removed!", text: "Review removed with history.", icon: "success", confirmButtonColor: "#4f46e5" });
+      refetch();
+      setSelected((prev) => prev.filter((x) => x !== _id));
+    } catch (err) {
+      Swal.fire({ title: "Error", text: err?.response?.data?.message || "Remove failed.", icon: "error" });
+    }
+  };
+
+  const handleHistory = async (review) => {
+    try {
+      const { data } = await axiosSecure.get(`/reviews/history/${review._id}`);
+      const hist = data.data || [];
+      const html = hist.length ? hist.map(h=> `<div style="text-align:left;border:1px solid #e2e8f0;border-radius:8px;padding:8px;margin:6px 0"><b>${h.action}</b> ${h.from}→${h.to}<br><small>by ${h.by} at ${new Date(h.at).toLocaleString()}</small><br>Reason: ${h.reason||"—"}<br>Note: ${h.note||"—"}</div>`).join("") : "<p>No history</p>";
+      Swal.fire({ title: "Review history", html, width: "560px" });
     } catch {
-      Swal.fire({ title: "Error", text: "Delete failed.", icon: "error" });
+      Swal.fire({ title: "No history", text: "History not available or not deployed yet." });
     }
   };
 
@@ -156,7 +179,7 @@ const ManageReview = () => {
       <PageHeader
         icon={Star}
         title="Manage Reviews"
-        subtitle={`${stats?.total ?? reviews.length} total • ${stats?.pending ?? "-"} pending • ${stats?.approved ?? "-"} approved`}
+        subtitle={`${stats?.total ?? reviews.length} total • ${stats?.pending ?? "-"} pending • ${stats?.approved ?? "-"} approved • ${stats?.removed ?? "-"} removed`}
         actions={
           selected.length > 0 && (
             <div className="flex items-center gap-2">
@@ -233,8 +256,10 @@ const ManageReview = () => {
                 onApprove={() => handleModerate(review._id, "approved")}
                 onReject={() => handleModerate(review._id, "rejected")}
                 onHide={() => handleModerate(review._id, "hidden")}
+                onRemove={() => handleModerate(review._id, "removed")}
                 onEdit={() => handleEdit(review)}
                 handleDelete={handleDelete}
+                onHistory={handleHistory}
               />
             </motion.div>
           ))}

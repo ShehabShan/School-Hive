@@ -1,11 +1,13 @@
 import { motion } from "framer-motion";
-import { Quote, CalendarDays } from "lucide-react";
+import { Quote, CalendarDays, ShieldCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 import Stars from "../../Component/ui/Stars";
 
 /* eslint-disable react/prop-types */
 const AllReviews = ({ review }) => {
   const initials =
     review?.reviewer_email?.charAt(0)?.toUpperCase() || "U";
+  const profileLink = `/profile/${encodeURIComponent(review?.reviewer_email || "")}`;
 
   return (
     <motion.div
@@ -20,14 +22,18 @@ const AllReviews = ({ review }) => {
         className="absolute right-4 top-4 h-8 w-8 text-brand-100 transition-colors group-hover:text-brand-200"
       />
       <div className="flex items-center gap-3">
-        <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-bold text-white ring-2 ring-brand-100">
-          {initials}
-        </span>
-        <div>
-          <h3 className="font-bold text-slate-900">
+        <Link to={profileLink} className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-sm font-bold text-white ring-2 ring-brand-100 hover:ring-brand-300">
+          {review?.reviewer_photo ? <img src={review.reviewer_photo} alt={review.reviewer_name || review.reviewer_email} className="h-full w-full object-cover" onError={(e)=> e.currentTarget.style.display='none'} /> : initials}
+        </Link>
+        <div className="min-w-0">
+          <h3 className="truncate font-bold text-slate-900">
             {review?.scholership_details?.universityName}
           </h3>
-          <p className="text-xs text-slate-400">{review?.reviewer_email}</p>
+          <Link to={profileLink} className="flex items-center gap-1 text-xs text-slate-500 hover:text-brand-600">
+            {review?.reviewer_photo && <img src={review.reviewer_photo} alt="" className="h-4 w-4 rounded-full object-cover" onError={(e)=> e.currentTarget.style.display='none'} />}
+            <span className="truncate">{review?.reviewer_name || review?.reviewer_email}</span>
+            {review?.isVerified && <ShieldCheck className="h-3 w-3 text-emerald-500" />}
+          </Link>
         </div>
       </div>
 
