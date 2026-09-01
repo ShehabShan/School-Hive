@@ -5,7 +5,6 @@ import useAuth from "./useAuth";
 
 const axiosInstance = axios.create({
   baseURL: "https://server-six-vert.vercel.app",
-  // baseURL: "http://localhost:5000",
   withCredentials: true,
 });
 

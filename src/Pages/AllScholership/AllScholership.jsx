@@ -87,9 +87,48 @@ export default function AllScholership() {
   }, [debouncedQ, category, subject, degree, country, maxFees, sort, page, view]);
 
   const { data: resp, isLoading } = useScholership(serverParams);
-  const list = resp?.data || [];
-  const total = resp?.total ?? list.length;
-  const totalPages = resp?.totalPages || 1;
+  // Fallback client-side filtering — live server-six-vert still old (returns all 37 for any q)
+  // When server is deployed with faceted filter, this client filter is redundant but harmless.
+  const raw = resp?.data || [];
+  const filteredSorted = useMemo(() => {
+    let arr = [...raw];
+    // text q
+    if (debouncedQ) {
+      const rx = new RegExp(debouncedQ.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "i");
+      arr = arr.filter((s) => rx.test(s.universityName || "") || rx.test(s.scholarshipCategory || "") || rx.test(s.subjectName || "") || rx.test(s.scholarshipDescription || "") || rx.test(s.country || "") || rx.test(s.city || "") || rx.test(s.degree || ""));
+    }
+    if (category) arr = arr.filter((s) => s.scholarshipCategory === category);
+    if (subject) arr = arr.filter((s) => s.subjectName === subject);
+    if (degree) arr = arr.filter((s) => s.degree === degree);
+    if (country) arr = arr.filter((s) => String(s.country).toLowerCase() === country.toLowerCase());
+    if (maxFees !== "" && maxFees !== null) {
+      const mf = Number(maxFees);
+      if (Number.isFinite(mf)) arr = arr.filter((s) => Number(s.applicationFees) <= mf);
+    }
+    // sort
+    const srt = String(sort || "recommended").toLowerCase();
+    if (srt === "rating" || srt === "recommended") arr.sort((a, b) => (Number(b.rating) || 0) - (Number(a.rating) || 0) || (Number(b.reviewsCount) || 0) - (Number(a.reviewsCount) || 0));
+    else if (srt === "deadline") arr.sort((a, b) => String(a.applicationDeadline).localeCompare(String(b.applicationDeadline)));
+    else if (srt === "fees-asc") arr.sort((a, b) => Number(a.applicationFees) - Number(b.applicationFees));
+    else if (srt === "fees-desc") arr.sort((a, b) => Number(b.applicationFees) - Number(a.applicationFees));
+    else if (srt === "newest") arr.sort((a, b) => String(b.postDate).localeCompare(String(a.postDate)));
+    return arr;
+  }, [raw, debouncedQ, category, subject, degree, country, maxFees, sort]);
+
+  // Prefer server pagination when live (total differs from client count)
+  let list, total, totalPages;
+  const serverHasFilter = resp?.total !== undefined && resp.total !== filteredSorted.length;
+  if (serverHasFilter) {
+    list = raw;
+    total = resp.total;
+    totalPages = resp.totalPages || 1;
+  } else {
+    total = filteredSorted.length;
+    const limit = view === "list" ? 10 : 12;
+    totalPages = Math.max(1, Math.ceil(total / limit));
+    const start = (page - 1) * limit;
+    list = filteredSorted.slice(start, start + limit);
+  }
 
   const { data: savedDocs } = useSaved();
   const savedIds = useMemo(() => new Set((savedDocs || []).map((d) => String(d.scholarshipId))), [savedDocs]);

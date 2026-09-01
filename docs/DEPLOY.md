@@ -52,14 +52,11 @@ Environment Variables panel — those are configured inside Vercel, not in the r
 2. Deploy the client, confirm https://scholarhive-913e4.web.app loads.
 3. Smoke-test auth (sign up / log in) since it round-trips client -> server `/jwt`.
 
-## Local dev (both repos side by side)
+## Local dev
 
 ```bash
 cd School-Hive && cp .env.example .env   # fill VITE_* Firebase values
-cd School-Hive && npm run dev            # Vite on :5173
-cd Schole-hive-server && npm run dev     # Express on :5000
+cd School-Hive && npm run dev            # Vite on :5173 — always uses https://server-six-vert.vercel.app
 ```
 
-Switch the client to localhost by uncommenting `baseURL: "http://localhost:5000"`
-in `src/Hooks/useAxiosPublic.jsx` / `useAxiosSecure.jsx` (the production Vercel URL
-is the default and should be restored before committing).
+The client always fetches from Vercel (`https://server-six-vert.vercel.app`), even when running locally. Do not switch to `localhost:5000`.
