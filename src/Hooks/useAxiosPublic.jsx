@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const axiosPublic = axios.create({
-  baseURL: "https://server-six-vert.vercel.app",
+  baseURL: import.meta.env.VITE_server_url || "https://server-six-vert.vercel.app",
 });
 
 const useAxiosPublic = () => {

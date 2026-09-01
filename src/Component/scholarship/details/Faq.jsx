@@ -21,7 +21,7 @@ export default function Faq({ faqs = [], scholarshipId }) {
     if (ask.question.trim().length < 10) return setError("Question 10+ chars");
     if (!ask.email.includes("@")) return setError("Valid email required");
     try {
-      const res = await fetch("https://server-six-vert.vercel.app/inquiries", {
+      const res = await fetch(`${import.meta.env.VITE_server_url || "https://server-six-vert.vercel.app"}/inquiries`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ scholarshipId, name: ask.name, email: ask.email, question: ask.question }),

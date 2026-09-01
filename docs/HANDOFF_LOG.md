@@ -8,6 +8,18 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-01 — Server URL switchable via env var
+
+**What was done**
+- Added `VITE_server_url` env variable to toggle between local dev server (`http://localhost:5000`) and production Vercel server (`https://server-six-vert.vercel.app`).
+- Updated `useAxiosPublic.jsx`, `useAxiosSecure.jsx`, `Faq.jsx` to read from `import.meta.env.VITE_server_url` with Vercel fallback.
+- Updated `.env` and `.env.example` with the new variable.
+
+**LEFT**
+- None — standalone change, no tasks affected.
+
+---
+
 ## 2026-09-01 — Manage Reviews simplified (auto-approve model) + navbar/dashboard refactor
 
 **What was done**

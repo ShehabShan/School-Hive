@@ -4,7 +4,7 @@ import { useEffect } from "react";
 import useAuth from "./useAuth";
 
 const axiosInstance = axios.create({
-  baseURL: "https://server-six-vert.vercel.app",
+  baseURL: import.meta.env.VITE_server_url || "https://server-six-vert.vercel.app",
   withCredentials: true,
 });
 
