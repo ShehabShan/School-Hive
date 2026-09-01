@@ -1,0 +1,27 @@
+/* Program Hub wrapper — mirrors AllScholership sidebar rhythm */
+.program-hub-wrapper {
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+.program-hub-wrapper .container-page {
+  max-width: 80rem;
+}
+@media (min-width: 1024px) {
+  .program-hub-wrapper .container-page {
+    max-width: 1440px;
+  }
+}
+@media (min-width: 1280px) {
+  .program-hub-wrapper .container-page {
+    max-width: 1600px;
+  }
+}
+@media (min-width: 1536px) {
+  .program-hub-wrapper .container-page {
+    max-width: 1680px;
+  }
+}
+.program-hub-wrapper .program-layout {
+  min-width: 0;
+}

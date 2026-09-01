@@ -10,6 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import toast from "react-hot-toast";
+import "./ContactPage.css";
 
 const ContactPage = () => {
   const [formState, setFormState] = useState({
@@ -63,7 +64,7 @@ const ContactPage = () => {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-slate-50 py-20 md:py-28">
+    <section className="contact-wrapper relative overflow-hidden bg-slate-50 py-20 md:py-28">
       <div
         aria-hidden
         className="pointer-events-none absolute -left-24 top-20 h-72 w-72 rounded-full bg-brand-100/60 blur-3xl"

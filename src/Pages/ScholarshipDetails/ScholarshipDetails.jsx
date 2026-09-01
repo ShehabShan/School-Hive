@@ -21,6 +21,7 @@ import Timeline from "../../Component/scholarship/details/Timeline";
 import Faq from "../../Component/scholarship/details/Faq";
 import RelatedCarousel from "../../Component/scholarship/details/RelatedCarousel";
 import AboutUniversity from "../../Component/scholarship/details/AboutUniversity";
+import "./ScholarshipDetails.css";
 
 const fmt = (n, cur = "USD") => {
   const v = Number(n);
@@ -83,7 +84,7 @@ export default function ScholarshipDetails() {
   const maxC = Math.max(1, ...dist.map((d) => d.c));
 
   return (
-    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="min-h-screen bg-slate-50 pb-24">
+    <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }} className="details-wrapper min-h-screen bg-slate-50 pb-24">
       <div className="border-b border-slate-100 bg-white">
         <div className="container-page flex flex-wrap items-center gap-2 py-3 text-sm">
           <Link to="/" className="text-slate-500 hover:text-slate-700">Home</Link><span className="text-slate-300">/</span>
@@ -92,7 +93,7 @@ export default function ScholarshipDetails() {
         </div>
       </div>
 
-      <div className="container-page grid grid-cols-1 gap-6 py-6 lg:grid-cols-[1.4fr_0.9fr]">
+      <div className="details-main-grid container-page grid grid-cols-1 gap-6 py-6 lg:grid-cols-[1.4fr_0.9fr]">
         <Gallery images={gallery} videoUrl={scholarship.videoUrl} videoPoster={scholarship.videoPoster} alt={scholarship.universityName} />
         <SummaryCard scholarship={scholarship} isSaved={isSaved} onSave={handleSave} onShare={handleShare} compareOn={compareOn} onCompare={handleCompare} isAdmin={isAdmin} isExpired={isExpired} onApply={handleApply} />
       </div>
@@ -105,7 +106,7 @@ export default function ScholarshipDetails() {
         </div>
       </div>
 
-      <div className="container-page grid grid-cols-1 gap-6 py-6 lg:grid-cols-[1.4fr_0.9fr]">
+      <div className="details-main-grid container-page grid grid-cols-1 gap-6 py-6 lg:grid-cols-[1.4fr_0.9fr]">
         <div className="space-y-4">
           <SectionAccordion id="overview" icon={BookOpen} title="Overview" excerpt={scholarship.scholarshipDescription?.slice(0, 80)} defaultOpen>
             <p className="whitespace-pre-wrap leading-relaxed text-slate-700">{scholarship.scholarshipDescription || "No description."}</p>

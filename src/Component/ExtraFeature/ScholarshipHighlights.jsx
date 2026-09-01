@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { GraduationCap, DollarSign, Users, BadgeCheck, TrendingUp } from "lucide-react";
 import { useScholarshipStats } from "../../Hooks/useSaved";
+import "./ScholarshipHighlights.css";
 
 const fmt = (n) => {
   if (n >= 1000000) return `${(n / 1000000).toFixed(1)}M+`;
@@ -23,7 +24,7 @@ export default function ScholarshipHighlights() {
   ];
 
   return (
-    <section className="relative overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 py-20">
+    <section className="highlights-wrapper relative overflow-hidden bg-gradient-to-br from-brand-950 via-brand-900 to-brand-800 py-20">
       <div className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 rounded-full bg-brand-600/30 blur-3xl" />
       <div className="pointer-events-none absolute -bottom-24 -right-24 h-72 w-72 rounded-full bg-amber-500/20 blur-3xl" />
       <div className="pointer-events-none absolute right-1/3 top-0 h-40 w-40 rounded-full bg-white/5 blur-2xl" />

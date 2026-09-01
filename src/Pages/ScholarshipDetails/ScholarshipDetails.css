@@ -1,0 +1,32 @@
+/* ScholarshipDetails wrapper — wider canvas, keeps global 7xl elsewhere */
+.details-wrapper {
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+.details-wrapper .container-page {
+  max-width: 80rem;
+}
+@media (min-width: 1024px) {
+  .details-wrapper .container-page {
+    max-width: 1440px;
+  }
+}
+@media (min-width: 1280px) {
+  .details-wrapper .container-page {
+    max-width: 1600px;
+  }
+}
+@media (min-width: 1536px) {
+  .details-wrapper .container-page {
+    max-width: 1680px;
+  }
+}
+/* Keep the two-column flagship grids from blowing out */
+.details-wrapper .details-main-grid {
+  min-width: 0;
+}
+.details-wrapper .details-aside {
+  min-width: 0;
+  align-self: start;
+}

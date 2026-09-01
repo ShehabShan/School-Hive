@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Search, Bookmark, Send, CheckCircle2, GraduationCap, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useScholarshipStats } from "../../Hooks/useSaved";
+import "./ScholershipStatic.css";
 
 const steps = [
   { icon: Search, title: "Discover", desc: "Filter by country, degree, field and deadline. Sort by what matters most.", color: "brand" },
@@ -14,7 +15,7 @@ export default function ScholershipStatic() {
   const byCountry = stats?.byCountry || [];
 
   return (
-    <section className="relative overflow-hidden bg-white">
+    <section className="program-hub-wrapper relative overflow-hidden bg-white">
       <div aria-hidden className="pointer-events-none absolute -right-32 top-1/3 h-80 w-80 rounded-full bg-sky-50 blur-3xl" />
       <div className="container-page relative py-20 md:py-28">
         <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.5 }} className="section-title">

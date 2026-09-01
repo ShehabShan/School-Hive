@@ -1,0 +1,27 @@
+/* TopScholarship wrapper — same fluid cap as AllScholership */
+.top-scholarships-wrapper {
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+.top-scholarships-wrapper .container-page {
+  max-width: 80rem;
+}
+@media (min-width: 1024px) {
+  .top-scholarships-wrapper .container-page {
+    max-width: 1440px;
+  }
+}
+@media (min-width: 1280px) {
+  .top-scholarships-wrapper .container-page {
+    max-width: 1600px;
+  }
+}
+@media (min-width: 1536px) {
+  .top-scholarships-wrapper .container-page {
+    max-width: 1680px;
+  }
+  .top-scholarships-wrapper .top-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}

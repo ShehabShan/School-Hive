@@ -7,10 +7,12 @@ import { useSaved, useToggleSave } from "../../Hooks/useSaved";
 import useAuth from "../../Hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useMemo, useState } from "react";
+import "./TopScholarship.css";
 
 const TopScholarship = () => {
-  const { data: resp, isLoading } = useScholership({ sort: "rating", limit: 6, page: 1 });
-  const list = resp?.data || [];
+  const { data: resp, isLoading } = useScholership({ sort: "rating", limit: 15, page: 1 });
+  const raw = resp?.data || [];
+  const list = raw.slice(0, 15);
   const navigate = useNavigate();
   const { user } = useAuth();
   const { data: savedDocs } = useSaved();
@@ -35,7 +37,7 @@ const TopScholarship = () => {
   };
 
   return (
-    <section className="relative overflow-hidden bg-slate-50">
+    <section className="top-scholarships-wrapper relative overflow-hidden bg-slate-50">
       <div aria-hidden className="pointer-events-none absolute -left-32 top-24 h-72 w-72 rounded-full bg-brand-100/60 blur-3xl" />
       <div className="container-page relative py-20 md:py-28">
         <motion.div
