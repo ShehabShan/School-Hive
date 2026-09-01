@@ -101,6 +101,16 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] `src/Pages/AdminPages/ManageReviews/ManageReview.jsx`
 - [x] `src/Pages/AdminPages/ManageReviews/ReviewCard.jsx`
 
+### Review System — Proper Moderation (2026-09-01)
+- [x] Server: `verifyModaretor`, indexes `(reviewer_email, scholarShip_id)` unique, `(scholarShip_id, status)`, `recalcScholarshipRating`
+- [x] Server: `POST /addReviews` secured, validates 1-5 rating + 5-500 comment, gates `apply.applicationStatus==="accepted"`, dup 409, `status="pending"` + `isVerified`
+- [x] Server: `GET /allReviews` enforces `email===decoded` unless staff + `status/q/scholarShip_id/page/limit`, safe join
+- [x] Server: `GET /allReviews/:id` public now `status="approved"` only
+- [x] Server: `DELETE /allReviews/:id` secured owner|staff + recalc, `PATCH /allReviews/:id` owner edit → re-pending, `PATCH /allReviews/:id/moderate` staff only, `GET /reviews/stats`
+- [x] Client: `useReviews` fix `queryKey` + `StatusBadge` add `approved/hidden`, `ScholarshipDetails` shows approved only
+- [x] Client: `ManageReview` queue — tabs Pending/Approved/Rejected/Hidden, search, bulk approve/reject, stats, `ReviewCard` verified shield + moderation meta + checkbox
+- [x] Client: `AddReview` gate — accepted-only + 1-per-scholarship + `useAxiosSecure` + pending toast, `MyApplication` conditional star, `MyReviews` edit via PATCH
+
 ---
 
 ## IN PROGRESS

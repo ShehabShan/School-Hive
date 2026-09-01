@@ -8,6 +8,32 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-01 — Proper review system: verified-applicant, 1-per-scholarship, admin/mod queue
+
+**What was done**
+- Moved review system from open write/delete to verified moderation (your `accepted`-only gate, 1 per `(email, scholarship)`):
+  - Server `Schole-hive-server/index.js` (`3e7cd5e`): added `verifyModaretor`, indexes `unique(reviewer_email,scholarShip_id)` + `(scholarShip_id,status)`, `recalcScholarshipRating` → `scholership.rating`/`reviewsCount`; `POST /addReviews` now `verifyToken+loadAuthUser`, validates 1-5/5-500, requires `apply.applicationStatus==="accepted"`, dup `409`, `status="pending"`+`isVerified`+`createdAt`; `GET /allReviews` enforces `email===decoded` unless staff + `status/q/scholarShip_id/page/limit` safe join; `GET /allReviews/:id` public now `approved` only; `DELETE` secured owner|staff + recalc; `PATCH /:id` owner edit → re-pending; `PATCH /:id/moderate` staff `approved|rejected|hidden|pending` + `moderatedBy/At`; `GET /reviews/stats` staff.
+  - Client `5bfb60c` + `5755c74` + `6609a0e`: `useReviews` fix `queryKey` + `StatusBadge` `approved/hidden`, `ManageReview` queue with tabs Pending/Approved/Rejected/Hidden, search, bulk approve/reject, stats, `ReviewCard` verified shield + `StatusBadge` + checkbox + approve/reject/hide/edit/delete; `AddReview` now `useAxiosSecure`, pre-flight `apply` + dup check via `GET /allReviews?email&scholarShip_id`, blocked unless accepted, already-reviewed gate; `MyApplication` conditional star (accepted && not reviewed) + shield; `MyReviews` edit via `PATCH` re-queue.
+- Built + pushed client `6609a0e`, deployed to `https://scholarhive-913e4.web.app` (`✔ Deploy complete`); built server ok (`node --check`), pushed `3e7cd5e` to `Schole-hive-server/main`.
+- Updated `TASKS.md` with `Review System — Proper Moderation` DONE checklist (client + server).
+
+**Blocker**
+- Vercel deploy `Schole-hive-server` failed: `Error: The token provided via --token is not valid` (`VERCEL_TOKEN` in `School-Hive/docs/CREDENTIALS.md:15` is expired/invalid). Server code is pushed to `main` but live `https://server-six-vert.vercel.app` still old until token rotated. Firebase hosting succeeded.
+
+**In progress**
+- Nothing — review system feature complete.
+
+**Left / next**
+- Rotate `VERCEL_TOKEN`, then `npx vercel --prod --yes --token "$VERCEL_TOKEN"` from `Schole-hive-server` to publish. Verify `POST /addReviews` 403 gate + 409 dup + moderation flow on live.
+- `BACKLOG` still open (tests, env var for server URL, etc.).
+
+**Decisions & context**
+- Chose `accepted`-only gate (not `pending`) per your final confirmation — mirrors Amazon `Verified Purchase`; trade honest negative still allowed but only from verified. Moderation stays light: human tabs, not ML.
+- Kept single `ReviewCard` component reused by `MyReviews` (owner edit) and `ManageReview` (staff queue) via conditional `onApprove` prop.
+- Edit from owner re-sets to `pending` (re-moderate); staff edit keeps status — preserves trust.
+
+---
+
 ## 2026-09-01 — UI Redesign checklist completed; all remaining components shipped
 
 **What was done**
