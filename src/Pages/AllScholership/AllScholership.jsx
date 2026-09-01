@@ -1,45 +1,25 @@
 import ScholarshipCard from "./ScholarshipCard";
 import useScholership from "../../Hooks/useScholership";
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useState } from "react";
 import { motion } from "framer-motion";
 import { Search, GraduationCap, SlidersHorizontal } from "lucide-react";
 import EmptyState from "../../Component/ui/EmptyState";
 
 const AllScholership = () => {
   const [allScholership] = useScholership();
-  const [filteredScholarships, setFilteredScholarships] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [hasSearched, setHasSearched] = useState(false);
 
-  const debounceTimer = useRef(null);
+  const filteredScholarships = useMemo(() => {
+    const v = searchTerm.trim().toLowerCase();
+    if (!v) return allScholership;
+    return allScholership.filter((s) => s.universityName?.toLowerCase().includes(v));
+  }, [allScholership, searchTerm]);
+
+  const hasSearched = searchTerm.trim().length > 0;
 
   const handleSearchChange = (e) => {
-    const value = e.target.value.toLowerCase();
-    setSearchTerm(value);
-
-    if (debounceTimer.current) {
-      clearTimeout(debounceTimer.current);
-    }
-
-    debounceTimer.current = setTimeout(() => {
-      if (value) {
-        const results = allScholership.filter((scholarship) =>
-          scholarship.universityName?.toLowerCase().includes(value)
-        );
-        setFilteredScholarships(results);
-        setHasSearched(true);
-      } else {
-        setFilteredScholarships(allScholership);
-        setHasSearched(false);
-      }
-    }, 300);
+    setSearchTerm(e.target.value);
   };
-
-  useEffect(() => {
-    if (allScholership.length > 0 && filteredScholarships.length === 0) {
-      setFilteredScholarships(allScholership);
-    }
-  }, [allScholership, filteredScholarships]);
 
   return (
     <section className="relative overflow-hidden bg-slate-50 pb-20">

@@ -1,24 +1,18 @@
 import { useQuery } from "@tanstack/react-query";
-// import useAxiosSecure from "./useAxiosSecure";
-import useAuth from "./useAuth";
 import useAxiosPublic from "./useAxiosPublic";
 
 const useSingleScholership = (id) => {
   const axiosPublic = useAxiosPublic();
-  console.log(id);
 
-  const { user } = useAuth();
-
-  const { refetch, data: scholarship = [] } = useQuery({
-    queryKey: ["singleScholership", id, user?.email],
+  const { refetch, data: scholarship = null } = useQuery({
+    queryKey: ["singleScholership", id],
     queryFn: async () => {
       if (!id) return null;
-
       const res = await axiosPublic.get(`/allScholership/${id}`);
-
       return res.data.data;
     },
     enabled: !!id,
+    staleTime: 1000 * 60 * 5,
   });
 
   return [scholarship, refetch];
