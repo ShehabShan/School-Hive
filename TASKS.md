@@ -13,6 +13,18 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - E2E smoke test of login/roles vs `localhost:5000` — **blocked**: `Schole-hive-server/.env` not yet created (user must add MONGO/DB creds + ACCESS_TOKEN_SECRET + ADMIN_EMAILS).
 
+## DONE — Deploy Guard: no more localhost leaks (2026-09-02)
+
+- [x] `scripts/check-dist-server-url.mjs` — scans `dist`; **fails** if any `localhost:<port>`/`127.0.0.1:<port>` survives or if the Vercel URL is missing
+- [x] `scripts/prod-build.mjs` — forces `VITE_server_url=https://server-six-vert.vercel.app` (ignores dev `.env`), builds, then runs the check
+- [x] `scripts/deploy.mjs` — guarded build + `firebase deploy` (token read from `docs/CREDENTIALS.md`)
+- [x] `package.json` → `build:prod` + `deploy`; `npm run build` remains DEV-ONLY (bakes localhost:5000)
+- [x] Verified: dev build fails the guard (exit 1, `localhost:5000` found); `build:prod` passes (0 local refs, Vercel URL present)
+- [x] `docs/CREDENTIALS.md` — fresh `VERCEL_TOKEN` (validated: HTTP 200, accesses project `server`); `npm run deploy` usage
+- [x] `docs/DEPLOY.md` rewritten — localhost-trap section, guarded deploy, server = push to `main` auto-deploy (Vercel already GitHub-linked)
+- [x] GitHub push protection allowlisted for the token (owner clicked Allow); pushed `3463a0e`
+- [x] Server repo docs aligned (`6207508`): deploy = push to `main`; creds live in client repo
+
 ## DONE — Role Portals, Institution Signup & Approvals (2026-09-02)
 
 - [x] **3-role login** (`Login.jsx`): Student / Staff / Institution portal picker, password show-hide, inline forgot-password (reset email), busy states, role-routed post-login via `waitForToken` + `GET /users/me` + `dashboardForRole`; Google sign-in posts `accountType: student`
@@ -50,7 +62,8 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## BACKLOG / KNOWN GAPS
 
-- [ ] Rotate `VERCEL_TOKEN` (expired, `docs/CREDENTIALS.md:15` invalid) then `npx vercel --prod --yes --token` to publish server login-roles live.
+- [ ] E2E smoke test of login-roles vs `localhost:5000` — needs `Schole-hive-server/.env`.
+- [ ] Merge `feature/login-roles` → `main` (both repos) to go live: Vercel auto-deploys server, then `npm run deploy` for client.
 - [ ] Add automated tests (no test framework — `npm test` undefined).
 - [ ] Centralize remaining duplicated cards (application/review).
 - [ ] Accessibility & responsive polish for Home/hero.

@@ -8,6 +8,25 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-02 — Deploy guard: no localhost leaks + working Vercel token
+
+**What was done**
+- **Tokens validated live** (read-only): old `VERCEL_TOKEN` → `invalidToken:true` (expired); `FIREBASE_TOKEN` → valid (`scholarhive-913e4` listed). Fresh `VERCEL_TOKEN` created by owner, validated HTTP 200 via `GET /v9/projects` (access to project `server`).
+- **Critical discovery:** the Vercel project `server` is already linked to GitHub `ShehabShan/Schole-hive-server` with **auto-deploy on push to `main`** — current prod is READY/PROMOTED at `server-six-vert.vercel.app` (verified HTTP 200 "School Hive server is running"), running pre-roles code. Server env vars already set in the Vercel panel (`DB_USER/DB_PASS/ACCESS_TOKEN_SECRET/ADMIN_EMAILS`).
+- **Guarded build chain added** (`npm run build` stays DEV-ONLY): `scripts/check-dist-server-url.mjs` (fails on `localhost:<port>`/`127.0.0.1:<port>` in `dist`, requires Vercel URL present), `scripts/prod-build.mjs` (forces `VITE_server_url=https://server-six-vert.vercel.app`, builds, checks), `scripts/deploy.mjs` (guarded build + `firebase deploy` using `FIREBASE_TOKEN` parsed from `docs/CREDENTIALS.md`). `package.json`: `build:prod` and `deploy`.
+- **Verified both ways:** dev build → guard exits 1 (`localhost:5000` + missing Vercel URL); `build:prod` → OK, 0 local refs, Vercel URL present. Early over-strict version also matched harmless lib strings (`new URL("http://localhost")`) — narrowed to port-based patterns.
+- **Docs updated:** `docs/CREDENTIALS.md` (new token, `npm run deploy` usage), `docs/DEPLOY.md` (localhost-trap, guarded deploy, server=push-to-main). Server repo `docs/CREDENTIALS.md` + `docs/DEPLOY.md` aligned (`6207508`).
+
+**Blockers / notes**
+- GitHub push protection flags the committed `vcp_` token; owner **allowlisted** the value via the unblock link (re-push succeeded, client `3463a0e`). A new token in future would need a new allow.
+- Server not yet live with roles code — merge `feature/login-roles` → `main` (both repos) is the remaining go-live step, deferred until E2E passes.
+
+**LEFT / NEXT**
+1. User creates `Schole-hive-server/.env` (mirror Vercel panel values) → E2E vs `localhost:5000` (student, institution pending→approve→add scholarship, admin/mod 403, reject flow, forgot-password).
+2. E2E green → merge `feature/login-roles` → `main` both repos (Vercel auto-deploys server), then `npm run deploy` for client.
+
+---
+
 ## 2026-09-02 — Role portals, institution signup & approvals (branch `feature/login-roles`)
 
 **What was done** (client side of the login/roles upgrade; server work in `Schole-hive-server` is committed `295e71e`)
