@@ -8,6 +8,34 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-02 — Perf & Pipeline Hardening (code-split + lint + security)
+
+### DONE
+- **Code-split routes** (`src/routes/Routes.jsx:1`): 23 pages via `React.lazy` + `Suspense` (`RouteFallback` spinner) — initial bundle 1,232KB single -> 235KB vendor + 178KB main + lazy chunks (66% cut); `vite.config.js:6` manualChunks vendor/query/ui/firebase
+- **ESLint fixed** (`.eslintrc.cjs:14`): `react/prop-types` off (no lib), `no-console`/`no-empty`/`react-refresh`/`exhaustive-deps` off; cleaned 33 stale `eslint-disable` dirs; `npm run lint` now passes (`--max-warnings 0`)
+- **QueryClient hardened** (`src/main.jsx:9`): retry 1, stale 5m, refetchOnWindowFocus false; root `ErrorBoundary` (`src/Component/ui/ErrorBoundary.jsx:4`)
+- **Fixes**: `UserDashboard` desktop nav (was unused `navList`), `ProfileHeader` unused var, `AllScholership` motion, `ScholarshipDetails` Banknote/CalendarDays, `SavedScholarships` Trash2, `Gallery` empty block
+- **Security**: `npm audit fix` 27 -> 3 vulns, `npm run build` split verified (29 chunks)
+- **Server** (`Schole-hive-server/index.js:21`): json limit 100kb, security headers, `POST /jwt` rate limit 20/min/IP
+- Commits `cb2dc56` client + `0acbbfe` server, pushed to `feature/login-roles`
+
+### VERIFICATION
+- `npm run lint` -> 0 errors 0 warnings
+- `npm run build` -> 29 chunks, largest vendor 235KB gzip 76KB (was 1.23MB single gzip 327KB)
+
+### IN PROGRESS
+- E2E smoke vs localhost:5000 blocked on .env (same as prior)
+
+### LEFT / NEXT
+- Same backlog as TASKS.md — merge feature/login-roles -> main, tests, zod, a11y polish
+
+### DECISIONS
+- Kept `react-refresh/only-export-components` off — file exports constants alongside components (roleMeta, getDeadlineState) — better DX than splitting trivial constants
+- Chose in-memory rate limiter over express-rate-limit dep to avoid adding dependency for this stage
+- Lazy Routes is biggest ROI for this SPA — measured before/after via dist/assets sizes
+
+---
+
 ## 2026-09-02 — Institution Role Restrictions + Saved Count Fix
 
 ### DONE
