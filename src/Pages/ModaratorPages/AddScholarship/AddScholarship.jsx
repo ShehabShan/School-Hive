@@ -5,6 +5,7 @@ import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "../../../assist/add-data.png";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
+import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import useAuth from "../../../Hooks/useAuth";
 import toast from "react-hot-toast";
 import FormField from "../../../Component/ui/FormField";
@@ -32,6 +33,7 @@ export default function AddScholarship() {
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const { user } = useAuth();
   const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const [submitting, setSubmitting] = useState(false);
 
   const handleCalendarToggle = () => {
@@ -71,9 +73,15 @@ export default function AddScholarship() {
     initialData.email = user?.email;
     initialData.rating = 0;
     initialData.Feedback = "";
+    // new optional fields
+    initialData.currency = formData.get("currency") || "USD";
+    initialData.duration = formData.get("duration") || null;
+    initialData.eligibility = String(formData.get("eligibility") || "").split(",").map((s) => s.trim()).filter(Boolean);
+    initialData.benefits = String(formData.get("benefits") || "").split(",").map((s) => s.trim()).filter(Boolean);
+    initialData.tags = String(formData.get("tags") || "").split(",").map((s) => s.trim()).filter(Boolean);
 
     try {
-      const { data } = await axiosPublic.post("/allScholership", initialData);
+      const { data } = await axiosSecure.post("/allScholership", initialData);
       if (data.data?.insertedId || data.insertedId) {
         toast.success("Scholarship added successfully!");
         e.target.reset();
@@ -161,8 +169,28 @@ export default function AddScholarship() {
                   <option disabled>Choose degree</option>
                   <option value="Diploma">Diploma</option>
                   <option value="Bachelor">Bachelor</option>
-                  <option value="masters">Masters</option>
+                  <option value="Masters">Masters</option>
+                  <option value="PhD">PhD</option>
                 </select>
+              </FormField>
+              <FormField label="Currency">
+                <select className={selectClass} name="currency" defaultValue="USD">
+                  <option value="USD">USD</option>
+                  <option value="GBP">GBP</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </FormField>
+              <FormField label="Duration" hint="e.g. 4 years, 12 months">
+                <input type="text" name="duration" className={inputClass} placeholder="4 years" />
+              </FormField>
+              <FormField label="Eligibility" hint="Comma separated: GPA 3.0+, IELTS 6.5">
+                <input type="text" name="eligibility" className={inputClass} placeholder="GPA 3.0+, IELTS 6.5" />
+              </FormField>
+              <FormField label="Benefits" hint="Comma separated: Tuition, Stipend $1200/mo">
+                <input type="text" name="benefits" className={inputClass} placeholder="Full tuition, Stipend" />
+              </FormField>
+              <FormField label="Tags" hint="Comma separated: STEM, merit">
+                <input type="text" name="tags" className={inputClass} placeholder="STEM, merit, 2026" />
               </FormField>
               <div className="md:col-span-2">
                 <FormField label="Scholarship Description" required>

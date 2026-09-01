@@ -2,20 +2,41 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import { ArrowRight, Trophy } from "lucide-react";
 import useScholership from "../../Hooks/useScholership";
-import ScholarshipCard from "../AllScholership/ScholarshipCard";
-import { CardGridSkeleton } from "../../Component/ui/Skeleton";
+import ScholarshipGrid from "../../Component/scholarship/ScholarshipGrid";
+import { useSaved, useToggleSave } from "../../Hooks/useSaved";
+import useAuth from "../../Hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
 
 const TopScholarship = () => {
-  const [allScholership] = useScholership();
-  const isLoading = allScholership.length === 0;
-  const topScholarships = allScholership.slice(0, 6);
+  const { data: resp, isLoading } = useScholership({ sort: "rating", limit: 6, page: 1 });
+  const list = resp?.data || [];
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const { data: savedDocs } = useSaved();
+  const savedIds = useMemo(() => new Set((savedDocs || []).map((d) => String(d.scholarshipId))), [savedDocs]);
+  const toggleSave = useToggleSave();
+  const [compareIds, setCompareIds] = useState(() => {
+    try { return new Set(JSON.parse(localStorage.getItem("compareIds") || "[]")); } catch { return new Set(); }
+  });
+
+  const handleToggleSave = (s) => {
+    if (!user) return navigate("/signIn");
+    toggleSave.mutate(String(s._id));
+  };
+  const handleToggleCompare = (s) => {
+    const id = String(s._id);
+    setCompareIds((prev) => {
+      const n = new Set(prev);
+      if (n.has(id)) n.delete(id); else { if (n.size >= 4) return n; n.add(id); }
+      localStorage.setItem("compareIds", JSON.stringify([...n]));
+      return n;
+    });
+  };
 
   return (
     <section className="relative overflow-hidden bg-slate-50">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -left-32 top-24 h-72 w-72 rounded-full bg-brand-100/60 blur-3xl"
-      />
+      <div aria-hidden className="pointer-events-none absolute -left-32 top-24 h-72 w-72 rounded-full bg-brand-100/60 blur-3xl" />
       <div className="container-page relative py-20 md:py-28">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -29,38 +50,21 @@ const TopScholarship = () => {
             Hand-picked for you
           </span>
           <h2>Top Scholarships</h2>
-          <p>
-            Discover the most popular programs trusted by thousands of students
-            around the world.
-          </p>
+          <p>Highest rated and most reviewed programs — sorted by student satisfaction.</p>
         </motion.div>
 
-        {isLoading ? (
-          <div className="mt-12">
-            <CardGridSkeleton count={6} />
-          </div>
-        ) : (
-          <motion.div
-            initial="hidden"
-            whileInView="visible"
-            viewport={{ once: true, margin: "-60px" }}
-            variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
-            className="mt-12 grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3"
-          >
-            {topScholarships.map((scholarship) => (
-              <motion.div
-                key={scholarship?._id}
-                variants={{
-                  hidden: { opacity: 0, y: 24 },
-                  visible: { opacity: 1, y: 0 },
-                }}
-                transition={{ duration: 0.4 }}
-              >
-                <ScholarshipCard scholarship={scholarship} />
-              </motion.div>
-            ))}
-          </motion.div>
-        )}
+        <div className="mt-12">
+          <ScholarshipGrid
+            scholarships={list}
+            isLoading={isLoading}
+            savedIds={savedIds}
+            onToggleSave={handleToggleSave}
+            compareIds={compareIds}
+            onToggleCompare={handleToggleCompare}
+            emptyTitle="No featured scholarships yet"
+            emptyMessage="New opportunities are reviewed and ranked regularly."
+          />
+        </div>
 
         <div className="mt-14 text-center">
           <Link

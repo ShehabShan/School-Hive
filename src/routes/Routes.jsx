@@ -28,6 +28,8 @@ import ApplicationCardForUser from "../Pages/UserPage/MyApplication/ApplicationC
 import AddReview from "../Pages/AddReview/AddReview";
 import UserRoute from "./UserRoute";
 import AboutUs from "../Component/AboutUs/AboutUs";
+import Compare from "../Pages/Compare/Compare";
+import SavedScholarships from "../Pages/UserPage/Saved/SavedScholarships";
 
 const router = createBrowserRouter(
   [
@@ -80,6 +82,26 @@ const router = createBrowserRouter(
         path: "registration",
         element: <Registation></Registation>,
       },
+      {
+        path: "compare",
+        element: <Compare></Compare>,
+      },
+      {
+        path: "saved",
+        element: (
+          <PrivateRoute>
+            <SavedScholarships></SavedScholarships>
+          </PrivateRoute>
+        ),
+      },
+      {
+        path: "scholarships",
+        element: <AllScholership></AllScholership>,
+      },
+      {
+        path: "scholarships/:id",
+        element: <ScholarshipDetails></ScholarshipDetails>,
+      },
     ],
   },
   {
@@ -109,6 +131,10 @@ const router = createBrowserRouter(
       {
         path: "myReviews",
         element: <MyReviews></MyReviews>,
+      },
+      {
+        path: "saved",
+        element: <SavedScholarships></SavedScholarships>,
       },
     ],
   },

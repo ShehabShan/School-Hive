@@ -6,6 +6,7 @@ import "react-datepicker/dist/react-datepicker.css";
 import Image from "../../../assist/add-data.png";
 import { useNavigate, useParams } from "react-router-dom";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
+import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import toast from "react-hot-toast";
 import FormField from "../../../Component/ui/FormField";
 
@@ -33,6 +34,7 @@ export default function EditScholarship() {
   const [date, setDate] = useState(new Date());
   const [isCalendarVisible, setIsCalendarVisible] = useState(false);
   const axiosPublic = useAxiosPublic();
+  const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
   const [submitting, setSubmitting] = useState(false);
 
@@ -76,9 +78,15 @@ export default function EditScholarship() {
 
     initialData.postDate = format(postDate, "yyyy-MM-dd");
     initialData.applicationDeadline = format(date, "yyyy-MM-dd");
+    // new optional fields — normalize comma-separated
+    if (initialData.eligibility !== undefined) initialData.eligibility = String(initialData.eligibility || "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (initialData.benefits !== undefined) initialData.benefits = String(initialData.benefits || "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (initialData.tags !== undefined) initialData.tags = String(initialData.tags || "").split(",").map((s) => s.trim()).filter(Boolean);
+    if (initialData.currency) initialData.currency = String(initialData.currency).toUpperCase().slice(0, 3);
+    delete initialData.subjectName2;
 
     try {
-      const { data } = await axiosPublic.patch(`/allScholership/${id}`, initialData);
+      const { data } = await axiosSecure.patch(`/allScholership/${id}`, initialData);
       if (data.data?.modifiedCount > 0 || data.modifiedCount > 0) {
         toast.success("Scholarship updated!");
         navigate("/modaratorDashboard/manageScholarships");
@@ -170,8 +178,28 @@ export default function EditScholarship() {
                 >
                   <option value="Diploma">Diploma</option>
                   <option value="Bachelor">Bachelor</option>
-                  <option value="masters">Masters</option>
+                  <option value="Masters">Masters</option>
+                  <option value="PhD">PhD</option>
                 </select>
+              </FormField>
+              <FormField label="Currency">
+                <select className={selectClass} name="currency" value={scholarship?.currency || "USD"} onChange={(e) => setScholarship((s) => ({ ...s, currency: e.target.value }))}>
+                  <option value="USD">USD</option>
+                  <option value="GBP">GBP</option>
+                  <option value="EUR">EUR</option>
+                </select>
+              </FormField>
+              <FormField label="Duration">
+                <input type="text" name="duration" defaultValue={scholarship?.duration || ""} onChange={(e) => setScholarship((s) => ({ ...s, duration: e.target.value }))} className={inputClass} placeholder="4 years" />
+              </FormField>
+              <FormField label="Eligibility" hint="Comma separated">
+                <input type="text" name="eligibility" defaultValue={(scholarship?.eligibility || []).join(", ")} className={inputClass} placeholder="GPA 3.0+, IELTS 6.5" />
+              </FormField>
+              <FormField label="Benefits" hint="Comma separated">
+                <input type="text" name="benefits" defaultValue={(scholarship?.benefits || []).join(", ")} className={inputClass} placeholder="Full tuition, Stipend" />
+              </FormField>
+              <FormField label="Tags" hint="Comma separated">
+                <input type="text" name="tags" defaultValue={(scholarship?.tags || []).join(", ")} className={inputClass} placeholder="STEM, merit" />
               </FormField>
               <FormField label="Scholarship Description" className="md:col-span-2">
                 <textarea

@@ -1,278 +1,65 @@
 import { motion } from "framer-motion";
-import {
-  BookOpen,
-  Users,
-  DollarSign,
-  GraduationCap,
-  ArrowUpRight,
-  ArrowDownRight,
-  TrendingUp,
-  CalendarDays,
-} from "lucide-react";
+import { Search, Bookmark, Send, CheckCircle2, GraduationCap, ShieldCheck } from "lucide-react";
 import { Link } from "react-router-dom";
-import StatCard from "../../Component/ui/StatCard";
+import { useScholarshipStats } from "../../Hooks/useSaved";
 
-const scholarships = [
-  {
-    id: 1,
-    name: "STEM Excellence Scholarship",
-    amount: 10000,
-    applicants: 150,
-    deadline: "2025-06-30",
-  },
-  {
-    id: 2,
-    name: "Future Leaders Grant",
-    amount: 7500,
-    applicants: 200,
-    deadline: "2025-07-15",
-  },
-  {
-    id: 3,
-    name: "Global Perspectives Fund",
-    amount: 15000,
-    applicants: 100,
-    deadline: "2025-08-01",
-  },
-  {
-    id: 4,
-    name: "Arts and Humanities Award",
-    amount: 5000,
-    applicants: 75,
-    deadline: "2025-07-31",
-  },
+const steps = [
+  { icon: Search, title: "Discover", desc: "Filter by country, degree, field and deadline. Sort by what matters most.", color: "brand" },
+  { icon: Bookmark, title: "Save & compare", desc: "Bookmark favorites and compare up to 4 side-by-side.", color: "amber" },
+  { icon: Send, title: "Apply", desc: "Apply with confidence — deadlines, fees and eligibility at a glance.", color: "emerald" },
 ];
 
-const recentApplicants = [
-  { id: 1, name: "Alice Johnson", course: "Agriculture", color: "from-brand-500 to-brand-700" },
-  { id: 2, name: "Bob Smith", course: "Engineering", color: "from-sky-500 to-sky-700" },
-  { id: 3, name: "Carol Williams", course: "Medicine", color: "from-emerald-500 to-emerald-700" },
-];
+export default function ScholershipStatic() {
+  const { data: stats } = useScholarshipStats();
+  const byCountry = stats?.byCountry || [];
 
-const trends = [
-  { label: "International Students", value: "+12%", up: true },
-  { label: "STEM Fields", value: "+8%", up: true },
-  { label: "Humanities", value: "-3%", up: false },
-  { label: "First-Generation Students", value: "+15%", up: true },
-];
-
-const fields = [
-  { label: "Agriculture", value: 90 },
-  { label: "Engineering", value: 80 },
-  { label: "Medicine", value: 70 },
-];
-
-const fadeUp = {
-  initial: { opacity: 0, y: 24 },
-  whileInView: { opacity: 1, y: 0 },
-  viewport: { once: true, margin: "-60px" },
-};
-
-const ScholershipStatic = () => {
   return (
     <section className="relative overflow-hidden bg-white">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -right-32 top-1/3 h-80 w-80 rounded-full bg-sky-50 blur-3xl"
-      />
+      <div aria-hidden className="pointer-events-none absolute -right-32 top-1/3 h-80 w-80 rounded-full bg-sky-50 blur-3xl" />
       <div className="container-page relative py-20 md:py-28">
-        <motion.div
-          initial={{ opacity: 0, y: 24 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: "-80px" }}
-          transition={{ duration: 0.5 }}
-          className="section-title"
-        >
-          <span className="eyebrow">Insights</span>
-          <h2>Scholarship Program Hub</h2>
-          <p>
-            A live overview of the platform, from funds allocated to trending
-            fields of study.
-          </p>
+        <motion.div initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: "-80px" }} transition={{ duration: 0.5 }} className="section-title">
+          <span className="eyebrow">How it works</span>
+          <h2>From search to submission — in minutes</h2>
+          <p>A guided flow built for real deadlines and real decisions.</p>
         </motion.div>
 
-        {/* Stat cards */}
-        <motion.div
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, margin: "-60px" }}
-          variants={{ visible: { transition: { staggerChildren: 0.08 } } }}
-          className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4"
-        >
-          {[
-            { icon: BookOpen, label: "Total Scholarships", value: "24", trend: "+2 from last month", accent: "brand" },
-            { icon: Users, label: "Total Applicants", value: "1,284", trend: "+10% from last month", accent: "sky" },
-            { icon: DollarSign, label: "Funds Allocated", value: "$1.2M", trend: "+18% from last year", accent: "emerald" },
-            { icon: GraduationCap, label: "Success Rate", value: "89%", trend: "+5% from last year", accent: "amber" },
-          ].map((stat) => (
-            <motion.div
-              key={stat.label}
-              variants={{
-                hidden: { opacity: 0, y: 24 },
-                visible: { opacity: 1, y: 0 },
-              }}
-              transition={{ duration: 0.4 }}
-            >
-              <StatCard {...stat} />
+        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-3">
+          {steps.map((s, i) => (
+            <motion.div key={s.title} initial={{ opacity: 0, y: 24 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.45, delay: i * 0.08 }} className="rounded-2xl border border-slate-100 bg-slate-50 p-6 text-center">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white text-brand-600 shadow-soft"><s.icon className="h-7 w-7" /></div>
+              <h3 className="text-lg font-bold text-slate-900">{i + 1}. {s.title}</h3>
+              <p className="mx-auto mt-2 max-w-sm text-sm leading-relaxed text-slate-500">{s.desc}</p>
             </motion.div>
           ))}
-        </motion.div>
+        </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-8 lg:grid-cols-3">
-          {/* Active scholarships */}
-          <motion.div
-            {...fadeUp}
-            transition={{ duration: 0.5 }}
-            className="rounded-2xl border border-slate-100 bg-slate-50 p-6 lg:col-span-2"
-          >
-            <div className="mb-5 flex items-center justify-between">
-              <h3 className="flex items-center gap-2 text-lg font-bold text-slate-900">
-                <BookOpen className="h-5 w-5 text-brand-600" />
-                Active Scholarships
-              </h3>
-              <Link
-                to="/allScholership"
-                className="inline-flex items-center gap-1 text-sm font-semibold text-brand-600 transition-colors hover:text-brand-700"
-              >
-                View all
-                <ArrowUpRight className="h-4 w-4" />
-              </Link>
-            </div>
-            <div className="space-y-3">
-              {scholarships.map((scholarship) => (
-                <div
-                  key={scholarship.id}
-                  className="group flex items-center justify-between rounded-xl border border-slate-100 bg-white p-4 transition-all duration-200 hover:-translate-y-0.5 hover:border-brand-100 hover:shadow-soft"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-brand-600 transition-colors group-hover:bg-brand-600 group-hover:text-white">
-                      <GraduationCap className="h-5 w-5" />
-                    </span>
-                    <div>
-                      <p className="font-semibold text-slate-800">
-                        {scholarship.name}
-                      </p>
-                      <p className="mt-0.5 flex items-center gap-1 text-xs text-slate-400">
-                        <CalendarDays className="h-3 w-3" />
-                        Deadline: {scholarship.deadline}
-                      </p>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-bold text-slate-900">
-                      ${scholarship.amount.toLocaleString()}
-                    </p>
-                    <p className="text-xs text-slate-400">
-                      {scholarship.applicants} applicants
-                    </p>
-                  </div>
+        <div className="mt-10 grid grid-cols-1 gap-6 lg:grid-cols-3">
+          <div className="rounded-2xl border border-slate-100 bg-slate-50 p-6 lg:col-span-2">
+            <h3 className="flex items-center gap-2 text-lg font-bold text-slate-900"><GraduationCap className="h-5 w-5 text-brand-600" /> Trending destinations</h3>
+            <p className="mt-1 text-sm text-slate-500">Live breakdown from the catalog.</p>
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2">
+              {(byCountry.length ? byCountry : [{ _id: "United Kingdom", count: 12 }, { _id: "United States", count: 8 }, { _id: "Canada", count: 6 }, { _id: "Germany", count: 4 }]).slice(0, 6).map((c) => (
+                <div key={c._id} className="flex items-center justify-between rounded-xl border border-slate-100 bg-white p-4">
+                  <span className="font-semibold text-slate-800">{c._id || "Unknown"}</span>
+                  <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-bold text-brand-700 ring-1 ring-brand-100">{c.count} programs</span>
                 </div>
               ))}
             </div>
-          </motion.div>
+            <Link to="/allScholership" className="mt-6 inline-flex items-center gap-1 text-sm font-semibold text-brand-600 hover:text-brand-700">Browse all destinations →</Link>
+          </div>
 
-          {/* Right column */}
-          <div className="space-y-8">
-            <motion.div
-              {...fadeUp}
-              transition={{ duration: 0.5, delay: 0.1 }}
-              className="rounded-2xl border border-slate-100 bg-slate-50 p-6"
-            >
-              <h3 className="mb-5 flex items-center gap-2 text-lg font-bold text-slate-900">
-                <Users className="h-5 w-5 text-sky-600" />
-                Recent Applicants
-              </h3>
-              <div className="space-y-4">
-                {recentApplicants.map((applicant) => (
-                  <div key={applicant.id} className="flex items-center gap-3">
-                    <div
-                      className={`flex h-11 w-11 items-center justify-center rounded-full bg-gradient-to-br ${applicant.color} text-sm font-bold text-white ring-2 ring-white`}
-                    >
-                      {applicant.name.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="font-semibold text-slate-800">
-                        {applicant.name}
-                      </p>
-                      <p className="text-xs text-slate-400">
-                        {applicant.course}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
-
-            <motion.div
-              {...fadeUp}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="rounded-2xl border border-slate-100 bg-slate-50 p-6"
-            >
-              <h3 className="mb-5 flex items-center gap-2 text-lg font-bold text-slate-900">
-                <TrendingUp className="h-5 w-5 text-emerald-600" />
-                Application Trends
-              </h3>
-              <div className="space-y-3">
-                {trends.map((trend) => (
-                  <div key={trend.label} className="flex items-center gap-2">
-                    {trend.up ? (
-                      <TrendingUp className="h-4 w-4 text-emerald-500" />
-                    ) : (
-                      <ArrowDownRight className="h-4 w-4 text-rose-500" />
-                    )}
-                    <span className="text-sm font-medium text-slate-600">
-                      {trend.label}
-                    </span>
-                    <span
-                      className={`ml-auto text-sm font-bold ${
-                        trend.up ? "text-emerald-600" : "text-rose-500"
-                      }`}
-                    >
-                      {trend.value}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            </motion.div>
+          <div className="rounded-2xl border border-slate-100 bg-gradient-to-br from-brand-600 to-brand-800 p-6 text-white">
+            <ShieldCheck className="h-8 w-8 text-amber-300" />
+            <h3 className="mt-4 text-xl font-extrabold">Why School-Hive?</h3>
+            <ul className="mt-4 space-y-2.5 text-sm leading-relaxed text-brand-100">
+              <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-amber-300" /> Real deadlines with countdowns — no stale dates.</li>
+              <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-amber-300" /> Verified reviews only from accepted applicants.</li>
+              <li className="flex gap-2"><CheckCircle2 className="h-4 w-4 shrink-0 text-amber-300" /> Save, compare and revisit — your shortlist, anywhere.</li>
+            </ul>
+            <Link to="/allScholership" className="mt-6 inline-flex items-center justify-center rounded-xl bg-white px-5 py-2.5 text-sm font-bold text-brand-700 shadow-soft">Start exploring</Link>
           </div>
         </div>
-
-        {/* Top fields */}
-        <motion.div
-          {...fadeUp}
-          transition={{ duration: 0.5 }}
-          className="mt-8 rounded-2xl border border-slate-100 bg-slate-50 p-6"
-        >
-          <h3 className="mb-5 text-lg font-bold text-slate-900">
-            Top Fields of Study
-          </h3>
-          <div className="grid grid-cols-1 gap-x-10 gap-y-4 md:grid-cols-3">
-            {fields.map((field) => (
-              <div key={field.label}>
-                <div className="mb-1.5 flex justify-between text-sm">
-                  <span className="font-medium text-slate-700">
-                    {field.label}
-                  </span>
-                  <span className="font-bold text-brand-600">
-                    {field.value}%
-                  </span>
-                </div>
-                <div className="h-2.5 overflow-hidden rounded-full bg-slate-200">
-                  <motion.div
-                    className="h-full rounded-full bg-gradient-to-r from-brand-500 to-brand-700"
-                    initial={{ width: 0 }}
-                    whileInView={{ width: `${field.value}%` }}
-                    viewport={{ once: true }}
-                    transition={{ duration: 0.8, ease: "easeOut" }}
-                  />
-                </div>
-              </div>
-            ))}
-          </div>
-        </motion.div>
       </div>
     </section>
   );
-};
-
-export default ScholershipStatic;
+}
