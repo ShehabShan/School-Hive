@@ -42,8 +42,6 @@ const BackToTop = () => {
 };
 
 const MainLayout = () => {
-  const location = useLocation();
-
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-clip bg-gradient-to-b from-slate-50 via-base-100 to-base-100">
       <ScrollToTop />
@@ -53,17 +51,7 @@ const MainLayout = () => {
       />
       <Navbar />
       <main className="flex-1 pt-16">
-        <AnimatePresence mode="sync" initial={false}>
-          <motion.div
-            key={location.pathname}
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ duration: 0.2, ease: "easeOut" }}
-          >
-            <Outlet />
-          </motion.div>
-        </AnimatePresence>
+        <Outlet />
       </main>
       <Footer />
       <BackToTop />
