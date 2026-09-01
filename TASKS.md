@@ -13,6 +13,19 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - E2E smoke test of login/roles vs `localhost:5000` — **blocked**: `Schole-hive-server/.env` not yet created (user must add MONGO/DB creds + ACCESS_TOKEN_SECRET + ADMIN_EMAILS).
 
+## DONE — LinkedIn-Style Profile Refactor (2026-09-02)
+
+- [x] `src/Component/profile/RoleBadge.jsx` — shared role metadata (single source of truth, used by MyProfile, PublicProfile, ManageUsers)
+- [x] `src/Component/profile/ProfileHeader.jsx` — cover photo (full-bleed), avatar (overlapping), name, role badge, location, joined date, stats row, edit button
+- [x] `src/Component/profile/AboutSection.jsx` — bio with show-more truncation (180 chars), skills tags
+- [x] `src/Component/profile/Sidebar.jsx` — contact info (email, phone, location, website), member info card
+- [x] `src/Component/profile/ActivitySection.jsx` — applications + reviews with status badges and star ratings
+- [x] `PublicProfile.jsx` rewritten — two-column LinkedIn layout (main + sidebar), responsive
+- [x] `MyProfile.jsx` rewritten — 572→~300 lines, modal edit overlay, uses shared components
+- [x] `ManageUsers.jsx` updated — imports shared `roleMeta` from RoleBadge (replaces inline `roleBadge` function)
+- [x] `npm run build` passes, lint clean (no new errors)
+- [x] Commit `8ea2169`, pushed to `feature/login-roles`
+
 ## DONE — Deploy Guard: no more localhost leaks (2026-09-02)
 
 - [x] `scripts/check-dist-server-url.mjs` — scans `dist`; **fails** if any `localhost:<port>`/`127.0.0.1:<port>` survives or if the Vercel URL is missing

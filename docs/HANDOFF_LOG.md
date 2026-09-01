@@ -8,6 +8,33 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-02 — LinkedIn-Style Profile Refactor
+
+### DONE
+- Created 5 shared profile components under `src/Component/profile/`:
+  - `RoleBadge.jsx` — shared role metadata (label, color, icon for each role)
+  - `ProfileHeader.jsx` — cover photo + overlapping avatar + name + stats + edit button
+  - `AboutSection.jsx` — bio with show-more truncation + skills tags
+  - `Sidebar.jsx` — contact info + member info cards
+  - `ActivitySection.jsx` — applications + reviews with status badges
+- Rewrote `PublicProfile.jsx` — two-column LinkedIn layout (main content + sidebar), responsive
+- Rewrote `MyProfile.jsx` — 572→~300 lines, modal edit overlay, uses shared components
+- Updated `ManageUsers.jsx` — imports shared `roleMeta` from RoleBadge
+- Build passes, lint clean (no new errors)
+- Commit `8ea2169`, pushed to `feature/login-roles`
+
+### IN PROGRESS
+- E2E smoke test (blocked on server .env)
+
+### DECISIONS & CONTEXT
+- Profile route stays `/profile/:email` — no server changes needed
+- Edit mode is a modal overlay (not inline tabs) — cleaner UX
+- `roleMeta` extracted to shared `RoleBadge.jsx` — eliminates duplication across 3 files
+- `ActivitySection` shows 4 applications + 3 reviews on profile (view all links to dashboard)
+- Mobile responsive: single column on small screens, two-column on `lg:`
+
+---
+
 ## 2026-09-02 — Deploy guard: no localhost leaks + working Vercel token
 
 **What was done**
