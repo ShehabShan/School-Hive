@@ -29,20 +29,21 @@ import AddReview from "../Pages/AddReview/AddReview";
 import UserRoute from "./UserRoute";
 import AboutUs from "../Component/AboutUs/AboutUs";
 
-const router = createBrowserRouter([
-  {
-    path: "/",
-    element: <MainLayout />,
-    errorElement: <NotFound></NotFound>,
-    children: [
-      {
-        index: true,
-        element: <Home />,
-      },
-      {
-        path: "allScholership",
-        element: <AllScholership></AllScholership>,
-      },
+const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <MainLayout />,
+      errorElement: <NotFound></NotFound>,
+      children: [
+        {
+          index: true,
+          element: <Home />,
+        },
+        {
+          path: "allScholership",
+          element: <AllScholership></AllScholership>,
+        },
       {
         path: "allScholership/:id",
         element: <ScholarshipDetails></ScholarshipDetails>,
@@ -191,6 +192,13 @@ const router = createBrowserRouter([
       },
     ],
   },
-]);
+  ],
+  {
+    future: {
+      v7_startTransition: true,
+      v7_relativeSplatPath: true,
+    },
+  }
+);
 
 export default router;
