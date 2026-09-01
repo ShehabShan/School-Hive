@@ -20,7 +20,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const { user, logOut } = useAuth();
-  const { isAdmin, isModaretor } = useRole();
+  const { isAdmin, isModaretor, isInstitution, isSuperAdmin } = useRole();
   const profileDropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -59,17 +59,29 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
     };
   }, []);
 
-  const profileLink = isAdmin
+  const profileLink = isInstitution
+    ? "/institutionDashboard/myProfile"
+    : isAdmin
     ? "/adminDashboard/adminProfile"
     : isModaretor
     ? "/modaratorDashboard/myProfile"
     : "/userDashboard/myProfile";
 
+  const isStaff = isAdmin || isModaretor;
+
   const historyLink = isAdmin
     ? "/adminDashboard/manageReviews/history"
     : "/modaratorDashboard/myReviews/history";
 
-  const roleLabel = isAdmin ? "Admin" : isModaretor ? "Moderator" : "User";
+  const roleLabel = isInstitution
+    ? "Institution"
+    : isSuperAdmin
+    ? "Owner"
+    : isAdmin
+    ? "Admin"
+    : isModaretor
+    ? "Moderator"
+    : "User";
 
   return (
     // sticky so the navbar sticks to its scrollable parent (the <main> container).
@@ -159,14 +171,16 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                   <UserCircle2 className="h-4 w-4 text-slate-400" />
                   Profile
                 </Link>
-                <Link
-                  to={historyLink}
-                  onClick={() => setProfileDropdownOpen(false)}
-                  className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
-                >
-                  <History className="h-4 w-4 text-slate-400" />
-                  Review History
-                </Link>
+                {isStaff && (
+                  <Link
+                    to={historyLink}
+                    onClick={() => setProfileDropdownOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50"
+                  >
+                    <History className="h-4 w-4 text-slate-400" />
+                    Review History
+                  </Link>
+                )}
                 <div className="px-4 py-2 text-xs text-slate-400">Theme: <span className="font-semibold">{isDarkMode ? "Dark" : "Light"}</span></div>
                 <hr className="my-1 border-t" />
                 <a

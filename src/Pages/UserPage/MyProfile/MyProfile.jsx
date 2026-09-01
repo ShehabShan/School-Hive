@@ -19,6 +19,7 @@ import {
   Upload,
   Crown,
   Briefcase,
+  Building2,
 } from "lucide-react";
 import { motion } from "framer-motion";
 import toast from "react-hot-toast";
@@ -40,6 +41,7 @@ const roleMeta = {
   admin: { label: "Administrator", color: "bg-brand-100 text-brand-700 ring-brand-200", icon: ShieldCheck, desc: "Administrator of SchoolHive" },
   modaretor: { label: "Moderator", color: "bg-sky-100 text-sky-700 ring-sky-200", icon: Award, desc: "Moderator — reviews & scholarships" },
   user: { label: "Student", color: "bg-emerald-100 text-emerald-700 ring-emerald-200", icon: GraduationCap, desc: "Student at SchoolHive" },
+  institution: { label: "Institution", color: "bg-violet-100 text-violet-700 ring-violet-200", icon: Building2, desc: "University, college or school" },
 };
 
 export default function ProfilePage() {

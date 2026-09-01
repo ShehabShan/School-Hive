@@ -23,7 +23,7 @@ const navLinkClass = ({ isActive }) =>
 
 const Navbar = () => {
   const { user, logOut } = useAuth();
-  const { isAdmin, isModaretor, isUser } = useRole();
+  const { isAdmin, isModaretor, isUser, isInstitution, isPending, isRejected } = useRole();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const profileRef = useRef(null);
@@ -54,13 +54,23 @@ const Navbar = () => {
       .catch(() => {});
   };
 
-  const dashboardLink = isAdmin
+  const dashboardLink = isInstitution
+    ? isRejected
+      ? "/rejectedApproval"
+      : isPending
+      ? "/pendingApproval"
+      : "/institutionDashboard/myProfile"
+    : isAdmin
     ? "/adminDashboard/adminProfile"
     : isModaretor
     ? "/modaratorDashboard/myProfile"
     : "/userDashboard/myProfile";
 
-  const dashboardLabel = isAdmin
+  const dashboardLabel = isInstitution
+    ? isRejected || isPending
+      ? "Institution Status"
+      : "Institution Dashboard"
+    : isAdmin
     ? "Admin Dashboard"
     : isModaretor
     ? "Moderator Dashboard"
@@ -92,7 +102,7 @@ const Navbar = () => {
           Contact
         </NavLink>
       </li>
-      {(isUser || isModaretor || isAdmin) && (
+      {(isUser || isModaretor || isAdmin || isInstitution) && (
         <li>
           <NavLink
             to={dashboardLink}

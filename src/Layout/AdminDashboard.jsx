@@ -10,6 +10,7 @@ import {
   Send,
   Settings,
   BookOpen,
+  ShieldCheck,
 } from "lucide-react";
 import { AdminNavbar } from "./AdminNavbar";
 import useAuth from "../Hooks/useAuth";
@@ -22,11 +23,18 @@ function cn(...classes) {
 
 const AdminDashboard = () => {
   const { user } = useAuth();
-  const { isAdmin, isModaretor } = useRole();
+  const { isAdmin, isModaretor, isSuperAdmin, isInstitution, isApprovedInstitution } = useRole();
 
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
-  const navItems = isAdmin
+  const navItems = isInstitution
+    ? [
+        { title: "Institution Profile", path: "/institutionDashboard/myProfile", icon: <UserCircle2 className="h-4 w-4" /> },
+        { title: "Add Scholarship", path: "/institutionDashboard/addScholarships", icon: <FilePlus2 className="h-4 w-4" /> },
+        { title: "My Scholarships", path: "/institutionDashboard/manageScholarships", icon: <LayoutGrid className="h-4 w-4" /> },
+        { title: "Applications", path: "/institutionDashboard/allAppliedScholarships", icon: <ClipboardList className="h-4 w-4" /> },
+      ]
+    : isSuperAdmin
     ? [
         { title: "Admin Profile", path: "/adminDashboard/adminProfile", icon: <UserCircle2 className="h-4 w-4" /> },
         { title: "Add Scholarship", path: "/adminDashboard/addScholarships", icon: <FilePlus2 className="h-4 w-4" /> },
@@ -35,12 +43,19 @@ const AdminDashboard = () => {
         { title: "Review History", path: "/adminDashboard/manageReviews/history", icon: <BookOpen className="h-4 w-4" /> },
         { title: "Manage Applications", path: "/adminDashboard/manageAppliedApplication", icon: <ClipboardList className="h-4 w-4" /> },
         { title: "Manage Users", path: "/adminDashboard/manageUsers", icon: <Users className="h-4 w-4" /> },
+        { title: "Institution Approvals", path: "/adminDashboard/institutionApprovals", icon: <ShieldCheck className="h-4 w-4" /> },
+      ]
+    : isAdmin
+    ? [
+        { title: "Admin Profile", path: "/adminDashboard/adminProfile", icon: <UserCircle2 className="h-4 w-4" /> },
+        { title: "Manage Reviews", path: "/adminDashboard/manageReviews", icon: <Star className="h-4 w-4" /> },
+        { title: "Review History", path: "/adminDashboard/manageReviews/history", icon: <BookOpen className="h-4 w-4" /> },
+        { title: "Manage Applications", path: "/adminDashboard/manageAppliedApplication", icon: <ClipboardList className="h-4 w-4" /> },
+        { title: "Manage Users", path: "/adminDashboard/manageUsers", icon: <Users className="h-4 w-4" /> },
       ]
     : isModaretor
     ? [
         { title: "Moderator Profile", path: "/modaratorDashboard/myProfile", icon: <UserCircle2 className="h-4 w-4" /> },
-        { title: "Add Scholarship", path: "/modaratorDashboard/addScholarships", icon: <FilePlus2 className="h-4 w-4" /> },
-        { title: "Manage Scholarships", path: "/modaratorDashboard/manageScholarships", icon: <LayoutGrid className="h-4 w-4" /> },
         { title: "Manage Reviews", path: "/modaratorDashboard/myReviews", icon: <Star className="h-4 w-4" /> },
         { title: "Review History", path: "/modaratorDashboard/myReviews/history", icon: <BookOpen className="h-4 w-4" /> },
         { title: "All Applications", path: "/modaratorDashboard/allAppliedScholarships", icon: <ClipboardList className="h-4 w-4" /> },
@@ -52,13 +67,25 @@ const AdminDashboard = () => {
         { title: "Saved Scholarships", path: "/userDashboard/saved", icon: <BookOpen className="h-4 w-4" /> },
       ];
 
-  const settingsLink = isAdmin
+  const settingsLink = isInstitution
+    ? "/institutionDashboard/myProfile"
+    : isAdmin || isSuperAdmin
     ? "/adminDashboard/adminProfile"
     : isModaretor
     ? "/modaratorDashboard/myProfile"
     : "/userDashboard/myProfile";
 
-  const roleLabel = isAdmin ? "Admin" : isModaretor ? "Moderator" : "User";
+  const roleLabel = isInstitution
+    ? isApprovedInstitution
+      ? "Institution"
+      : "Institution (in review)"
+    : isSuperAdmin
+    ? "Owner"
+    : isAdmin
+    ? "Admin"
+    : isModaretor
+    ? "Moderator"
+    : "User";
 
   return (
     <div className="flex h-screen bg-slate-50">

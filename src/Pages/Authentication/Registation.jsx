@@ -1,5 +1,6 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
+import { useState } from "react";
 import {
   GraduationCap,
   Mail,
@@ -10,6 +11,14 @@ import {
   Sparkles,
   Globe2,
   Rocket,
+  Building2,
+  Eye,
+  EyeOff,
+  Loader2,
+  Landmark,
+  MapPin,
+  Link2,
+  FileText,
 } from "lucide-react";
 import bgImg from "../../assist/image/register.jpg";
 import toast from "react-hot-toast";
@@ -17,55 +26,97 @@ import useAuth from "../../Hooks/useAuth";
 import useAxiosPublic from "../../Hooks/useAxiosPublic";
 import Swal from "sweetalert2";
 import SocialLogin from "./SocialLogin";
+import { friendlyAuthError } from "../../lib/friendlyAuthError";
+
+const roleTabs = [
+  { id: "student", label: "Student", icon: GraduationCap, desc: "Apply to scholarships & save your favorites" },
+  { id: "institution", label: "Institution", icon: Building2, desc: "Universities, colleges & schools post scholarships" },
+];
 
 const Registration = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const [accountType, setAccountType] = useState("student");
+  const [busy, setBusy] = useState(false);
+  const [showPass, setShowPass] = useState(false);
   const { createUser, updateUserProfile, setUser } = useAuth();
   const axiosPublic = useAxiosPublic();
+  const from = location?.state || "/";
 
   const handleSignUp = async (e) => {
     e.preventDefault();
     const form = e.target;
     const email = form.email.value;
-    const name = form.name.value;
-    const photo = form.photo.value;
     const pass = form.password.value;
+    const isInstitution = accountType === "institution";
 
+    setBusy(true);
     try {
       const { user } = await createUser(email, pass);
-      await updateUserProfile(name, photo);
-      setUser({ ...user, photoURL: photo, displayName: name });
 
-      const userInfo = {
-        name: name,
-        email: user.email,
-        role: "user",
-        photoURL: photo || null,
-      };
+      if (isInstitution) {
+        const orgName = form.orgName.value;
+        await updateUserProfile(orgName, null);
+        setUser({ ...user, displayName: orgName });
 
-      try {
-        const { data } = await axiosPublic.post("/users", userInfo);
+        const userInfo = {
+          name: orgName,
+          email: user.email,
+          accountType: "institution",
+          orgName,
+          orgType: form.orgType.value,
+          orgCountry: form.orgCountry.value,
+          orgWebsite: form.orgWebsite.value || null,
+          orgDescription: form.orgDescription.value || null,
+          photoURL: null,
+        };
 
-        if (data.data.insertedId) {
-          e.target.reset();
-          Swal.fire({
-            position: "top-end",
-            icon: "success",
-            title: "User created successfully.",
-            showConfirmButton: false,
-            timer: 1500,
-          });
+        try {
+          await axiosPublic.post("/users", userInfo);
+        } catch (error) {
+          toast.error("Account created, but failed to save your profile.");
         }
-      } catch (error) {
-        console.error("Failed to save user to the database", error);
-        toast.error("Account created, but failed to save your profile.");
-      }
 
-      toast.success("Signup Successful");
-      navigate("/");
+        e.target.reset();
+        toast.success("Registration submitted for review");
+        Swal.fire({
+          position: "top-end",
+          icon: "success",
+          title: "Registration submitted!",
+          text: "The platform owner will review and approve your institution.",
+          showConfirmButton: true,
+          confirmButtonText: "OK",
+        });
+        navigate("/pendingApproval", { replace: true });
+      } else {
+        const name = form.name.value;
+        const photo = form.photo.value;
+        await updateUserProfile(name, photo);
+        setUser({ ...user, photoURL: photo, displayName: name });
+
+        const userInfo = {
+          name,
+          email: user.email,
+          accountType: "student",
+          photoURL: photo || null,
+        };
+
+        try {
+          const { data } = await axiosPublic.post("/users", userInfo);
+          if (data.data.insertedId) {
+            e.target.reset();
+          }
+        } catch (error) {
+          toast.error("Account created, but failed to save your profile.");
+        }
+
+        toast.success("Signup Successful");
+        navigate(from === "/pendingApproval" ? "/" : from, { replace: true });
+      }
     } catch (err) {
-      console.log(err);
-      toast.error(err?.message);
+      toast.error(friendlyAuthError(err?.message));
+    } finally {
+      setBusy(false);
     }
   };
 
@@ -74,23 +125,28 @@ const Registration = () => {
       const userInfo = {
         name: user.displayName,
         email: user.email,
-        role: "user",
+        accountType: "student",
         photoURL: user.photoURL || null,
       };
       try {
         await axiosPublic.post("/users", userInfo);
       } catch (error) {
-        console.error("Failed to save user to the database", error);
+        // non-fatal: user may already exist
       }
       toast.success("Signin Successful");
+      navigate("/");
     } catch (err) {
-      console.log(err);
-      toast.error(err?.message);
+      toast.error(friendlyAuthError(err?.message));
     }
   };
 
   const inputClass =
     "w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 py-3 text-sm text-slate-700 shadow-sm transition-all placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/15";
+
+  const passInputClass =
+    "w-full rounded-xl border border-slate-200 bg-white pl-11 pr-11 py-3 text-sm text-slate-700 shadow-sm transition-all placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/15";
+
+  const isInstitution = accountType === "institution";
 
   return (
     <div className="relative flex min-h-[calc(100vh-64px)] items-center justify-center overflow-hidden bg-slate-50 px-4 py-16">
@@ -121,15 +177,55 @@ const Registration = () => {
           </div>
 
           <h1 className="mt-8 text-2xl font-extrabold tracking-tight text-slate-900">
-            Get your free account now
+            Join SchoolHive
           </h1>
           <p className="mt-1 text-sm text-slate-500">
-            Join thousands of students funding their future.
+            Create an account as a student or an institution.
           </p>
 
-          <SocialLogin onSuccess={handleGoogleSignIn} />
+          {/* Role selector */}
+          <div className="mt-6 grid grid-cols-2 gap-2 rounded-2xl bg-slate-100 p-1.5">
+            {roleTabs.map((t) => {
+              const Icon = t.icon;
+              const selected = accountType === t.id;
+              return (
+                <button
+                  key={t.id}
+                  type="button"
+                  onClick={() => setAccountType(t.id)}
+                  className={`flex flex-col items-center gap-1 rounded-xl px-3 py-2.5 text-sm font-semibold transition-all duration-200 ${
+                    selected
+                      ? "bg-white text-brand-700 shadow-soft ring-1 ring-brand-100"
+                      : "text-slate-500 hover:text-slate-700"
+                  }`}
+                >
+                  <Icon className="h-4 w-4" />
+                  {t.label}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-xs text-slate-400">
+            {isInstitution
+              ? "Institutions must be approved by the platform owner before posting scholarships."
+              : "Students can apply to scholarships and track applications."}
+          </p>
 
-          <div className="my-6 flex items-center gap-4">
+          {isInstitution && (
+            <div className="mt-3 flex items-start gap-2 rounded-xl bg-amber-50 px-3 py-2.5 text-xs font-medium text-amber-800 ring-1 ring-amber-100">
+              <Landmark className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+              <span>
+                After submitting, an admin will review your institution. You
+                can sign in in the meantime.
+              </span>
+            </div>
+          )}
+
+          {!isInstitution && <SocialLogin onSuccess={handleGoogleSignIn} />}
+
+          <div
+            className={`${isInstitution ? "mt-6" : "my-6"} flex items-center gap-4`}
+          >
             <span className="h-px flex-1 bg-slate-200" />
             <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               or register with email
@@ -138,50 +234,158 @@ const Registration = () => {
           </div>
 
           <form onSubmit={handleSignUp} className="space-y-4">
-            <div>
-              <label
-                className="mb-1.5 block text-sm font-semibold text-slate-700"
-                htmlFor="name"
-              >
-                Username
-              </label>
-              <div className="relative">
-                <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  id="name"
-                  autoComplete="name"
-                  name="name"
-                  className={inputClass}
-                  type="text"
-                  placeholder="Your full name"
-                />
-              </div>
-            </div>
-            <div>
-              <label
-                className="mb-1.5 block text-sm font-semibold text-slate-700"
-                htmlFor="photo"
-              >
-                Photo URL
-              </label>
-              <div className="relative">
-                <ImageIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                <input
-                  id="photo"
-                  autoComplete="photo"
-                  name="photo"
-                  className={inputClass}
-                  type="text"
-                  placeholder="https://..."
-                />
-              </div>
-            </div>
+            {isInstitution ? (
+              <>
+                <div>
+                  <label
+                    className="mb-1.5 block text-sm font-semibold text-slate-700"
+                    htmlFor="orgName"
+                  >
+                    Institution / Organization Name
+                  </label>
+                  <div className="relative">
+                    <Building2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                      id="orgName"
+                      autoComplete="organization"
+                      name="orgName"
+                      className={inputClass}
+                      type="text"
+                      required
+                      placeholder="e.g. University of Dhaka"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label
+                    className="mb-1.5 block text-sm font-semibold text-slate-700"
+                    htmlFor="orgType"
+                  >
+                    Institution Type
+                  </label>
+                  <div className="relative">
+                    <Landmark className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <select
+                      id="orgType"
+                      name="orgType"
+                      required
+                      className={`${inputClass} appearance-none`}
+                      defaultValue="university"
+                    >
+                      <option value="university">University</option>
+                      <option value="college">College</option>
+                      <option value="school">School</option>
+                    </select>
+                  </div>
+                </div>
+                <div>
+                  <label
+                    className="mb-1.5 block text-sm font-semibold text-slate-700"
+                    htmlFor="orgCountry"
+                  >
+                    Country
+                  </label>
+                  <div className="relative">
+                    <MapPin className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                      id="orgCountry"
+                      autoComplete="country-name"
+                      name="orgCountry"
+                      className={inputClass}
+                      type="text"
+                      required
+                      placeholder="e.g. Bangladesh"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label
+                    className="mb-1.5 block text-sm font-semibold text-slate-700"
+                    htmlFor="orgWebsite"
+                  >
+                    Website (optional)
+                  </label>
+                  <div className="relative">
+                    <Link2 className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                      id="orgWebsite"
+                      autoComplete="url"
+                      name="orgWebsite"
+                      className={inputClass}
+                      type="url"
+                      placeholder="https://example.edu"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label
+                    className="mb-1.5 block text-sm font-semibold text-slate-700"
+                    htmlFor="orgDescription"
+                  >
+                    Short Description (optional)
+                  </label>
+                  <div className="relative">
+                    <FileText className="pointer-events-none absolute left-3.5 top-3 h-4 w-4 text-slate-400" />
+                    <textarea
+                      id="orgDescription"
+                      name="orgDescription"
+                      rows={3}
+                      className={`${inputClass} resize-none`}
+                      placeholder="Tell students a little about your programs..."
+                    />
+                  </div>
+                </div>
+              </>
+            ) : (
+              <>
+                <div>
+                  <label
+                    className="mb-1.5 block text-sm font-semibold text-slate-700"
+                    htmlFor="name"
+                  >
+                    Username
+                  </label>
+                  <div className="relative">
+                    <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                      id="name"
+                      autoComplete="name"
+                      name="name"
+                      className={inputClass}
+                      type="text"
+                      required
+                      placeholder="Your full name"
+                    />
+                  </div>
+                </div>
+                <div>
+                  <label
+                    className="mb-1.5 block text-sm font-semibold text-slate-700"
+                    htmlFor="photo"
+                  >
+                    Photo URL
+                  </label>
+                  <div className="relative">
+                    <ImageIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                    <input
+                      id="photo"
+                      autoComplete="photo"
+                      name="photo"
+                      className={inputClass}
+                      type="text"
+                      placeholder="https://..."
+                    />
+                  </div>
+                </div>
+              </>
+            )}
+
             <div>
               <label
                 className="mb-1.5 block text-sm font-semibold text-slate-700"
                 htmlFor="LoggingEmailAddress"
               >
-                Email Address
+                Contact Email
               </label>
               <div className="relative">
                 <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
@@ -191,6 +395,7 @@ const Registration = () => {
                   name="email"
                   className={inputClass}
                   type="email"
+                  required
                   placeholder="you@example.com"
                 />
               </div>
@@ -206,21 +411,41 @@ const Registration = () => {
                 <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
                 <input
                   id="loggingPassword"
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   name="password"
-                  className={inputClass}
-                  type="password"
+                  className={passInputClass}
+                  type={showPass ? "text" : "password"}
+                  required
                   placeholder="••••••••"
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPass((s) => !s)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 transition-colors hover:text-slate-600"
+                  aria-label={showPass ? "Hide password" : "Show password"}
+                >
+                  {showPass ? (
+                    <EyeOff className="h-4 w-4" />
+                  ) : (
+                    <Eye className="h-4 w-4" />
+                  )}
+                </button>
               </div>
             </div>
 
             <button
               type="submit"
-              className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-sm font-bold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift"
+              disabled={busy}
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-sm font-bold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift disabled:opacity-60 disabled:hover:translate-y-0"
             >
-              Create Account
-              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+              {busy ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <>
+                  {isInstitution ? "Submit for Approval" : "Create Account"}
+                  <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+                </>
+              )}
             </button>
           </form>
 

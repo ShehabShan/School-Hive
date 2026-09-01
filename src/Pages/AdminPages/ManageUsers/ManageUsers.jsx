@@ -1,6 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
 import { FaTrash, FaCrown, FaLock, FaUserShield, FaUser, FaChalkboardTeacher } from "react-icons/fa";
-import { FaPeopleGroup } from "react-icons/fa6";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import PageHeader from "../../../Component/ui/PageHeader";
@@ -21,6 +20,15 @@ const roleBadge = (role) => {
   if (r === "superadmin") return "bg-amber-100 text-amber-700 ring-amber-200";
   if (r === "admin") return "bg-brand-100 text-brand-700 ring-brand-200";
   if (r === "modaretor") return "bg-sky-100 text-sky-700 ring-sky-200";
+  if (r === "institution") return "bg-violet-100 text-violet-700 ring-violet-200";
+  return "bg-slate-100 text-slate-600 ring-slate-200";
+};
+
+const statusBadge = (status) => {
+  const s = String(status || "");
+  if (s === "approved") return "bg-emerald-100 text-emerald-700 ring-emerald-200";
+  if (s === "rejected") return "bg-rose-100 text-rose-600 ring-rose-200";
+  if (s === "pending") return "bg-amber-100 text-amber-700 ring-amber-200";
   return "bg-slate-100 text-slate-600 ring-slate-200";
 };
 
@@ -121,13 +129,17 @@ const ManageUsers = () => {
                       <td className="px-4 py-3.5">
                         <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold capitalize ring-1 ${roleBadge(u?.role)}`}>
                           {isOwner && <FaCrown className="h-3 w-3" />}
-                          {isOwner ? "Owner" : u?.role}
+                          {isOwner ? "Owner" : u?.role === "institution" ? "Institution" : u?.role}
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
                         {isOwner ? (
                           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-100">
                             <FaCrown className="h-3 w-3" /> Owner
+                          </span>
+                        ) : u?.role === "institution" ? (
+                          <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold capitalize ring-1 ${statusBadge(u?.status)}`}>
+                            {u?.status || "in review"}
                           </span>
                         ) : (
                           <div className="flex flex-wrap gap-1.5">

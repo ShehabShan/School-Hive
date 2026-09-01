@@ -21,6 +21,10 @@ import Registation from "../Pages/Authentication/Registation";
 import PrivateRoute from "./PrivetRouter";
 import ModaretorRoute from "./ModaretorRoute";
 import AdminRoute from "./AdminRoute";
+import InstitutionRoute from "./InstitutionRoute";
+import SuperAdminRoute from "./SuperAdminRoute";
+import { PendingApproval, RejectedApproval } from "../Pages/Authentication/InstitutionStatus";
+import InstitutionApprovals from "../Pages/AdminPages/ManageUsers/InstitutionApprovals";
 import Apply from "../Pages/UserPage/Apply/Apply";
 import ContactPage from "../Pages/Contact/ContactPage";
 import NotFound from "../Component/ErrorPage/NotFound";
@@ -83,6 +87,14 @@ const router = createBrowserRouter(
       {
         path: "registration",
         element: <Registation></Registation>,
+      },
+      {
+        path: "pendingApproval",
+        element: <PendingApproval></PendingApproval>,
+      },
+      {
+        path: "rejectedApproval",
+        element: <RejectedApproval></RejectedApproval>,
       },
       {
         path: "compare",
@@ -157,14 +169,6 @@ const router = createBrowserRouter(
         element: <MyProfile></MyProfile>,
       },
       {
-        path: "manageScholarships",
-        element: <ManageScholarships></ManageScholarships>,
-      },
-      {
-        path: "manageScholarships/:id",
-        element: <EditScholarship></EditScholarship>,
-      },
-      {
         path: "myReviews",
         element: <ManageReview></ManageReview>,
       },
@@ -179,10 +183,6 @@ const router = createBrowserRouter(
       {
         path: "allAppliedScholarships/:id",
         element: <ApplicationCard></ApplicationCard>,
-      },
-      {
-        path: "addScholarships",
-        element: <AddScholarship></AddScholarship>,
       },
     ],
   },
@@ -200,15 +200,27 @@ const router = createBrowserRouter(
       },
       {
         path: "addScholarships",
-        element: <AddScholarship></AddScholarship>,
+        element: (
+          <SuperAdminRoute>
+            <AddScholarship></AddScholarship>
+          </SuperAdminRoute>
+        ),
       },
       {
         path: "manageScholarships",
-        element: <ManageScholarships></ManageScholarships>,
+        element: (
+          <SuperAdminRoute>
+            <ManageScholarships></ManageScholarships>
+          </SuperAdminRoute>
+        ),
       },
       {
         path: "manageScholarships/:id",
-        element: <EditScholarship></EditScholarship>,
+        element: (
+          <SuperAdminRoute>
+            <EditScholarship></EditScholarship>
+          </SuperAdminRoute>
+        ),
       },
       {
         path: "manageAppliedApplication",
@@ -223,12 +235,54 @@ const router = createBrowserRouter(
         element: <ManageUsers></ManageUsers>,
       },
       {
+        path: "institutionApprovals",
+        element: (
+          <SuperAdminRoute>
+            <InstitutionApprovals></InstitutionApprovals>
+          </SuperAdminRoute>
+        ),
+      },
+      {
         path: "manageReviews",
         element: <ManageReview></ManageReview>,
       },
       {
         path: "manageReviews/history",
         element: <ReviewHistory></ReviewHistory>,
+      },
+    ],
+  },
+  {
+    path: "institutionDashboard",
+    element: (
+      <InstitutionRoute>
+        <AdminDashboard></AdminDashboard>
+      </InstitutionRoute>
+    ),
+    children: [
+      {
+        path: "myProfile",
+        element: <MyProfile></MyProfile>,
+      },
+      {
+        path: "addScholarships",
+        element: <AddScholarship></AddScholarship>,
+      },
+      {
+        path: "manageScholarships",
+        element: <ManageScholarships></ManageScholarships>,
+      },
+      {
+        path: "manageScholarships/:id",
+        element: <EditScholarship></EditScholarship>,
+      },
+      {
+        path: "allAppliedScholarships",
+        element: <AllAppliedScholarship></AllAppliedScholarship>,
+      },
+      {
+        path: "allAppliedScholarships/:id",
+        element: <ApplicationCard></ApplicationCard>,
       },
     ],
   },

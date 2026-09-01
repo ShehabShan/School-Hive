@@ -16,11 +16,21 @@ const useRole = () => {
   });
 
   const role = me?.role || "";
+  const status = me?.status || "active";
+  const isInstitution = role === "institution";
+
   return {
     role,
+    status,
+    me,
     isAdmin: role === "admin" || role === "superadmin",
     isModaretor: role === "modaretor",
     isUser: role === "user",
+    isSuperAdmin: role === "superadmin",
+    isInstitution,
+    isApprovedInstitution: isInstitution && status === "approved",
+    isPending: isInstitution && status === "pending",
+    isRejected: isInstitution && status === "rejected",
     loading: isLoading,
   };
 };
