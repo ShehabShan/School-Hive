@@ -182,7 +182,7 @@ const AdminDashboard = () => {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100">
+    <div className="flex h-screen bg-slate-50">
       {/* Mobile Sidebar Backdrop */}
       {mobileSidebarOpen && (
         <div
@@ -193,15 +193,15 @@ const AdminDashboard = () => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-r transform transition-transform duration-300 ease-in-out ${
+        className={`fixed inset-y-0 left-0 z-40 w-64 bg-white border-slate-100 transform transition-transform duration-300 ease-in-out ${
           mobileSidebarOpen ? "translate-x-0" : "-translate-x-full"
         } md:static md:translate-x-0`}
       >
         {/* Sidebar Header */}
-        <div className="border-b px-6 py-3">
+        <div className="border-b border-slate-100 bg-gradient-to-br from-brand-600 to-brand-800 px-6 py-4">
           <Link to="/" className="flex items-center gap-2">
             <div className="flex h-6 w-6 items-center">
-              <svg viewBox="0 0 24 24" className="h-6 w-6 text-primary">
+              <svg viewBox="0 0 24 24" className="h-6 w-6 text-white">
                 <path
                   fill="currentColor"
                   d="M12 2L0 9L12 16L22 10.1667V17.5H24V9L12 2Z"
@@ -209,8 +209,8 @@ const AdminDashboard = () => {
               </svg>
             </div>
             <div className="flex items-center gap-1">
-              <span className="text-xl font-semibold">SchoolHive</span>
-              <span className="ml-auto rounded-full bg-purple-100 text-purple-700 px-2 py-0.5 text-xs">
+              <span className="text-xl font-extrabold tracking-tight text-white">SchoolHive</span>
+              <span className="ml-auto rounded-full bg-white/15 text-brand-100 ring-1 ring-white/20 px-2 py-0.5 text-xs">
                 v1.3.0
               </span>
             </div>
@@ -222,7 +222,7 @@ const AdminDashboard = () => {
           <div className="flex flex-col gap-6">
             {navigationItems.map((section) => (
               <div key={section.section}>
-                <h3 className="mb-2 px-2 text-xs font-medium text-gray-500">
+                <h3 className="mb-2 px-2 text-xs font-medium text-slate-500">
                   {section.section}
                 </h3>
                 <nav className="space-y-1">
@@ -234,16 +234,16 @@ const AdminDashboard = () => {
                           type="button"
                           onClick={() => toggleSection(item.title)}
                           className={cn(
-                            "flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium transition-colors hover:bg-gray-100 w-full",
+                            "flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-slate-50 w-full",
                             openSections.includes(item.title)
-                              ? "bg-blue-50 text-blue-600"
-                              : "text-gray-700"
+                              ? "bg-brand-50 text-brand-600"
+                              : "text-slate-700"
                           )}
                         >
                           {item.icon}
                           <span>{item.title}</span>
                           {item.badge && (
-                            <span className="ml-auto rounded-full bg-blue-100 text-blue-600 px-2 py-0.5 text-xs">
+                            <span className="ml-auto rounded-full bg-brand-100 text-brand-600 px-2 py-0.5 text-xs">
                               {typeof item.badge === "string"
                                 ? item.badge
                                 : item.badge.text}
@@ -264,8 +264,8 @@ const AdminDashboard = () => {
                                 to={subItem.path}
                                 className={({ isActive }) =>
                                   cn(
-                                    "flex items-center gap-2 rounded-lg pl-9 pr-2 py-2 text-sm transition-colors hover:bg-gray-100",
-                                    isActive ? "text-blue-600" : "text-gray-600"
+                                    "flex items-center gap-2 rounded-lg pl-9 pr-2 py-2 text-sm transition-colors hover:bg-slate-50",
+                                    isActive ? "text-brand-600" : "text-slate-600"
                                   )
                                 }
                               >
@@ -277,7 +277,7 @@ const AdminDashboard = () => {
                                       "ml-auto text-xs px-2 py-0.5 rounded-full",
                                       subItem.badge.variant === "hot"
                                         ? "bg-green-100 text-green-700"
-                                        : "bg-blue-100 text-blue-600"
+                                        : "bg-brand-100 text-brand-600"
                                     )}
                                   >
                                     {subItem.badge.text}
@@ -294,17 +294,17 @@ const AdminDashboard = () => {
                         to={item.path}
                         className={({ isActive }) =>
                           cn(
-                            "flex items-center gap-2 rounded-lg px-2 py-2 text-sm font-medium transition-colors hover:bg-gray-100",
+                            "flex items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium transition-colors hover:bg-slate-50",
                             isActive
-                              ? "bg-blue-50 text-blue-600"
-                              : "text-gray-700"
+                              ? "bg-brand-50 text-brand-600"
+                              : "text-slate-700"
                           )
                         }
                       >
                         {item.icon}
                         <span>{item.title}</span>
                         {item.badge && (
-                          <span className="ml-auto rounded-full bg-blue-100 text-blue-600 px-2 py-0.5 text-xs">
+                          <span className="ml-auto rounded-full bg-brand-100 text-brand-600 px-2 py-0.5 text-xs">
                             {typeof item.badge === "string"
                               ? item.badge
                               : item.badge.text}
@@ -320,7 +320,7 @@ const AdminDashboard = () => {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="mt-auto border-t p-4">
+        <div className="mt-auto border-t border-slate-100 bg-slate-50 p-4">
           <div className="flex items-center gap-3">
             <div className="h-8 w-8 overflow-hidden rounded-full">
               <img
@@ -331,14 +331,14 @@ const AdminDashboard = () => {
             </div>
             <div className="flex flex-col">
               <span className="text-sm font-medium">{user?.displayName}</span>
-              <span className="text-xs text-gray-500">
+              <span className="text-xs text-slate-500">
                 {isAdmin && "Admin"}
                 {isModaretor && "Modaretor"}
                 {isUser && "User"}
               </span>
             </div>
             <Link to="/adminDashboard/adminProfile" className="ml-auto">
-              <Settings className=" h-4 w-4 text-gray-500" />
+              <Settings className=" h-4 w-4 text-slate-500" />
             </Link>
           </div>
         </div>
@@ -347,15 +347,15 @@ const AdminDashboard = () => {
       {/* Main Content Area */}
       <div className="flex flex-col flex-1 overflow-hidden">
         {/* Mobile Sidebar Toggle Button (visible only on mobile) */}
-        {/* <div className="md:hidden p-2 bg-gray-100">
+        {/* <div className="md:hidden p-2 bg-slate-50">
           <button
             onClick={() => setMobileSidebarOpen(true)}
-            className="text-gray-700 hover:bg-gray-200 p-2 rounded"
+            className="text-slate-700 hover:bg-slate-100 p-2 rounded"
           >
             <Menu className="h-5 w-5" />
           </button>
         </div> */}
-        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-gray-100">
+        <main className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50">
           <AdminNavbar setMobileSidebarOpen={setMobileSidebarOpen} />
           <Outlet />
         </main>

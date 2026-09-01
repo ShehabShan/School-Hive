@@ -94,7 +94,7 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] `src/Pages/ModaratorPages/AllAppliedScholarship/ViewDetails/ApplicationCard.jsx`
 
 ### Admin dashboard
-- [ ] `src/Layout/AdminDashboard.jsx`
+- [x] `src/Layout/AdminDashboard.jsx`
 - [ ] `src/Layout/AdminNavbar.jsx`
 - [ ] `src/Pages/AdminPages/ManageAppliedApplication/ManageAppliedApplication.jsx`
 - [ ] `src/Pages/AdminPages/ManageUsers/ManageUsers.jsx`
