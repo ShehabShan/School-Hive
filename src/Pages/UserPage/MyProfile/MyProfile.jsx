@@ -9,6 +9,7 @@ import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import useAdmin from "../../../Hooks/useAdmin";
 import useModaretor from "../../../Hooks/useModaretor";
+import useRole from "../../../Hooks/useRole";
 import { useSaved } from "../../../Hooks/useSaved";
 import Spinner from "../../../Component/ui/Spinner";
 import ProfileHeader from "../../../Component/profile/ProfileHeader";
@@ -25,6 +26,7 @@ export default function ProfilePage() {
   const axiosPublic = useAxiosPublic();
   const [isAdmin] = useAdmin();
   const [isModaretor] = useModaretor();
+  const { isInstitution } = useRole();
   const isAdminOrMod = isAdmin || isModaretor;
   const [editing, setEditing] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -46,7 +48,7 @@ export default function ProfilePage() {
 
   const { data: myApply = [] } = useQuery({
     queryKey: ["profile-apply", user?.email],
-    enabled: !!user?.email,
+    enabled: !!user?.email && !isInstitution,
     queryFn: async () => {
       const { data } = await axiosSecure.get(`/apply?email=${user.email}`);
       return data.data;
@@ -55,7 +57,7 @@ export default function ProfilePage() {
 
   const { data: myReviews = [] } = useQuery({
     queryKey: ["profile-reviews", user?.email],
-    enabled: !!user?.email,
+    enabled: !!user?.email && !isInstitution,
     queryFn: async () => {
       const { data } = await axiosSecure.get(`/allReviews?email=${user.email}`);
       return data.data;
@@ -184,8 +186,10 @@ export default function ProfilePage() {
   }
 
   const userStats = [
-    { label: "Applications", value: String(myApply.length), icon: FileText, color: "text-brand-600 bg-brand-50", to: "/userDashboard/myApplication" },
-    { label: "Reviews", value: String(myReviews.length), icon: Star, color: "text-amber-600 bg-amber-50", to: "/userDashboard/myReviews" },
+    ...(!isInstitution ? [
+      { label: "Applications", value: String(myApply.length), icon: FileText, color: "text-brand-600 bg-brand-50", to: "/userDashboard/myApplication" },
+      { label: "Reviews", value: String(myReviews.length), icon: Star, color: "text-amber-600 bg-amber-50", to: "/userDashboard/myReviews" },
+    ] : []),
     { label: "Saved", value: String(savedDocs.length), icon: GraduationCap, color: "text-emerald-600 bg-emerald-50", to: "/saved" },
   ];
   const adminStats = [
@@ -211,12 +215,14 @@ export default function ProfilePage() {
           {/* Main content */}
           <div className="space-y-5">
             <AboutSection user={dbUser} />
-            <ActivitySection
-              applications={myApply}
-              reviews={myReviews}
-              viewAllLink="/userDashboard/myApplication"
-              reviewLink="/userDashboard/myReviews"
-            />
+            {!isInstitution && (
+              <ActivitySection
+                applications={myApply}
+                reviews={myReviews}
+                viewAllLink="/userDashboard/myApplication"
+                reviewLink="/userDashboard/myReviews"
+              />
+            )}
 
             {/* Admin links */}
             {isAdminOrMod && (

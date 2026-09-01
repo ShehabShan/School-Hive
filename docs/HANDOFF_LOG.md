@@ -8,6 +8,28 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-02 — Institution Role Restrictions + Saved Count Fix
+
+### DONE
+- Fixed saved count bug in MyProfile — now uses `useSaved()` hook instead of allScholership length
+- Profile stat cards are now clickable links to their respective dashboard pages
+- Institution blocked from applying (frontend + server-side guard)
+- Applications page removed from institution sidebar and routes
+- Institution "My Scholarships" now filters by `createdBy` (only own scholarships visible)
+- Server POST /apply rejects non-student roles
+
+### CLIENT COMMITS
+- `47beafc` — fix: institution role restrictions + saved count bug
+
+### SERVER COMMITS
+- `4c7ef48` — fix: POST /apply role guard — only students can apply
+
+### DECISIONS
+- Client-side filtering for institution scholarships (simpler, no server changes for listing)
+- Stats link to dashboard pages (Applications -> myApplication, Reviews -> myReviews, Saved -> /saved)
+
+---
+
 ## 2026-09-02 — LinkedIn-Style Profile Refactor
 
 ### DONE

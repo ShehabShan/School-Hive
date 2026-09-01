@@ -13,6 +13,16 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - E2E smoke test of login/roles vs `localhost:5000` — **blocked**: `Schole-hive-server/.env` not yet created (user must add MONGO/DB creds + ACCESS_TOKEN_SECRET + ADMIN_EMAILS).
 
+## DONE — Institution Role Restrictions + Saved Count Fix (2026-09-02)
+
+- [x] **Saved count bug fixed**: `MyProfile.jsx` — replaced `GET /allScholership` query with `useSaved()` hook for the "Saved" stat (was showing total scholarships, now shows actual saved count)
+- [x] **Clickable profile stats**: `ProfileHeader.jsx` — stats support `to` property, render as `<Link>` for navigation (Applications -> dashboard, Reviews -> reviews, Saved -> /saved)
+- [x] **Institution blocked from applying**: `ScholarshipDetails.jsx` — `handleApply` now checks `isInstitution` in addition to `isAdmin`; server `POST /apply` rejects non-`user` roles with 403
+- [x] **Applications page removed from institution**: `AdminDashboard.jsx` sidebar + `Routes.jsx` — institution no longer sees "Applications" in nav or routes
+- [x] **Institution sees only own scholarships**: `ManageScholarships.jsx` — client-side filter by `createdBy === user.email` for institution role; "Add Scholarship" link dynamically routes to `/institutionDashboard/addScholarships`
+- [x] Server `index.js` — `POST /apply` now uses `loadAuthUser` + role guard (`role !== "user"` -> 403)
+- [x] Client commit `47beafc`, server commit `4c7ef48`, both pushed to `feature/login-roles`
+
 ## DONE — LinkedIn-Style Profile Refactor (2026-09-02)
 
 - [x] `src/Component/profile/RoleBadge.jsx` — shared role metadata (single source of truth, used by MyProfile, PublicProfile, ManageUsers)
