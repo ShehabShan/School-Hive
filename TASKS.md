@@ -99,7 +99,7 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] `src/Pages/AdminPages/ManageAppliedApplication/ManageAppliedApplication.jsx`
 - [x] `src/Pages/AdminPages/ManageUsers/ManageUsers.jsx`
 - [x] `src/Pages/AdminPages/ManageReviews/ManageReview.jsx`
-- [ ] `src/Pages/AdminPages/ManageReviews/ReviewCard.jsx`
+- [x] `src/Pages/AdminPages/ManageReviews/ReviewCard.jsx`
 
 ---
 
