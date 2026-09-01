@@ -86,12 +86,14 @@ function AddReview() {
 
     try {
       const { data } = await axiosSecure.post("/addReviews", initialData);
+      const msg = data?.message || "";
+      const isApproved = msg.toLowerCase().includes("approved");
       if (data.data?.insertedId || data.insertedId) {
-        toast.success("Review submitted — pending moderation. It will appear once approved.");
+        toast.success(isApproved ? "Review published — approved and visible now!" : "Review submitted — pending moderation. It will appear once approved.");
         e.target.reset();
         setRating(5);
       } else {
-        toast.success("Review submitted — pending moderation!");
+        toast.success(isApproved ? "Review published!" : "Review submitted — pending moderation!");
         e.target.reset();
       }
     } catch (err) {
@@ -198,7 +200,7 @@ function AddReview() {
         ) : (
           <form onSubmit={handleSubmit} className="space-y-7 p-6 md:p-8">
             <div className="flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-700 ring-1 ring-emerald-100">
-              <ShieldCheck className="h-4 w-4" /> Verified applicant — your review will be queued as <span className="rounded bg-white px-1.5 py-0.5">pending</span> and appear once approved by admin/mod.
+              <ShieldCheck className="h-4 w-4" /> Verified applicant — your review will be <span className="rounded bg-white px-1.5 py-0.5">approved</span> and appear immediately. Mods can remove later with history.
             </div>
             {/* Rating */}
             <div>
@@ -306,7 +308,7 @@ function AddReview() {
               )}
             </button>
 
-            <p className="text-center text-xs leading-relaxed text-slate-400">Your review will be queued as pending and appear on the scholarship after moderator approval. Rating will update then.</p>
+            <p className="text-center text-xs leading-relaxed text-slate-400">Your review will be approved and visible right away. Rating updates instantly; mods can remove with reason (saved to history).</p>
           </form>
         )}
       </motion.div>

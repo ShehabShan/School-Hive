@@ -5,8 +5,12 @@ import { Info, BookOpen, Award, Banknote, ShieldCheck, Clock, GraduationCap, Map
 import useSingleScholership from "../../Hooks/useSingleScholership";
 import useReviews from "../../Hooks/useReviews";
 import useAdmin from "../../Hooks/useAdmin";
+import useModaretor from "../../Hooks/useModaretor";
 import useAuth from "../../Hooks/useAuth";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import { useQuery } from "@tanstack/react-query";
 import AllReviews from "./AllReviews";
+import ReviewCard from "../AdminPages/ManageReviews/ReviewCard";
 import Stars from "../../Component/ui/Stars";
 import { getDeadlineState } from "../../Component/scholarship/CountdownBadge";
 import { useSaved, useToggleSave } from "../../Hooks/useSaved";
@@ -35,8 +39,21 @@ export default function ScholarshipDetails() {
   const [scholarship] = useSingleScholership(id);
   const [review] = useReviews(id);
   const [isAdmin] = useAdmin();
+  const [isModaretor] = useModaretor();
+  const isStaff = isAdmin || isModaretor;
+  const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const { data: savedDocs } = useSaved();
+  const { data: staffReviews } = useQuery({
+    queryKey: ["staff-review", id, isStaff],
+    enabled: !!id && isStaff,
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/allReviews?scholarShip_id=${id}&limit=100`);
+      return res.data.data || [];
+    },
+  });
+  const displayReviews = isStaff && staffReviews ? staffReviews : review;
+  const displayCount = isStaff ? (staffReviews?.length ?? review?.length ?? 0) : (review?.length ?? 0);
   const toggleSave = useToggleSave();
   const isSaved = useMemo(() => (savedDocs || []).some((d) => String(d.scholarshipId) === String(id)), [savedDocs, id]);
   const [compareOn, setCompareOn] = useState(() => { try { return new Set(JSON.parse(localStorage.getItem("compareIds") || "[]")).has(String(id)); } catch { return false; } });
@@ -77,8 +94,9 @@ export default function ScholarshipDetails() {
   }
 
   const avgRating = Number(scholarship.rating || 0);
+  const activeReviews = displayReviews || review || [];
   const dist = [5, 4, 3, 2, 1].map((star) => {
-    const c = (review || []).filter((r) => Math.round(Number(r.rating)) === star).length;
+    const c = (activeReviews || []).filter((r) => Math.round(Number(r.rating)) === star).length;
     return { star, c };
   });
   const maxC = Math.max(1, ...dist.map((d) => d.c));
@@ -171,9 +189,10 @@ export default function ScholarshipDetails() {
             <div className="flex items-center gap-3">
               <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 text-white"><MessagesSquare className="h-5 w-5" /></span>
               <h2 className="text-xl font-extrabold text-slate-900">Reviews</h2>
-              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">{review?.length || 0} verified</span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">{displayCount} {isStaff ? "total" : "verified"}</span>
               <span className="ml-auto flex items-center gap-2"><Stars rating={avgRating} showValue /><span className="text-sm text-slate-500">{avgRating.toFixed(1)}</span></span>
             </div>
+            {isStaff && <p className="mt-2 text-xs text-slate-500">Staff view: showing all statuses (approved/pending/removed) with badges. Public sees approved only.</p>}
             <div className="mt-4 grid gap-2">
               {dist.map((d) => (
                 <div key={d.star} className="flex items-center gap-2 text-xs">
@@ -184,10 +203,10 @@ export default function ScholarshipDetails() {
               ))}
             </div>
             <div className="mt-6">
-              {review?.length === 0 ? (
+              {activeReviews.length === 0 ? (
                 <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center"><MessagesSquare className="mx-auto h-8 w-8 text-slate-300" /><p className="mt-2 font-bold text-slate-700">No reviews yet</p><p className="text-sm text-slate-500">Verified applicants after acceptance can review. Be first after you’re accepted.</p></div>
               ) : (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{review.map((r, i) => <AllReviews key={r._id || i} review={r} />)}</div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{activeReviews.map((r, i) => <AllReviews key={r._id || i} review={r} />)}</div>
               )}
             </div>
           </section>
