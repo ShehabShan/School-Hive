@@ -7,6 +7,7 @@ import { useSaved, useToggleSave } from "../../Hooks/useSaved";
 import useAuth from "../../Hooks/useAuth";
 import ScholarshipGrid, { ScholarshipList } from "../../Component/scholarship/ScholarshipGrid";
 import FilterChip from "../../Component/scholarship/FilterChip";
+import "./AllScholership.css";
 
 const CATEGORY_OPTS = ["", "Partial", "Full-fund", "Self-fund"];
 const DEGREE_OPTS = ["", "Diploma", "Bachelor", "Masters", "PhD"];
@@ -167,11 +168,11 @@ export default function AllScholership() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-slate-50 pb-20">
+    <section className="main-scholarships-wrapper relative overflow-hidden bg-slate-50 pb-20">
       <div aria-hidden className="pointer-events-none absolute -right-32 top-10 h-80 w-80 rounded-full bg-brand-100/50 blur-3xl" />
 
       <div className="relative bg-gradient-to-b from-brand-700 to-brand-900 pb-20 pt-16 text-white">
-        <div className="container-page text-center">
+        <div className="scholarships-header-inner container-page text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-300 ring-1 ring-white/20 backdrop-blur">
             <GraduationCap className="h-3.5 w-3.5" /> Explore opportunities
           </div>
@@ -221,8 +222,8 @@ export default function AllScholership() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
-          <aside className={`${showFilters ? "block" : "hidden"} lg:block`}>
+        <div className="scholarships-layout grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
+          <aside className={`scholarships-aside ${showFilters ? "block" : "hidden"} lg:block`}>
             <div className="sticky top-20 rounded-2xl border border-slate-100 bg-white p-5 shadow-soft">
               <div className="mb-4 flex items-center justify-between">
                 <h3 className="font-bold text-slate-900">Filters</h3>
@@ -276,7 +277,7 @@ export default function AllScholership() {
             </div>
           </aside>
 
-          <div>
+          <div className="scholarships-content">
             <div className="mb-3 flex items-center justify-between text-sm">
               <span className="text-slate-500">Showing <b className="text-slate-900">{list.length}</b> of <b className="text-slate-900">{total}</b> {total === 1 ? "scholarship" : "scholarships"}</span>
               <span className="hidden text-slate-400 sm:inline">Page {page} of {totalPages}</span>

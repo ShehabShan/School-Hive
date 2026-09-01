@@ -1,0 +1,79 @@
+/* AllScholership wrapper — dedicated layout, easy to retarget */
+.main-scholarships-wrapper {
+  width: 100%;
+  min-width: 0;
+  overflow-x: clip;
+}
+
+/* Make container-page wider ONLY inside this wrapper — keeps global 7xl elsewhere */
+.main-scholarships-wrapper .container-page {
+  max-width: 80rem; /* 1280 fallback */
+}
+
+@media (min-width: 1024px) {
+  .main-scholarships-wrapper .container-page {
+    max-width: 1440px;
+  }
+}
+
+@media (min-width: 1280px) {
+  .main-scholarships-wrapper .container-page {
+    max-width: 1600px;
+  }
+}
+
+@media (min-width: 1536px) {
+  .main-scholarships-wrapper .container-page {
+    max-width: 1680px;
+  }
+}
+
+/* Layout grid — give sidebar breathing room */
+.main-scholarships-wrapper .scholarships-layout {
+  display: grid;
+  gap: 1.5rem;
+  min-width: 0;
+}
+
+@media (min-width: 1024px) {
+  .main-scholarships-wrapper .scholarships-layout {
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .main-scholarships-wrapper .scholarships-layout {
+    grid-template-columns: 340px minmax(0, 1fr);
+    gap: 2rem;
+  }
+}
+
+/* Aside containment — never escapes wrapper */
+.main-scholarships-wrapper .scholarships-aside {
+  min-width: 0;
+  max-width: 100%;
+  align-self: start;
+}
+
+@media (min-width: 1024px) {
+  .main-scholarships-wrapper .scholarships-aside {
+    position: sticky;
+    top: 5rem;
+  }
+}
+
+.main-scholarships-wrapper .scholarships-content {
+  min-width: 0;
+}
+
+/* Header inner — same cap as content for visual alignment, but gradient stays full-bleed */
+.main-scholarships-wrapper .scholarships-header-inner {
+  width: 100%;
+}
+
+/* Optional: when wrapper is truly wide, allow 4 cols */
+@media (min-width: 1536px) {
+  .main-scholarships-wrapper .scholarship-grid-4 {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
