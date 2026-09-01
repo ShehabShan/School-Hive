@@ -1,11 +1,22 @@
 import { Link, useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import {
+  GraduationCap,
+  Mail,
+  Lock,
+  User,
+  ImageIcon,
+  ArrowRight,
+  Sparkles,
+  Globe2,
+  Rocket,
+} from "lucide-react";
 import bgImg from "../../assist/image/register.jpg";
-import logo from "../../assist/image/logo.png";
-
 import toast from "react-hot-toast";
 import useAuth from "../../Hooks/useAuth";
 import useAxiosPublic from "../../Hooks/useAxiosPublic";
 import Swal from "sweetalert2";
+import SocialLogin from "./SocialLogin";
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -21,9 +32,7 @@ const Registration = () => {
     const pass = form.password.value;
 
     try {
-      //2. User Registration
       const { user } = await createUser(email, pass);
-      console.log(user);
       await updateUserProfile(name, photo);
       setUser({ ...user, photoURL: photo, displayName: name });
 
@@ -59,23 +68,18 @@ const Registration = () => {
     }
   };
 
-  // Google Signin
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = async (user) => {
     try {
-      const { user } = await googleSingIn();
-
       const userInfo = {
         name: user.displayName,
         email: user.email,
         role: "user",
       };
-
       try {
         await axiosPublic.post("/users", userInfo);
       } catch (error) {
         console.error("Failed to save user to the database", error);
       }
-
       toast.success("Signin Successful");
     } catch (err) {
       console.log(err);
@@ -83,152 +87,185 @@ const Registration = () => {
     }
   };
 
+  const inputClass =
+    "w-full rounded-xl border border-slate-200 bg-white pl-11 pr-4 py-3 text-sm text-slate-700 shadow-sm transition-all placeholder:text-slate-400 focus:border-brand-500 focus:outline-none focus:ring-4 focus:ring-brand-500/15";
+
   return (
-    <div className="flex justify-center items-center min-h-[calc(100vh-306px)] my-12">
-      <div className="flex w-full max-w-sm mx-auto overflow-hidden bg-white rounded-lg shadow-lg  lg:max-w-4xl ">
-        <div className="w-full px-6 py-8 md:px-8 lg:w-1/2">
-          <div className="flex justify-center mx-auto">
-            <img className="w-auto h-7 sm:h-8" src={logo} alt="" />
-          </div>
+    <div className="relative flex min-h-[calc(100vh-64px)] items-center justify-center overflow-hidden bg-slate-50 px-4 py-16">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -left-32 top-10 h-80 w-80 rounded-full bg-brand-100/60 blur-3xl"
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none absolute -right-32 bottom-10 h-80 w-80 rounded-full bg-amber-100/60 blur-3xl"
+      />
 
-          <p className="mt-3 text-xl text-center text-gray-600 ">
-            Get Your Free Account Now.
-          </p>
-
-          <div
-            onClick={handleGoogleSignIn}
-            className="flex cursor-pointer items-center justify-center mt-4 text-gray-600 transition-colors duration-300 transform border rounded-lg   hover:bg-gray-50 "
-          >
-            <div className="px-4 py-2">
-              <svg className="w-6 h-6" viewBox="0 0 40 40">
-                <path
-                  d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.045 27.2142 24.3525 30 20 30C14.4775 30 10 25.5225 10 20C10 14.4775 14.4775 9.99999 20 9.99999C22.5492 9.99999 24.8683 10.9617 26.6342 12.5325L31.3483 7.81833C28.3717 5.04416 24.39 3.33333 20 3.33333C10.7958 3.33333 3.33335 10.7958 3.33335 20C3.33335 29.2042 10.7958 36.6667 20 36.6667C29.2042 36.6667 36.6667 29.2042 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z"
-                  fill="#FFC107"
-                />
-                <path
-                  d="M5.25497 12.2425L10.7308 16.2583C12.2125 12.59 15.8008 9.99999 20 9.99999C22.5491 9.99999 24.8683 10.9617 26.6341 12.5325L31.3483 7.81833C28.3716 5.04416 24.39 3.33333 20 3.33333C13.5983 3.33333 8.04663 6.94749 5.25497 12.2425Z"
-                  fill="#FF3D00"
-                />
-                <path
-                  d="M20 36.6667C24.305 36.6667 28.2167 35.0192 31.1742 32.34L26.0159 27.975C24.3425 29.2425 22.2625 30 20 30C15.665 30 11.9842 27.2359 10.5975 23.3784L5.16254 27.5659C7.92087 32.9634 13.5225 36.6667 20 36.6667Z"
-                  fill="#4CAF50"
-                />
-                <path
-                  d="M36.3425 16.7358H35V16.6667H20V23.3333H29.4192C28.7592 25.1975 27.56 26.805 26.0133 27.9758C26.0142 27.975 26.015 27.975 26.0158 27.9742L31.1742 32.3392C30.8092 32.6708 36.6667 28.3333 36.6667 20C36.6667 18.8825 36.5517 17.7917 36.3425 16.7358Z"
-                  fill="#1976D2"
-                />
-              </svg>
-            </div>
-
-            <span className="w-5/6 px-4 py-3 font-bold text-center">
-              Sign in with Google
+      <motion.div
+        initial={{ opacity: 0, y: 24 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.5 }}
+        className="relative grid w-full max-w-4xl overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-lift lg:grid-cols-2"
+      >
+        {/* Form panel */}
+        <div className="px-8 py-10 md:px-10">
+          <div className="flex items-center gap-2.5">
+            <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-600 to-brand-800 text-white">
+              <GraduationCap className="h-5 w-5" />
+            </span>
+            <span className="text-lg font-extrabold tracking-tight text-slate-900">
+              School<span className="text-brand-600">Hive</span>
             </span>
           </div>
 
-          <div className="flex items-center justify-between mt-4">
-            <span className="w-1/5 border-b  lg:w-1/4"></span>
+          <h1 className="mt-8 text-2xl font-extrabold tracking-tight text-slate-900">
+            Get your free account now
+          </h1>
+          <p className="mt-1 text-sm text-slate-500">
+            Join thousands of students funding their future.
+          </p>
 
-            <div className="text-xs text-center text-gray-500 uppercase  hover:underline">
-              or Registration with email
-            </div>
+          <SocialLogin onSuccess={handleGoogleSignIn} />
 
-            <span className="w-1/5 border-b dark:border-gray-400 lg:w-1/4"></span>
+          <div className="my-6 flex items-center gap-4">
+            <span className="h-px flex-1 bg-slate-200" />
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
+              or register with email
+            </span>
+            <span className="h-px flex-1 bg-slate-200" />
           </div>
-          <form onSubmit={handleSignUp}>
-            <div className="mt-4">
+
+          <form onSubmit={handleSignUp} className="space-y-4">
+            <div>
               <label
-                className="block mb-2 text-sm font-medium text-gray-600 "
+                className="mb-1.5 block text-sm font-semibold text-slate-700"
                 htmlFor="name"
               >
                 Username
               </label>
-              <input
-                id="name"
-                autoComplete="name"
-                name="name"
-                className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg    focus:border-blue-400 focus:ring-opacity-40  focus:outline-none focus:ring focus:ring-blue-300"
-                type="text"
-              />
+              <div className="relative">
+                <User className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="name"
+                  autoComplete="name"
+                  name="name"
+                  className={inputClass}
+                  type="text"
+                  placeholder="Your full name"
+                />
+              </div>
             </div>
-            <div className="mt-4">
+            <div>
               <label
-                className="block mb-2 text-sm font-medium text-gray-600 "
+                className="mb-1.5 block text-sm font-semibold text-slate-700"
                 htmlFor="photo"
               >
                 Photo URL
               </label>
-              <input
-                id="photo"
-                autoComplete="photo"
-                name="photo"
-                className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg    focus:border-blue-400 focus:ring-opacity-40  focus:outline-none focus:ring focus:ring-blue-300"
-                type="text"
-              />
+              <div className="relative">
+                <ImageIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="photo"
+                  autoComplete="photo"
+                  name="photo"
+                  className={inputClass}
+                  type="text"
+                  placeholder="https://..."
+                />
+              </div>
             </div>
-            <div className="mt-4">
+            <div>
               <label
-                className="block mb-2 text-sm font-medium text-gray-600 "
+                className="mb-1.5 block text-sm font-semibold text-slate-700"
                 htmlFor="LoggingEmailAddress"
               >
                 Email Address
               </label>
-              <input
-                id="LoggingEmailAddress"
-                autoComplete="email"
-                name="email"
-                className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg    focus:border-blue-400 focus:ring-opacity-40  focus:outline-none focus:ring focus:ring-blue-300"
-                type="email"
-              />
-            </div>
-
-            <div className="mt-4">
-              <div className="flex justify-between">
-                <label
-                  className="block mb-2 text-sm font-medium text-gray-600 "
-                  htmlFor="loggingPassword"
-                >
-                  Password
-                </label>
+              <div className="relative">
+                <Mail className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="LoggingEmailAddress"
+                  autoComplete="email"
+                  name="email"
+                  className={inputClass}
+                  type="email"
+                  placeholder="you@example.com"
+                />
               </div>
-
-              <input
-                id="loggingPassword"
-                autoComplete="current-password"
-                name="password"
-                className="block w-full px-4 py-2 text-gray-700 bg-white border rounded-lg    focus:border-blue-400 focus:ring-opacity-40  focus:outline-none focus:ring focus:ring-blue-300"
-                type="password"
-              />
             </div>
-            <div className="mt-6">
-              <button
-                type="submit"
-                className="w-full px-6 py-3 text-sm font-medium tracking-wide text-white capitalize transition-colors duration-300 transform bg-gray-800 rounded-lg hover:bg-gray-700 focus:outline-none focus:ring focus:ring-gray-300 focus:ring-opacity-50"
+            <div>
+              <label
+                className="mb-1.5 block text-sm font-semibold text-slate-700"
+                htmlFor="loggingPassword"
               >
-                Sign Up
-              </button>
+                Password
+              </label>
+              <div className="relative">
+                <Lock className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                <input
+                  id="loggingPassword"
+                  autoComplete="current-password"
+                  name="password"
+                  className={inputClass}
+                  type="password"
+                  placeholder="••••••••"
+                />
+              </div>
             </div>
+
+            <button
+              type="submit"
+              className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-sm font-bold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift"
+            >
+              Create Account
+              <ArrowRight className="h-4 w-4 transition-transform duration-200 group-hover:translate-x-1" />
+            </button>
           </form>
 
-          <div className="flex items-center justify-between mt-4">
-            <span className="w-1/5 border-b  md:w-1/4"></span>
-
+          <p className="mt-6 text-center text-sm text-slate-500">
+            Already have an account?{" "}
             <Link
               to="/signIn"
-              className="text-xs text-gray-500 uppercase  hover:underline"
+              className="font-bold text-brand-600 transition-colors hover:text-brand-700"
             >
-              or sign in
+              Sign in
             </Link>
+          </p>
+        </div>
 
-            <span className="w-1/5 border-b  md:w-1/4"></span>
+        {/* Visual panel */}
+        <div className="relative hidden lg:block">
+          <img
+            src={bgImg}
+            alt="Students celebrating scholarship success"
+            className="absolute inset-0 h-full w-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-brand-950/95 via-brand-900/60 to-brand-700/20" />
+          <div className="relative flex h-full flex-col justify-end p-10">
+            <div className="inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-300 ring-1 ring-white/25 backdrop-blur">
+              <Rocket className="h-3.5 w-3.5" />
+              Join the community
+            </div>
+            <h2 className="mt-5 text-3xl font-extrabold leading-tight text-white">
+              Create a free account in minutes.
+            </h2>
+            <ul className="mt-6 space-y-3 text-sm text-brand-100">
+              <li className="flex items-center gap-3">
+                <Globe2 className="h-4 w-4 text-amber-300" />
+                Apply to global opportunities
+              </li>
+              <li className="flex items-center gap-3">
+                <GraduationCap className="h-4 w-4 text-amber-300" />
+                Manage everything in one dashboard
+              </li>
+              <li className="flex items-center gap-3">
+                <Sparkles className="h-4 w-4 text-amber-300" />
+                Personalized recommendations
+              </li>
+            </ul>
           </div>
         </div>
-        <div
-          className="hidden bg-cover bg-center lg:block lg:w-1/2"
-          style={{
-            backgroundImage: `url(${bgImg})`,
-          }}
-        ></div>
-      </div>
+      </motion.div>
     </div>
   );
 };

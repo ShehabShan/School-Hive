@@ -1,42 +1,31 @@
-import { FaGoogle } from "react-icons/fa";
-
-import { useLocation } from "react-router-dom";
+import { motion } from "framer-motion";
+import { FcGoogle } from "react-icons/fc";
 import useAuth from "../../Hooks/useAuth";
 
-const SocialLogin = () => {
+const SocialLogin = ({ onSuccess }) => {
   const { googleSingIn } = useAuth();
-  const location = useLocation();
 
-  const from = location.state?.from?.pathname || "/";
-  console.log(from);
-
-  const handleGoogleLogin = () => {
-    console.log("google login");
-    googleSingIn().then((res) => {
-      console.log(res.user.displayName);
-      // const name = res.user?.displayName;
-      // const email = res.user?.email;
-      // const userInfo = {
-      //   name,
-      //   email,
-      // };
-      // axiosPublic.post("/users", userInfo);
-
-      // navigate(from, { replace: true });
-    });
+  const handleGoogleLogin = async () => {
+    try {
+      const { user } = await googleSingIn();
+      if (onSuccess) {
+        onSuccess(user);
+      }
+    } catch (err) {
+      console.log(err?.message);
+    }
   };
 
   return (
-    <div>
-      <div>
-        <button
-          onClick={handleGoogleLogin}
-          className="btn w-52 flex mx-auto mt-8"
-        >
-          <FaGoogle className="text-3xl"></FaGoogle>
-        </button>
-      </div>
-    </div>
+    <motion.button
+      whileTap={{ scale: 0.98 }}
+      onClick={handleGoogleLogin}
+      type="button"
+      className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-soft"
+    >
+      <FcGoogle className="h-5 w-5" />
+      Sign in with Google
+    </motion.button>
   );
 };
 

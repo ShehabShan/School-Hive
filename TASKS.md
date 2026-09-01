@@ -64,9 +64,9 @@ the required order for every item: update this checklist -> commit -> push -> de
 - [x] `src/Component/ui/StatusBadge.jsx`
 
 ### Authentication
-- [ ] `src/Pages/Authentication/Login.jsx`
-- [ ] `src/Pages/Authentication/Registation.jsx`
-- [ ] `src/Pages/Authentication/SocialLogin.jsx`
+- [x] `src/Pages/Authentication/Login.jsx`
+- [x] `src/Pages/Authentication/Registation.jsx`
+- [x] `src/Pages/Authentication/SocialLogin.jsx`
 
 ### Scholarship discovery and details
 - [ ] `src/Pages/AllScholership/AllScholership.jsx`
