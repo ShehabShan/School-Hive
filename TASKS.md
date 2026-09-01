@@ -95,7 +95,7 @@ the required order for every item: update this checklist -> commit -> push -> de
 
 ### Admin dashboard
 - [x] `src/Layout/AdminDashboard.jsx`
-- [ ] `src/Layout/AdminNavbar.jsx`
+- [x] `src/Layout/AdminNavbar.jsx`
 - [ ] `src/Pages/AdminPages/ManageAppliedApplication/ManageAppliedApplication.jsx`
 - [ ] `src/Pages/AdminPages/ManageUsers/ManageUsers.jsx`
 - [ ] `src/Pages/AdminPages/ManageReviews/ManageReview.jsx`

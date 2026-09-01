@@ -69,23 +69,23 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
   return (
     // Changed from `fixed` to `sticky` so that the navbar sticks to the top
     // of its scrollable parent (the `<main>` container) rather than the viewport.
-    <header className="bg-white border px-4 py-2 shadow-sm sticky top-0 z-10 lg:z-50">
+    <header className="bg-white border-slate-100 px-4 py-2 shadow-soft ring-1 ring-slate-100 sticky top-0 z-10 lg:z-50">
       <div className="flex items-center justify-between">
         {/* Left side: Sidebar trigger and search */}
         <div className="flex items-center gap-4">
           <button
-            className="p-2 hover:bg-gray-200 rounded"
+            className="p-2 hover:bg-slate-100 rounded"
             onClick={() => setMobileSidebarOpen(true)}
           >
             <Menu className="h-5 w-5" />
           </button>
 
           <div className="relative hidden lg:block">
-            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-500" />
+            <Search className="absolute left-2 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
             <input
               type="search"
               placeholder="Search..."
-              className="pl-8 w-[300px] border border-gray-300 rounded-md p-2"
+              className="pl-8 w-[300px] border border-slate-200 rounded-xl p-2.5"
             />
           </div>
         </div>
@@ -96,31 +96,31 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
           <div className="relative" ref={langDropdownRef}>
             <button
               onClick={() => setLangDropdownOpen(!langDropdownOpen)}
-              className="flex items-center gap-2 text-gray-700 hover:bg-gray-200 p-2 rounded"
+              className="flex items-center gap-2 text-slate-700 hover:bg-slate-100 p-2 rounded-xl"
             >
               <img
                 src="https://hebbkx1anhila5yf.public.blob.vercel-storage.com/Screenshot%202025-02-18%20232313-w1eYRWmxmWS3lyUapFSbYyQaIkRnuG.png"
                 alt="US Flag"
-                className="h-5 w-5 rounded-sm object-cover"
+                className="h-5 w-5 rounded-md object-cover"
               />
               <span>En</span>
             </button>
             {langDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-32 bg-white border shadow-lg rounded">
+              <div className="absolute right-0 mt-2 w-32 bg-white border-slate-100 shadow-soft rounded-2xl ring-1 ring-slate-100">
                 <div
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                  className="px-4 py-2 hover:bg-slate-100 cursor-pointer"
                   onClick={() => setLangDropdownOpen(false)}
                 >
                   English
                 </div>
                 <div
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                  className="px-4 py-2 hover:bg-slate-100 cursor-pointer"
                   onClick={() => setLangDropdownOpen(false)}
                 >
                   Spanish
                 </div>
                 <div
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer"
+                  className="px-4 py-2 hover:bg-slate-100 cursor-pointer"
                   onClick={() => setLangDropdownOpen(false)}
                 >
                   French
@@ -132,7 +132,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
           {/* Theme Toggle Button */}
           <button
             onClick={toggleTheme}
-            className="text-gray-700 hover:bg-gray-200 p-2 rounded"
+            className="text-slate-700 hover:bg-slate-100 p-2 rounded-xl"
           >
             {isDarkMode ? (
               <Sun className="h-5 w-5" />
@@ -142,17 +142,17 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
           </button>
 
           {/* Notifications Button */}
-          <button className="relative text-gray-700 hover:bg-gray-200 p-2 rounded">
+          <button className="relative text-slate-700 hover:bg-slate-100 p-2 rounded-xl">
             <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-purple-500 text-[10px] font-medium text-white flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-brand-600 text-[10px] font-medium text-white flex items-center justify-center">
               0
             </span>
           </button>
 
           {/* Messages Button */}
-          <button className="relative text-gray-700 hover:bg-gray-200 p-2 rounded">
+          <button className="relative text-slate-700 hover:bg-slate-100 p-2 rounded-xl">
             <MessageCircle className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-purple-500 text-[10px] font-medium text-white flex items-center justify-center">
+            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-brand-600 text-[10px] font-medium text-white flex items-center justify-center">
               0
             </span>
           </button>
@@ -161,7 +161,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
           <div className="relative" ref={profileDropdownRef}>
             <button
               onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-              className="relative h-8 w-8 rounded-full overflow-hidden"
+              className="relative h-8 w-8 rounded-full overflow-hidden ring-2 ring-slate-100"
             >
               <img
                 src={user?.photoURL}
@@ -170,11 +170,11 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
               />
             </button>
             {profileDropdownOpen && (
-              <div className="absolute right-0 mt-2 w-56 bg-white border shadow-lg rounded">
+              <div className="absolute right-0 mt-2 w-56 bg-white border-slate-100 shadow-soft rounded-2xl ring-1 ring-slate-100">
                 {/* Dropdown Header */}
                 <div className="px-4 py-2">
                   <div className="flex items-center gap-2">
-                    <div className="h-8 w-8 rounded-full overflow-hidden">
+                    <div className="h-8 w-8 rounded-full overflow-hidden ring-2 ring-slate-100">
                       <img
                         src={user?.photoURL}
                         alt="Avatar"
@@ -183,7 +183,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                     </div>
                     <div>
                       <p className="text-sm font-medium">{user?.displayName}</p>
-                      <p className="text-xs text-gray-500">@Admin</p>
+                      <p className="text-xs text-slate-500">@Admin</p>
                     </div>
                   </div>
                 </div>
@@ -192,7 +192,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                 {isAdmin && (
                   <Link to="/adminDashboard/adminProfile">
                     <div
-                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                      className="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center gap-2"
                       onClick={() => setProfileDropdownOpen(false)}
                     >
                       <Users className="h-4 w-4" />
@@ -203,7 +203,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                 {isModaretor && (
                   <Link to="/modaratorDashboard/myProfile">
                     <div
-                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                      className="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center gap-2"
                       onClick={() => setProfileDropdownOpen(false)}
                     >
                       <Users className="h-4 w-4" />
@@ -214,7 +214,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                 {isUser && (
                   <Link to="/userDashboard/myProfile">
                     <div
-                      className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                      className="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center gap-2"
                       onClick={() => setProfileDropdownOpen(false)}
                     >
                       <Users className="h-4 w-4" />
@@ -224,7 +224,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                 )}
 
                 <div
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                  className="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center gap-2"
                   onClick={() => setProfileDropdownOpen(false)}
                 >
                   {/* Billing icon */}
@@ -245,21 +245,21 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                   <span>Billing</span>
                 </div>
                 {/* <div
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                  className="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center gap-2"
                   onClick={() => setProfileDropdownOpen(false)}
                 >
                   <Settings className="h-4 w-4" />
                   <span>Settings</span>
                 </div>
                 <div
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                  className="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center gap-2"
                   onClick={() => setProfileDropdownOpen(false)}
                 >
                   <Keyboard className="h-4 w-4" />
                   <span>Keyboard Shortcuts</span>
                 </div>
                 <div
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                  className="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center gap-2"
                   onClick={() => setProfileDropdownOpen(false)}
                 >
                   <Users className="h-4 w-4" />
@@ -267,7 +267,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                 </div> */}
 
                 <div
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                  className="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center gap-2"
                   onClick={() => setProfileDropdownOpen(false)}
                 >
                   <Users className="h-4 w-4" />
@@ -277,7 +277,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
 
                 <a href="https://github.com/ShehabShan/School-Hive.git">
                   <div
-                    className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                    className="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center gap-2"
                     onClick={() => setProfileDropdownOpen(false)}
                   >
                     <Github className="h-4 w-4" />
@@ -285,7 +285,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                   </div>
                 </a>
                 <div
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2"
+                  className="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center gap-2"
                   onClick={() => setProfileDropdownOpen(false)}
                 >
                   <svg
@@ -321,7 +321,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                 </div>
                 <hr className="border-t" />
                 <div
-                  className="px-4 py-2 hover:bg-gray-200 cursor-pointer flex items-center gap-2 text-red-600"
+                  className="px-4 py-2 hover:bg-slate-100 cursor-pointer flex items-center gap-2 text-red-600"
                   onClick={() => setProfileDropdownOpen(false)}
                 >
                   <LogOut className="h-4 w-4" />
