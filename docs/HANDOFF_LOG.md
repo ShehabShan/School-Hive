@@ -8,6 +8,43 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-01 — UI Redesign checklist completed; all remaining components shipped
+
+**What was done**
+- Completed the remaining 14 items in `TASKS.md` "UI Redesign — Component Checklist" that were `[ ]` at session start. Each was handled in the required order: checklist → commit → push → Firebase deploy, with `dist/` rebuilt and `https://scholarhive-913e4.web.app` verified after every push:
+  1. `src/Pages/AddReview/AddReview.jsx` — `003f676` — star-rating UI, gradient university header, `FormField` + `react-hot-toast`, framer-motion fade-in, responsive meta row; build+deploy OK.
+  2. `src/Layout/ModaratorDashboard.jsx` — `df89f1c` — rebuilt to match `UserDashboard` pattern (sticky sidebar, gradient header, avatar card, horizontal mobile tabs, `FaUserShield`/`FaThList` icons, brand-50 active states).
+  3. `src/Pages/ModaratorPages/AddScholarship/AddScholarship.jsx` — `a2ab6ae` — unified with `Apply` form (gradient header, `SectionTitle`, `FormField`, rounded-2xl card, fees breakdown, DatePicker drawer, toast, submitting state).
+  4. `src/Pages/ModaratorPages/ManageScholarships/ManageScholarships.jsx` — `7537695` — `PageHeader` + `EmptyState` + staggered `framer-motion` grid, refactored Swal to brand colors.
+  5. `src/Pages/ModaratorPages/ManageScholarships/ManageScholareCard.jsx` — `d1b8af3` — mirrors `ScholarshipCard` (gradient overlay, rank pill, `Stars`, view/edit/delete icon buttons).
+  6. `src/Pages/ModaratorPages/ManageScholarships/EditScholarship.jsx` — `1d488a1` — same shell as AddScholarship but with prefilled data, controlled selects, optional image upload, toast + navigate.
+  7. `src/Pages/ModaratorPages/AllAppliedScholarship/AllAppliedScholarship.jsx` — `86c5af4` — table with `PageHeader`/`StatusBadge`/`EmptyState`, brand confirm dialogs, responsive pill statuses.
+  8. `src/Pages/ModaratorPages/AllAppliedScholarship/ViewDetails/ApplicationCard.jsx` — `6d2470b` — `PageHeader`+`StatusBadge`+fee-summary card, grid info rows with brand icon pills, `Spinner` loading.
+  9. `src/Layout/AdminDashboard.jsx` — `bf4fd1d` — branded sidebar (gradient header, `brand-50`/`brand-600` active states, `slate-50` background, rounded-xl nav).
+  10. `src/Layout/AdminNavbar.jsx` — `e74a4fe` — slate/brand palette, rounded-xl inputs, soft shadows, avatar ring.
+  11. `src/Pages/AdminPages/ManageAppliedApplication/ManageAppliedApplication.jsx` — `87f063f` — cloned polished moderator table for admin route.
+  12. `src/Pages/AdminPages/ManageUsers/ManageUsers.jsx` — `7249ea5` — `PageHeader` table with role badges (`superadmin`/`admin`/`modaretor`), brand action pills, lock for owner.
+  13. `src/Pages/AdminPages/ManageReviews/ManageReview.jsx` — `6f1bbfc` — `PageHeader` + staggered grid, empty state.
+  14. `src/Pages/AdminPages/ManageReviews/ReviewCard.jsx` — `1885aff` — soft card with `Stars`, avatar gradient, date/hash pills, rose delete button.
+- Restored deleted `.env.example` before first commit (`git restore`).
+- Verified Firebase Hosting token from `docs/CREDENTIALS.md` now succeeds (previous `401` from 2026-08-31 is resolved; all 14 deploys returned `✔ Deploy complete` to `scholarhive-913e4`).
+- `TASKS.md` checklist is now 100% `[x] Done`; `IN PROGRESS` is clear.
+
+**In progress**
+- Nothing. Checklist fully complete.
+
+**Left / next**
+- `TASKS.md` BACKLOG remains (tests, env-var server URL, centralize duplicated cards, client-side validation). Those are independent of the UI redesign and can be tackled next.
+- Verify live site `https://scholarhive-913e4.web.app` manually for auth round-trip (`/jwt`) and role dashboards, and run `npm run lint` (pre-existing `prop-types`/`unescaped-entities` errors unrelated to this pass).
+- Server repo `Schole-hive-server` was untouched (no UI change needed a backend field).
+
+**Decisions & context**
+- Kept all data contracts intact — visual/UX only, no logic rewrite; reused Tailwind + daisyUI + `framer-motion` + `lucide-react` + existing primitives (`PageHeader`, `FormField`, `StatusBadge`, `EmptyState`, `Stars`, `Spinner`).
+- Moderator and admin tables share the same table/card pattern for consistency; `AddScholarship`/`EditScholarship` share the `Apply` form shell.
+- Build size remains ~1.05 MB JS / ~146 KB CSS (`vite build` warnings about chunk size are pre-existing).
+
+---
+
 ## 2026-08-31 — Public navigation redesign pushed; Firebase deploy blocked
 
 **What was done**
