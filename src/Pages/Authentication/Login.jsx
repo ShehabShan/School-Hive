@@ -32,6 +32,7 @@ const Login = () => {
         name: user.displayName,
         email: user.email,
         role: "user",
+        photoURL: user.photoURL || null,
       };
       try {
         await axiosPublic.post("/users", userInfo);

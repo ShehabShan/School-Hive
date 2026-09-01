@@ -40,6 +40,7 @@ const Registration = () => {
         name: name,
         email: user.email,
         role: "user",
+        photoURL: photo || null,
       };
 
       try {
@@ -74,6 +75,7 @@ const Registration = () => {
         name: user.displayName,
         email: user.email,
         role: "user",
+        photoURL: user.photoURL || null,
       };
       try {
         await axiosPublic.post("/users", userInfo);
