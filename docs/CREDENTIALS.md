@@ -12,17 +12,20 @@ This file contains the deployment credentials for this project **in plaintext**.
 
 | Variable          | Value                                                                                                                        | Used for            | Project        |
 |-------------------|------------------------------------------------------------------------------------------------------------------------------|---------------------|----------------|
-| `VERCEL_TOKEN`    | `vcp_1HjsppAyJTM33ZtjpHVO7g7wJS16zrbUbBj1XQOGAZZWmGdbLF4FpuBy`                                                               | `vercel --token`    | server-six-vert |
-| `FIREBASE_TOKEN`  | `1//0gmwHuLmy5qpZCgYIARAAGBASNwF-L9IrdpnUCzFU2ImJLTzfttxIYVT76bookqjajDOrCvvzKJ0v5BWr-s3mwElb6xsJkaR6ww0`                  | `firebase deploy`   | scholarhive-913e4 |
+| `VERCEL_TOKEN`    | `<YOUR_VERCEL_TOKEN_IN_VERCEL_DASHBOARD>`                                                                                    | `vercel --token`    | server-six-vert |
+| `FIREBASE_TOKEN`  | `<YOUR_FIREBASE_TOKEN>`                                                                                                      | `firebase deploy`   | scholarhive-913e4 |
 
-## How a future session uses them
+## How to authenticate
 
-Use the values from this file directly (export them inline, or read from this
-file) — there is no external env file to source:
+Use standard CLI logins or environment variables:
 
 ```bash
-VERCEL_TOKEN="vcp_1HjsppAyJTM33ZtjpHVO7g7wJS16zrbUbBj1XQOGAZZWmGdbLF4FpuBy"
-FIREBASE_TOKEN="1//0gmwHuLmy5qpZCgYIARAAGBASNwF-L9IrdpnUCzFU2ImJLTzfttxIYVT76bookqjajDOrCvvzKJ0v5BWr-s3mwElb6xsJkaR6ww0"
+# Vercel
+npx vercel login
+
+# Firebase
+npx firebase login
+```
 
 # client — guarded build + deploy:
 cd /workspace

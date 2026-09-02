@@ -18,6 +18,9 @@ dist-ssr
 deploy.env
 *.pem
 *.key
+.credentials*
+*.credentials*
+credentials.json
 .firebase/
 schole-hive-server/
 
