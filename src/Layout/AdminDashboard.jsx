@@ -30,6 +30,7 @@ const AdminDashboard = () => {
   const navItems = isInstitution
     ? [
         { title: "Institution Profile", path: "/institutionDashboard/myProfile", icon: <UserCircle2 className="h-4 w-4" /> },
+        { title: "Students", path: "/institutionDashboard/students", icon: <Users className="h-4 w-4" /> },
         { title: "Add Scholarship", path: "/institutionDashboard/addScholarships", icon: <FilePlus2 className="h-4 w-4" /> },
         { title: "My Scholarships", path: "/institutionDashboard/manageScholarships", icon: <LayoutGrid className="h-4 w-4" /> },
       ]

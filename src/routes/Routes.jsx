@@ -60,7 +60,7 @@ const router = createBrowserRouter(
         { path: "allScholership", element: susp(<AllScholership />) },
         { path: "allScholership/:id", element: susp(<ScholarshipDetails />) },
         { path: "apply/:id", element: <PrivateRoute>{susp(<Apply />)}</PrivateRoute> },
-        { path: "myProfile", element: susp(<MyProfile />) },
+        { path: "myProfile", element: <PrivateRoute>{susp(<MyProfile />)}</PrivateRoute> },
         { path: "contact", element: susp(<ContactPage />) },
         { path: "aboutUs", element: susp(<AboutUs />) },
         { path: "signIn", element: susp(<Login />) },
@@ -118,6 +118,7 @@ const router = createBrowserRouter(
       element: <InstitutionRoute><AdminDashboard /></InstitutionRoute>,
       children: [
         { path: "myProfile", element: susp(<MyProfile />) },
+        { path: "students", element: susp(<MyProfile />) },
         { path: "addScholarships", element: susp(<AddScholarship />) },
         { path: "manageScholarships", element: susp(<ManageScholarships />) },
         { path: "manageScholarships/:id", element: susp(<EditScholarship />) },
