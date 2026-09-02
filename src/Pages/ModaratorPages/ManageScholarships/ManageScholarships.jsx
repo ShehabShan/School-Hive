@@ -7,11 +7,14 @@ import Swal from "sweetalert2";
 import PageHeader from "../../../Component/ui/PageHeader";
 import EmptyState from "../../../Component/ui/EmptyState";
 import { motion } from "framer-motion";
-import { LayoutGrid, Search } from "lucide-react";
+import { LayoutGrid, Search, Clock, X } from "lucide-react";
 import ScholarshipCard from "../../../Component/scholarship/ScholarshipCard";
 import { CardGridSkeleton } from "../../../Component/ui/Skeleton";
 import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import { format, addDays } from "date-fns";
 
 export default function ManageScholarships() {
   // include drafts for management view
@@ -22,6 +25,9 @@ export default function ManageScholarships() {
   const { user } = useAuth();
   const { isInstitution } = useRole();
   const [q, setQ] = useState("");
+  const [scheduleId, setScheduleId] = useState(null);
+  const [scheduleDate, setScheduleDate] = useState(addDays(new Date(), 1));
+  const [showOnProfile, setShowOnProfile] = useState(false);
 
   const [tab, setTab] = useState("published");
   const myScholarships = useMemo(() => {
@@ -79,6 +85,27 @@ export default function ManageScholarships() {
       refetch();
     } catch (e) {
       toast.error(e.response?.data?.message || "Failed");
+    }
+  };
+  const handleSchedule = (_id) => {
+    setScheduleId(_id);
+    setScheduleDate(addDays(new Date(), 1));
+    setShowOnProfile(false);
+  };
+  const handleConfirmSchedule = async () => {
+    if (!scheduleId) return;
+    const now = new Date();
+    const max = addDays(now, 30);
+    if (scheduleDate <= now) return toast.error("Schedule time must be in the future");
+    if (scheduleDate > max) return toast.error("Schedule max 30 days ahead");
+    try {
+      await axiosSecure.patch(`/allScholership/${scheduleId}`, { status: "scheduled", publishAt: scheduleDate.toISOString(), showScheduledOnProfile: showOnProfile });
+      toast.success(`Scheduled for ${format(scheduleDate, "PPP p")} — draft removed`);
+      setScheduleId(null);
+      refetch();
+      setTab("scheduled");
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Schedule failed");
     }
   };
 
@@ -173,13 +200,38 @@ export default function ManageScholarships() {
           />
         </div>
       ) : (
-        <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.06 } } }} className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
-          {filtered.map((scholarship) => (
-            <motion.div key={scholarship._id} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.3 }}>
-              <ScholarshipCard scholarship={scholarship} variant="manage" onDelete={handleDelete} onPublish={handlePublish} onPublishNow={handlePublishNow} onUnschedule={handleUnschedule} />
-            </motion.div>
-          ))}
-        </motion.div>
+        <>
+          <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.06 } } }} className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
+            {filtered.map((scholarship) => (
+              <motion.div key={scholarship._id} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.3 }}>
+                <ScholarshipCard scholarship={scholarship} variant="manage" onDelete={handleDelete} onPublish={handlePublish} onPublishNow={handlePublishNow} onUnschedule={handleUnschedule} onSchedule={handleSchedule} />
+              </motion.div>
+            ))}
+          </motion.div>
+          {scheduleId && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={() => setScheduleId(null)}>
+            <div className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+              <div className="flex items-center justify-between">
+                <h3 className="flex items-center gap-2 text-base font-bold text-slate-900"><Clock className="h-5 w-5 text-brand-600" /> Schedule Publish</h3>
+                <button onClick={() => setScheduleId(null)} className="rounded-full p-1 hover:bg-slate-100"><X className="h-5 w-5" /></button>
+              </div>
+              <p className="mt-1 text-sm text-slate-500">Pick a future date/time (max 30 days). Draft will be removed and become scheduled.</p>
+              <div className="mt-4 rounded-xl border border-slate-200 bg-white p-2">
+                <DatePicker selected={scheduleDate} onChange={(d) => d && !isNaN(d.getTime()) && setScheduleDate(d)} showTimeSelect timeIntervals={15} dateFormat="yyyy-MM-dd HH:mm" minDate={new Date()} maxDate={addDays(new Date(), 30)} inline />
+              </div>
+              <p className="mt-2 text-xs text-slate-600">Selected: <b>{format(scheduleDate, "PPP p")}</b> • {Math.max(0, Math.ceil((scheduleDate - new Date()) / (86400000)))} days left</p>
+              <label className="mt-3 flex items-center gap-2 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2">
+                <input type="checkbox" checked={showOnProfile} onChange={(e) => setShowOnProfile(e.target.checked)} className="h-4 w-4 rounded border-slate-300 text-brand-600" />
+                <span className="text-sm font-semibold text-slate-700">Show scheduled on my public profile</span>
+              </label>
+              <div className="mt-6 flex justify-end gap-2">
+                <button onClick={() => setScheduleId(null)} className="rounded-xl border border-slate-200 bg-white px-4 py-2 text-sm font-bold text-slate-700">Cancel</button>
+                <button onClick={handleConfirmSchedule} className="rounded-xl bg-brand-600 px-5 py-2 text-sm font-bold text-white hover:bg-brand-700">Schedule</button>
+              </div>
+            </div>
+          </div>
+        )}
+        </>
       )}
     </div>
   );

@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { GraduationCap, MapPin, ArrowRight, Eye, Pencil, Trash2, Bookmark, BookmarkCheck, Scale } from "lucide-react";
+import { GraduationCap, MapPin, ArrowRight, Eye, Pencil, Trash2, Bookmark, BookmarkCheck, Scale, Clock } from "lucide-react";
 import Stars from "../ui/Stars";
 import CountdownBadge from "./CountdownBadge";
 
@@ -20,6 +20,7 @@ export default function ScholarshipCard({
   onPublish,
   onPublishNow,
   onUnschedule,
+  onSchedule,
   saved = false,
   onToggleSave,
   compareChecked = false,
@@ -176,7 +177,10 @@ export default function ScholarshipCard({
           ) : (
             <div className="flex flex-wrap items-center gap-1.5">
               {s.status === "draft" && (
-                <button onClick={() => onPublish?.(s._id)} aria-label="Publish" className="inline-flex h-9 items-center gap-1 rounded-xl bg-emerald-600 px-3 text-xs font-bold text-white hover:bg-emerald-700">Publish</button>
+                <>
+                  <button onClick={() => onPublish?.(s._id)} aria-label="Publish" className="inline-flex h-9 items-center gap-1 rounded-xl bg-emerald-600 px-3 text-xs font-bold text-white hover:bg-emerald-700">Publish</button>
+                  <button onClick={() => onSchedule?.(s._id)} aria-label="Schedule" className="inline-flex h-9 items-center gap-1 rounded-xl bg-indigo-600 px-3 text-xs font-bold text-white hover:bg-indigo-700"><Clock className="h-3.5 w-3.5" /> Schedule</button>
+                </>
               )}
               {s.status === "scheduled" && (
                 <>
