@@ -66,7 +66,7 @@ export default function Compare() {
             {scholarships.map((s) => (
               <div key={s._id} className="overflow-hidden rounded-2xl border border-slate-100 bg-white shadow-soft">
                 <div className="relative h-40 overflow-hidden">
-                  <img src={s.universityImage} alt={s.universityName} className="h-full w-full object-cover" onError={(e) => (e.currentTarget.src = "https://via.placeholder.com/600x400?text=No+Image")} />
+                  <img src={s.universityImage} alt={s.universityName} className="h-full w-full object-cover" onError={(e) => (e.currentTarget.src = "https://placehold.co/600x400?text=No+Image")} />
                   <button onClick={() => remove(s._id)} className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow"><X className="h-4 w-4" /></button>
                   <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-brand-700">{s.scholarshipCategory}</span>
                 </div>

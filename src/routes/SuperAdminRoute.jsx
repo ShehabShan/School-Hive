@@ -4,11 +4,15 @@ import useRole from "../Hooks/useRole";
 
 const SuperAdminRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  const { isSuperAdmin, loading: roleLoading } = useRole();
+  const { isSuperAdmin, isPending, loading: roleLoading } = useRole();
   const location = useLocation();
 
   if (loading || roleLoading) {
     return <progress className="progress w-56"></progress>;
+  }
+
+  if (isPending) {
+    return <Navigate to="/pendingApproval" replace />;
   }
 
   if (user && isSuperAdmin) {

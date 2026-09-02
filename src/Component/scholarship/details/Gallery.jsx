@@ -19,7 +19,7 @@ export default function Gallery({ images = [], videoUrl, videoPoster, alt = "Sch
   const hasVideo = !!vEmbed;
   const items = [...images];
   // ensure at least 1
-  const safe = items.length ? items : ["https://via.placeholder.com/1200x800?text=No+Image"];
+  const safe = items.length ? items : ["https://placehold.co/1200x800?text=No+Image"];
   const [idx, setIdx] = useState(0);
   const [light, setLight] = useState(false);
   const [showVideo, setShowVideo] = useState(false);
@@ -43,7 +43,7 @@ export default function Gallery({ images = [], videoUrl, videoPoster, alt = "Sch
             alt={alt}
             className="h-full w-full object-cover"
             onClick={() => setLight(true)}
-            onError={(e) => (e.currentTarget.src = "https://via.placeholder.com/1200x800?text=No+Image")}
+            onError={(e) => (e.currentTarget.src = "https://placehold.co/1200x800?text=No+Image")}
           />
         )}
 
@@ -70,7 +70,7 @@ export default function Gallery({ images = [], videoUrl, videoPoster, alt = "Sch
             onClick={() => { setIdx(i); setShowVideo(false); }}
             className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl ring-2 ${i === idx && !showVideo ? "ring-brand-600" : "ring-transparent"} ${i === idx && !showVideo ? "" : "opacity-70 hover:opacity-100"}`}
           >
-            <img src={src} alt="" className="h-full w-full object-cover" onError={(e) => (e.currentTarget.src = "https://via.placeholder.com/300x200?text=No")} />
+            <img src={src} alt="" className="h-full w-full object-cover" onError={(e) => (e.currentTarget.src = "https://placehold.co/300x200?text=No")} />
           </button>
         ))}
         {hasVideo && (

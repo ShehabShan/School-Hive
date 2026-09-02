@@ -1,82 +1,76 @@
 import { useEffect, useState } from "react";
-import { format } from "date-fns";
-import { FaCalendarAlt, FaGraduationCap, FaUniversity, FaPaperPlane, FaMoneyBillWave, FaImage } from "react-icons/fa";
-import DatePicker from "react-datepicker";
-import "react-datepicker/dist/react-datepicker.css";
-import Image from "../../../assist/add-data.png";
 import { useNavigate, useParams } from "react-router-dom";
+import toast from "react-hot-toast";
+import ScholarshipForm from "../../../Component/scholarship/ScholarshipForm";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
-import toast from "react-hot-toast";
-import FormField from "../../../Component/ui/FormField";
+import useRole from "../../../Hooks/useRole";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
-const inputClass =
-  "input input-bordered w-full rounded-xl border-slate-200 bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
-const selectClass =
-  "select w-full rounded-xl border-slate-200 bg-white focus:border-brand-500 focus:ring-2 focus:ring-brand-100";
-
-const SectionTitle = ({ icon: Icon, title }) => (
-  <h3 className="mb-4 flex items-center gap-2.5 text-base font-bold text-slate-800">
-    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
-      <Icon className="h-4 w-4" />
-    </span>
-    {title}
-  </h3>
-);
-
 export default function EditScholarship() {
   const { id } = useParams();
-  const [scholarship, setScholarship] = useState({});
-  const [postDate, setPostDate] = useState(new Date());
-  const [date, setDate] = useState(new Date());
-  const [isCalendarVisible, setIsCalendarVisible] = useState(false);
+  const [initial, setInitial] = useState(null);
   const axiosPublic = useAxiosPublic();
   const axiosSecure = useAxiosSecure();
   const navigate = useNavigate();
-  const [submitting, setSubmitting] = useState(false);
+  const { isInstitution } = useRole();
 
   useEffect(() => {
     axiosPublic.get(`/allScholership/${id}`).then((res) => {
-      const data = res.data.data || res.data;
-      setScholarship(data);
-      if (data.postDate) setPostDate(new Date(data.postDate));
-      if (data.applicationDeadline) setDate(new Date(data.applicationDeadline));
+      const d = res.data.data || res.data;
+      setInitial({
+        universityName: d.universityName || "",
+        scholarshipName: d.scholarshipName || d.subjectName || "",
+        country: d.country || "",
+        city: d.city || "",
+        universityWorldrank: d.universityWorldrank || "",
+        stipend: d.stipend || "",
+        scholarshipCategory: d.scholarshipCategory || "Partial",
+        subjectName: d.subjectName || "",
+        degree: d.degree || "Diploma",
+        currency: d.currency || "USD",
+        duration: d.duration || "",
+        eligibility: Array.isArray(d.eligibility) ? d.eligibility.join(", ") : d.eligibility || "",
+        benefits: Array.isArray(d.benefits) ? d.benefits.join(", ") : d.benefits || "",
+        tags: Array.isArray(d.tags) ? d.tags.join(", ") : d.tags || "",
+        highlights: Array.isArray(d.highlights) ? d.highlights.join(", ") : d.highlights || "",
+        documents: Array.isArray(d.documents) ? d.documents.join(", ") : d.documents || "",
+        requirements: Array.isArray(d.requirements) ? d.requirements.join(", ") : d.requirements || "",
+        scholarshipDescription: d.scholarshipDescription || "",
+        galleryUrls: Array.isArray(d.gallery) ? d.gallery.join(", ") : "",
+        videoUrl: d.videoUrl || "",
+        videoPoster: d.videoPoster || "",
+        brochureUrl: d.brochureUrl || "",
+        mapUrl: d.mapUrl || "",
+        faqs: Array.isArray(d.faqs) ? JSON.stringify(d.faqs, null, 2) : "",
+        serviceCharge: d.serviceCharge || "",
+        applicationFees: d.applicationFees || "",
+        applicationDeadline: d.applicationDeadline || "",
+        _raw: d,
+      });
     });
   }, [id, axiosPublic]);
 
-  const handleCalendarToggle = () => setIsCalendarVisible(!isCalendarVisible);
+  const handleUpdate = async (data) => {
+    const formEl = document.querySelector("form");
+    const formData = new FormData(formEl);
+    const payload = { ...data };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (submitting) return;
-    setSubmitting(true);
-
-    const formData = new FormData(e.target);
-    const initialData = Object.fromEntries(formData.entries());
-    const universityImage = formData.get("universityImage");
-
-    if (!universityImage?.name) {
-      delete initialData.universityImage;
-    }
-
-    if (universityImage?.name) {
-      const imageFile = { image: universityImage };
+    const coverFile = formData.get("universityImage");
+    if (coverFile && coverFile.name) {
       try {
-        const res = await axiosPublic.post(image_hosting_api, imageFile, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-        initialData.universityImage = res.data.data.url;
+        const res = await axiosPublic.post(image_hosting_api, { image: coverFile }, { headers: { "Content-Type": "multipart/form-data" } });
+        payload.universityImage = res.data.data.url;
       } catch {
-        toast.error("Image upload failed.");
-        setSubmitting(false);
+        toast.error("Cover upload failed");
         return;
       }
+    } else {
+      delete payload.universityImage;
     }
 
-    // gallery multi-upload
     const galleryFiles = formData.getAll("galleryFiles");
     const galleryUrls = [];
     for (const f of galleryFiles) {
@@ -85,277 +79,47 @@ export default function EditScholarship() {
           const res = await axiosPublic.post(image_hosting_api, { image: f }, { headers: { "Content-Type": "multipart/form-data" } });
           galleryUrls.push(res.data.data.url);
         } catch {
-          toast.error(`Gallery upload failed for ${f.name}`);
+          toast.error(`Gallery ${f.name} failed`);
         }
       }
     }
-    if (galleryUrls.length) initialData.gallery = galleryUrls;
-    else {
-      const galleryText = String(formData.get("galleryUrls") || "").trim();
-      if (galleryText) initialData.gallery = galleryText.split(",").map((s) => s.trim()).filter(Boolean);
-      else if (Array.isArray(scholarship.gallery) && scholarship.gallery.length) initialData.gallery = scholarship.gallery;
-    }
+    if (galleryUrls.length) payload.gallery = galleryUrls;
+    else if (data.galleryUrls) payload.gallery = data.galleryUrls.split(",").map((s) => s.trim()).filter(Boolean);
+    else if (initial?._raw?.gallery) payload.gallery = initial._raw.gallery;
 
-    initialData.postDate = format(postDate, "yyyy-MM-dd");
-    initialData.applicationDeadline = format(date, "yyyy-MM-dd");
-    // new optional fields — normalize comma-separated
-    if (initialData.eligibility !== undefined) initialData.eligibility = String(initialData.eligibility || "").split(",").map((s) => s.trim()).filter(Boolean);
-    if (initialData.benefits !== undefined) initialData.benefits = String(initialData.benefits || "").split(",").map((s) => s.trim()).filter(Boolean);
-    if (initialData.tags !== undefined) initialData.tags = String(initialData.tags || "").split(",").map((s) => s.trim()).filter(Boolean);
-    if (initialData.highlights !== undefined) initialData.highlights = String(initialData.highlights || "").split(",").map((s) => s.trim()).filter(Boolean);
-    if (initialData.documents !== undefined) initialData.documents = String(initialData.documents || "").split(",").map((s) => s.trim()).filter(Boolean);
-    if (initialData.requirements !== undefined) initialData.requirements = String(initialData.requirements || "").split(",").map((s) => s.trim()).filter(Boolean);
-    if (initialData.videoUrl !== undefined) initialData.videoUrl = String(initialData.videoUrl || "").trim() || null;
-    if (initialData.videoPoster !== undefined) initialData.videoPoster = String(initialData.videoPoster || "").trim() || null;
-    if (initialData.brochureUrl !== undefined) initialData.brochureUrl = String(initialData.brochureUrl || "").trim() || null;
-    if (initialData.mapUrl !== undefined) initialData.mapUrl = String(initialData.mapUrl || "").trim() || null;
-    if (initialData.faqs !== undefined) {
-      const raw = String(initialData.faqs || "").trim();
+    ["eligibility", "benefits", "tags", "highlights", "documents", "requirements"].forEach((k) => {
+      if (payload[k] !== undefined) payload[k] = String(payload[k] || "").split(",").map((s) => s.trim()).filter(Boolean);
+    });
+    payload.currency = String(payload.currency || "USD").toUpperCase().slice(0, 3);
+    payload.videoUrl = String(payload.videoUrl || "").trim() || null;
+    payload.videoPoster = String(payload.videoPoster || "").trim() || null;
+    payload.brochureUrl = String(payload.brochureUrl || "").trim() || null;
+    payload.mapUrl = String(payload.mapUrl || "").trim() || null;
+    if (payload.faqs) {
+      const raw = String(payload.faqs).trim();
       if (raw) {
-        try { initialData.faqs = JSON.parse(raw); } catch { initialData.faqs = raw.split("|").map((pair) => { const [q, a] = pair.split("=>"); return q && a ? { q: q.trim(), a: a.trim() } : null; }).filter(Boolean); }
-      } else initialData.faqs = scholarship.faqs || [];
+        try { payload.faqs = JSON.parse(raw); } catch { payload.faqs = raw.split("|").map((pair) => { const [q, a] = pair.split("=>"); return q && a ? { q: q.trim(), a: a.trim() } : null; }).filter(Boolean); }
+      } else delete payload.faqs;
     }
-    if (initialData.currency) initialData.currency = String(initialData.currency).toUpperCase().slice(0, 3);
-    delete initialData.subjectName2;
-    delete initialData.galleryFiles;
-    delete initialData.galleryUrls;
+    delete payload.galleryUrls;
+    delete payload._raw;
+    payload.applicationDeadline = data.applicationDeadline || initial?.applicationDeadline;
 
     try {
-      const { data } = await axiosSecure.patch(`/allScholership/${id}`, initialData);
-      if (data.data?.modifiedCount > 0 || data.modifiedCount > 0) {
-        toast.success("Scholarship updated!");
-        navigate("/modaratorDashboard/manageScholarships");
-      } else {
-        toast.success("No changes detected.");
-        navigate("/modaratorDashboard/manageScholarships");
-      }
-    } catch {
-      toast.error("Update failed. Please try again.");
-    } finally {
-      setSubmitting(false);
+      const { data: res } = await axiosSecure.patch(`/allScholership/${id}`, payload);
+      if (res.data?.modifiedCount > 0 || res.modifiedCount > 0) toast.success("Scholarship updated!");
+      else toast.success("Saved");
+      navigate(isInstitution ? "/institutionDashboard/manageScholarships" : "/adminDashboard/manageScholarships");
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Update failed");
     }
   };
 
+  if (!initial) return <div className="flex min-h-[60vh] items-center justify-center"><span className="h-8 w-8 animate-spin rounded-full border-2 border-brand-200 border-t-brand-600" /></div>;
+
   return (
-    <div className="min-h-screen bg-slate-50 p-4 md:p-8">
-      <form
-        onSubmit={handleSubmit}
-        className="mx-auto w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-100"
-      >
-        <div className="relative bg-gradient-to-br from-brand-600 to-brand-800 px-6 py-8 text-center">
-          <div className="absolute inset-0 opacity-10 [background-image:radial-gradient(circle_at_1px_1px,white_1px,transparent_0)] [background-size:20px_20px]" />
-          <div className="relative mx-auto mb-3 h-16 w-16 overflow-hidden rounded-2xl bg-white shadow-lift ring-4 ring-white/30">
-            <img src={scholarship?.universityImage || Image} alt="University" className="h-full w-full object-cover" />
-          </div>
-          <h2 className="text-2xl font-extrabold tracking-tight text-white">Edit Scholarship</h2>
-          <p className="text-sm font-medium text-brand-200">{scholarship?.universityName || "Update scholarship details"}</p>
-        </div>
-
-        <div className="space-y-8 p-6 md:p-8">
-          <section>
-            <SectionTitle icon={FaUniversity} title="University Details" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField label="University Name" required>
-                <input type="text" name="universityName" defaultValue={scholarship?.universityName} className={inputClass} required />
-              </FormField>
-              <FormField label="Subject" required>
-                <input type="text" name="subjectName" defaultValue={scholarship?.subjectName} className={inputClass} required />
-              </FormField>
-              <FormField label="Country" required>
-                <input type="text" name="country" defaultValue={scholarship?.country} className={inputClass} required />
-              </FormField>
-              <FormField label="City" required>
-                <input type="text" name="city" defaultValue={scholarship?.city} className={inputClass} required />
-              </FormField>
-              <FormField label="University World Rank" required>
-                <input type="number" name="universityWorldrank" defaultValue={scholarship?.universityWorldrank} className={inputClass} required />
-              </FormField>
-              <FormField label="Annual Stipend">
-                <input type="number" name="stipend" defaultValue={scholarship?.stipend} className={inputClass} placeholder="15000" />
-              </FormField>
-            </div>
-          </section>
-
-          <section className="border-t border-slate-100 pt-8">
-            <SectionTitle icon={FaGraduationCap} title="Scholarship Information" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField label="Scholarship Category" required>
-                <select
-                  className={selectClass}
-                  name="scholarshipCategory"
-                  value={scholarship?.scholarshipCategory || "Partial"}
-                  onChange={(e) => setScholarship((s) => ({ ...s, scholarshipCategory: e.target.value }))}
-                  required
-                >
-                  <option value="Partial">Partial</option>
-                  <option value="Full-fund">Full-fund</option>
-                  <option value="Self-fund">Self-fund</option>
-                </select>
-              </FormField>
-              <FormField label="Subject Category">
-                <select
-                  className={selectClass}
-                  name="subjectName2"
-                  defaultValue={scholarship?.subjectName}
-                  disabled
-                >
-                  <option>{scholarship?.subjectName || "Subject"}</option>
-                </select>
-                <p className="mt-1 text-xs text-slate-400">Subject is also above — keep them in sync.</p>
-              </FormField>
-              <FormField label="Degree" required>
-                <select
-                  className={selectClass}
-                  name="degree"
-                  value={scholarship?.degree || "Diploma"}
-                  onChange={(e) => setScholarship((s) => ({ ...s, degree: e.target.value }))}
-                  required
-                >
-                  <option value="Diploma">Diploma</option>
-                  <option value="Bachelor">Bachelor</option>
-                  <option value="Masters">Masters</option>
-                  <option value="PhD">PhD</option>
-                </select>
-              </FormField>
-              <FormField label="Currency">
-                <select className={selectClass} name="currency" value={scholarship?.currency || "USD"} onChange={(e) => setScholarship((s) => ({ ...s, currency: e.target.value }))}>
-                  <option value="USD">USD</option>
-                  <option value="GBP">GBP</option>
-                  <option value="EUR">EUR</option>
-                </select>
-              </FormField>
-              <FormField label="Duration">
-                <input type="text" name="duration" defaultValue={scholarship?.duration || ""} onChange={(e) => setScholarship((s) => ({ ...s, duration: e.target.value }))} className={inputClass} placeholder="4 years" />
-              </FormField>
-              <FormField label="Eligibility" hint="Comma separated">
-                <input type="text" name="eligibility" defaultValue={(scholarship?.eligibility || []).join(", ")} className={inputClass} placeholder="GPA 3.0+, IELTS 6.5" />
-              </FormField>
-              <FormField label="Benefits" hint="Comma separated">
-                <input type="text" name="benefits" defaultValue={(scholarship?.benefits || []).join(", ")} className={inputClass} placeholder="Full tuition, Stipend" />
-              </FormField>
-              <FormField label="Tags" hint="Comma separated">
-                <input type="text" name="tags" defaultValue={(scholarship?.tags || []).join(", ")} className={inputClass} placeholder="STEM, merit" />
-              </FormField>
-              <FormField label="Scholarship Description" className="md:col-span-2">
-                <textarea
-                  name="scholarshipDescription"
-                  defaultValue={scholarship?.scholarshipDescription}
-                  className="min-h-[112px] w-full rounded-xl border border-slate-200 bg-white p-3 text-sm focus:border-brand-500 focus:ring-2 focus:ring-brand-100"
-                  placeholder="Briefly describe eligibility and benefits..."
-                />
-              </FormField>
-            </div>
-
-            <div className="mt-4 grid gap-4 md:grid-cols-2">
-              <FormField label="Post Date">
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:border-brand-300"
-                  onClick={() => setPostDate(new Date())}
-                >
-                  <span className="flex items-center gap-2">
-                    <FaCalendarAlt className="text-brand-500" />
-                    {format(postDate, "PPP")}
-                  </span>
-                  <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">Today</span>
-                </button>
-              </FormField>
-              <FormField label="Application Deadline" required>
-                <button
-                  type="button"
-                  className="flex w-full items-center justify-between rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 hover:border-brand-300"
-                  onClick={handleCalendarToggle}
-                >
-                  <span className="flex items-center gap-2">
-                    <FaCalendarAlt className="text-brand-500" />
-                    {format(date, "PPP")}
-                  </span>
-                  <span className="rounded-md bg-amber-50 px-2 py-0.5 text-xs font-bold text-amber-700 ring-1 ring-amber-100">Pick</span>
-                </button>
-                {isCalendarVisible && (
-                  <div className="mt-2 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-soft">
-                    <DatePicker selected={date} onChange={(d) => setDate(d)} minDate={new Date()} dateFormat="PPP" inline />
-                  </div>
-                )}
-              </FormField>
-            </div>
-          </section>
-
-          <section className="border-t border-slate-100 pt-8">
-            <SectionTitle icon={FaImage} title="Cover Photo" />
-            <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-              <span className="shrink-0 rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-bold text-brand-600">Upload</span>
-              <input
-                type="file"
-                name="universityImage"
-                accept="image/*"
-                className="w-full text-sm text-slate-500 file:mr-3 file:rounded-lg file:border-none file:bg-brand-600 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-white"
-              />
-            </div>
-            <p className="mt-2 text-xs text-slate-400">Leave empty to keep current image.</p>
-
-            <div className="mt-6">
-              <SectionTitle icon={FaImage} title="Gallery & media (optional)" />
-              <div className="grid gap-4">
-                <FormField label="Gallery images" hint="Up to 5 more, leave empty to keep existing">
-                  <input type="file" name="galleryFiles" accept="image/*" multiple className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm file:mr-3 file:rounded-lg file:border-none file:bg-slate-900 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-white" />
-                </FormField>
-                {Array.isArray(scholarship.gallery) && scholarship.gallery.length ? <p className="text-xs text-slate-500">Current: {scholarship.gallery.length} images</p> : null}
-                <FormField label="Gallery URLs fallback" hint="Comma-separated">
-                  <input type="text" name="galleryUrls" defaultValue={(scholarship.gallery || []).join(", ")} className={inputClass} placeholder="https://..., https://..." />
-                </FormField>
-                <div className="grid gap-4 md:grid-cols-2">
-                  <FormField label="Video URL" hint="YouTube">
-                    <input type="url" name="videoUrl" defaultValue={scholarship.videoUrl || ""} className={inputClass} placeholder="https://youtube.com/watch?v=..." />
-                  </FormField>
-                  <FormField label="Video poster URL">
-                    <input type="url" name="videoPoster" defaultValue={scholarship.videoPoster || ""} className={inputClass} placeholder="https://..." />
-                  </FormField>
-                  <FormField label="Brochure URL">
-                    <input type="url" name="brochureUrl" defaultValue={scholarship.brochureUrl || ""} className={inputClass} placeholder="https://..." />
-                  </FormField>
-                  <FormField label="Map URL">
-                    <input type="url" name="mapUrl" defaultValue={scholarship.mapUrl || ""} className={inputClass} placeholder="https://maps.google.com/..." />
-                  </FormField>
-                </div>
-                <FormField label="Highlights" hint="Comma-separated">
-                  <input type="text" name="highlights" defaultValue={(scholarship.highlights || []).join(", ")} className={inputClass} placeholder="Fully funded, 4 years" />
-                </FormField>
-                <FormField label="Documents" hint="Comma-separated">
-                  <input type="text" name="documents" defaultValue={(scholarship.documents || []).join(", ")} className={inputClass} placeholder="Transcript, SOP, LOR" />
-                </FormField>
-                <FormField label="Requirements" hint="Comma-separated">
-                  <input type="text" name="requirements" defaultValue={(scholarship.requirements || []).join(", ")} className={inputClass} placeholder="GPA 3.0+, IELTS 6.5" />
-                </FormField>
-                <FormField label="FAQs" hint='JSON or q=>a | q=>a'>
-                  <textarea name="faqs" defaultValue={JSON.stringify(scholarship.faqs || [], null, 2)} className="min-h-[80px] w-full rounded-xl border border-slate-200 bg-white p-3 text-sm" placeholder='[{"q":"Who?","a":"..."}]' />
-                </FormField>
-              </div>
-            </div>
-          </section>
-
-          <section className="rounded-2xl border border-slate-100 bg-slate-50/70 p-5">
-            <SectionTitle icon={FaMoneyBillWave} title="Fees Breakdown" />
-            <div className="grid gap-4 md:grid-cols-2">
-              <FormField label="Service Charge" required>
-                <input type="number" name="serviceCharge" defaultValue={scholarship?.serviceCharge} className={inputClass} required />
-              </FormField>
-              <FormField label="Application Fees" required>
-                <input type="number" name="applicationFees" defaultValue={scholarship?.applicationFees} className={inputClass} required />
-              </FormField>
-            </div>
-          </section>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-base font-bold text-white shadow-soft transition-all hover:-translate-y-0.5 hover:shadow-lift disabled:opacity-60"
-          >
-            <FaPaperPlane className="h-4 w-4" />
-            {submitting ? "Saving..." : "Update Scholarship"}
-          </button>
-        </div>
-      </form>
+    <div className="min-h-screen bg-slate-50/70 p-4 md:p-6">
+      <ScholarshipForm initialValues={initial} onSubmit={handleUpdate} submitLabel="Update Scholarship" imageRequired={false} previewImage={initial._raw?.universityImage} />
     </div>
   );
 }

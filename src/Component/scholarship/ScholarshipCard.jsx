@@ -24,7 +24,7 @@ export default function ScholarshipCard({
 }) {
   const s = scholarship || {};
   const currency = s.currency || "USD";
-  const img = s.universityImage || "https://via.placeholder.com/600x400?text=Scholarship";
+  const img = s.universityImage || "https://placehold.co/600x400?text=Scholarship";
   const isManage = variant === "manage";
   const isCompact = variant === "compact";
 
@@ -36,10 +36,10 @@ export default function ScholarshipCard({
             src={img}
             alt={s.universityName || "University"}
             loading="lazy"
-            onError={(e) => (e.currentTarget.src = "https://via.placeholder.com/600x400?text=No+Image")}
+            onError={(e) => (e.currentTarget.src = "https://placehold.co/600x400?text=No+Image")}
             className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
-          <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-brand-700 shadow-sm">{s.scholarshipCategory}</span>
+           <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-brand-700 shadow-sm">{s.scholarshipCategory}</span>
         </div>
         <div className="flex min-w-0 flex-1 flex-col p-4">
           <div className="flex items-start justify-between gap-2">
@@ -91,7 +91,7 @@ export default function ScholarshipCard({
           src={img}
           alt={`${s.universityName || "University"} campus`}
           loading="lazy"
-          onError={(e) => (e.currentTarget.src = "https://via.placeholder.com/600x400?text=No+Image")}
+          onError={(e) => (e.currentTarget.src = "https://placehold.co/600x400?text=No+Image")}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />

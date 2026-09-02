@@ -50,8 +50,8 @@ const Navbar = () => {
   const handleSignOut = () => {
     setProfileOpen(false);
     logOut()
-      .then(() => navigate("/"))
-      .catch(() => {});
+      .then(() => navigate("/registration"))
+      .catch(() => navigate("/registration"));
   };
 
   const dashboardLink = isInstitution

@@ -32,9 +32,9 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
     setProfileDropdownOpen(false);
     try {
       await logOut();
-      navigate("/");
+      navigate("/registration");
     } catch {
-      navigate("/");
+      navigate("/registration");
     }
   };
 
