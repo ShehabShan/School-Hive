@@ -6,7 +6,6 @@ import { useSearchParams, Link } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import useAuth from "../../../Hooks/useAuth";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
-import DataNotAvailable from "../../../Component/DataNotAvailable/DataNotAvailable";
 import PageHeader from "../../../Component/ui/PageHeader";
 import Spinner from "../../../Component/ui/Spinner";
 import ApplicationCard from "./ApplicationCard";
@@ -16,7 +15,7 @@ import EmptyState from "../../../Component/ui/EmptyState";
 import "./MyApplication.css";
 
 export default function MyApplication() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const axiosSecure = useAxiosSecure();
   const [searchParams, setSearchParams] = useSearchParams();
   const view = searchParams.get("view") || "grid";
@@ -128,7 +127,7 @@ export default function MyApplication() {
         <button onClick={() => updateSearch(localQ.trim())} className="rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white">Search</button>
       </div>
 
-      {isLoading ? (
+      {loading || isLoading ? (
         view === "list" ? (
           <div className="mt-6 space-y-4">{[1,2,3].map((i) => <div key={i} className="h-32 animate-pulse rounded-2xl bg-slate-100" />)}</div>
         ) : view === "table" ? (
@@ -137,7 +136,14 @@ export default function MyApplication() {
           <div className="mt-6"><CardGridSkeleton count={6} /></div>
         )
       ) : apply?.length === 0 ? (
-        <DataNotAvailable />
+        <div className="mt-6">
+          <EmptyState
+            icon={FaFileAlt}
+            title="No applications yet"
+            message="You haven't applied to any scholarships yet. Explore opportunities and start your journey."
+            action={<Link to="/allScholership" className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white shadow-soft hover:bg-brand-700">Browse Scholarships</Link>}
+          />
+        </div>
       ) : filtered.length === 0 ? (
         <div className="mt-6">
           <EmptyState title="No matching applications" message={`No applications match "${qParam}". Try a different search.`} action={<button onClick={() => updateSearch("")} className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white">Clear search</button>} />

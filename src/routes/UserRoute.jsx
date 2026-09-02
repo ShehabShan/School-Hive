@@ -2,6 +2,7 @@ import { Navigate, useLocation } from "react-router-dom";
 import useAuth from "../Hooks/useAuth";
 import useUser from "../Hooks/useUser";
 import useRole from "../Hooks/useRole";
+import RouteFallback from "../Component/ui/RouteFallback";
 
 // import useAdmin from "../Hooks/useAdmin";
 
@@ -13,7 +14,7 @@ const UserRoute = ({ children }) => {
   // console.log(isAdmin);
 
   if (loading || isUserLoading || roleLoading) {
-    return <progress className="progress w-56"></progress>;
+    return <RouteFallback />;
   }
 
   if (isPending) {

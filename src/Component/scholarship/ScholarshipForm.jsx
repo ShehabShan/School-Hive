@@ -30,6 +30,7 @@ import FormField from "../ui/FormField";
 import ChipInput from "../ui/ChipInput";
 import FAQBuilder from "./FAQBuilder";
 import { scholarshipSchema, defaultValues } from "../../lib/scholarshipSchema";
+import toast from "react-hot-toast";
 
 const STEPS = [
   { id: 1, title: "University", icon: Building2, desc: "Identity & location" },
@@ -79,6 +80,7 @@ export default function ScholarshipForm({
     trigger,
     watch,
     setValue,
+    getValues,
     formState: { errors, isSubmitting },
   } = useForm({
     resolver: zodResolver(scholarshipSchema),
@@ -92,15 +94,28 @@ export default function ScholarshipForm({
     setValue("applicationDeadline", format(deadline, "yyyy-MM-dd"));
   }, [deadline, setValue]);
 
+  const fieldsByStep = {
+    1: ["universityName", "scholarshipName", "country", "city", "universityWorldrank"],
+    2: ["scholarshipCategory", "subjectName", "degree", "scholarshipDescription"],
+    3: [],
+    4: ["applicationDeadline", "serviceCharge", "applicationFees"],
+  };
+
   const nextStep = async () => {
-    const fieldsByStep = {
-      1: ["universityName", "scholarshipName", "country", "city", "universityWorldrank"],
-      2: ["scholarshipCategory", "subjectName", "degree", "scholarshipDescription"],
-      3: [],
-      4: ["applicationDeadline", "serviceCharge", "applicationFees"],
-    };
     const ok = await trigger(fieldsByStep[step]);
     if (ok) setStep((s) => Math.min(4, s + 1));
+    else toast.error("Please complete required fields before continuing");
+  };
+
+  const handleTabClick = async (target) => {
+    if (target <= step) {
+      setStep(target);
+      return;
+    }
+    // forward: validate current step first
+    const ok = await trigger(fieldsByStep[step]);
+    if (ok) setStep(target);
+    else toast.error("Complete required fields in this step first");
   };
 
   const handleCoverChange = (e) => {
@@ -176,7 +191,7 @@ export default function ScholarshipForm({
                 <button
                   key={s.id}
                   type="button"
-                  onClick={() => setStep(s.id)}
+                  onClick={() => handleTabClick(s.id)}
                   className={`relative flex flex-col items-start gap-2 rounded-2xl border px-4 py-4 text-left transition-all ${
                     active ? "bg-white text-slate-900 shadow-soft border-white" : done ? "bg-white/15 text-white border-white/20 backdrop-blur" : "bg-white/10 text-white/80 border-white/15"
                   }`}
@@ -395,7 +410,7 @@ export default function ScholarshipForm({
               </button>
             ) : (
               <div className="flex gap-2">
-                <button type="button" onClick={handleSubmit((d) => internalSubmit(d, true))} disabled={isSubmitting || uploading} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-60">
+                <button type="button" onClick={() => { const vals = getValues(); vals.applicationDeadline = format(deadline, "yyyy-MM-dd"); internalSubmit(vals, true); }} disabled={isSubmitting || uploading} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-60">
                   {isSubmitting ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" /> : <Save className="h-4 w-4" />}Save Draft
                 </button>
                 <button type="button" onClick={handleSubmit((d) => internalSubmit(d, false))} disabled={isSubmitting || uploading} className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3 text-sm font-bold text-white shadow-soft hover:-translate-y-0.5 hover:shadow-lift disabled:opacity-60">

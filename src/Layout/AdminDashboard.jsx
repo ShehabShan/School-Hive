@@ -171,7 +171,9 @@ const AdminDashboard = () => {
       <div className="flex flex-col flex-1 overflow-hidden">
         <main className="flex-1 overflow-x-hidden overflow-y-auto bg-slate-50">
           <AdminNavbar setMobileSidebarOpen={setMobileSidebarOpen} />
-          <Outlet />
+          <div className="p-4 md:p-6 lg:p-8">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

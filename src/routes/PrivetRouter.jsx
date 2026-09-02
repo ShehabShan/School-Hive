@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router";
 import useAuth from "../Hooks/useAuth";
 import useRole from "../Hooks/useRole";
+import RouteFallback from "../Component/ui/RouteFallback";
 
 const PrivateRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -8,7 +9,7 @@ const PrivateRoute = ({ children }) => {
   const location = useLocation();
 
   if (loading || roleLoading) {
-    return <progress className="progress w-56"></progress>;
+    return <RouteFallback />;
   }
 
   if (user && isPending) {

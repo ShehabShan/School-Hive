@@ -3,6 +3,7 @@ import useAuth from "../Hooks/useAuth";
 // import useAdmin from "../Hooks/useAdmin";
 import useModaretor from "../Hooks/useModaretor";
 import useRole from "../Hooks/useRole";
+import RouteFallback from "../Component/ui/RouteFallback";
 
 const ModaretorRoute = ({ children }) => {
   const { user, loading } = useAuth();
@@ -13,7 +14,7 @@ const ModaretorRoute = ({ children }) => {
   // console.log(isAdmin);
 
   if (loading || isModaretorLoading || roleLoading) {
-    return <progress className="progress w-56"></progress>;
+    return <RouteFallback />;
   }
 
   if (isPending) {

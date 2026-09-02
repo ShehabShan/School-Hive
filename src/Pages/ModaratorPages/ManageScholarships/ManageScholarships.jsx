@@ -15,8 +15,9 @@ import toast from "react-hot-toast";
 
 export default function ManageScholarships() {
   // include drafts for management view
-  const { data: schData, refetch } = useScholership({ status: "all" });
-  const allScholership = schData?.data || schData || [];
+  const { data: schData, refetch, isLoading, isFetching } = useScholership({ status: "all" });
+  const allScholership = schData?.data || (Array.isArray(schData) ? schData : []) || [];
+  const isInitialLoading = isLoading || (isFetching && allScholership.length === 0);
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const { isInstitution } = useRole();
@@ -93,7 +94,7 @@ export default function ManageScholarships() {
         </div>
       </div>
 
-      {allScholership.length === 0 ? (
+      {isInitialLoading ? (
         <div className="rounded-2xl bg-white p-8 shadow-soft ring-1 ring-slate-100">
           <CardGridSkeleton count={4} />
         </div>
