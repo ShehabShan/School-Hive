@@ -5,9 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vite build",
-    "build:prod": "node scripts/prod-build.mjs",
-    "deploy": "node scripts/deploy.mjs",
+    "build": "vite build && node scripts/check-dist-server-url.mjs",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },
