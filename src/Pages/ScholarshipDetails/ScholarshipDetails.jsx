@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Info, BookOpen, Award, ShieldCheck, Clock, GraduationCap, MapPin, MessagesSquare } from "lucide-react";
@@ -15,6 +15,7 @@ import Stars from "../../Component/ui/Stars";
 import { getDeadlineState } from "../../Component/scholarship/CountdownBadge";
 import { useSaved, useToggleSave } from "../../Hooks/useSaved";
 import toast from "react-hot-toast";
+import useCompare from "../../Hooks/useCompare";
 import Gallery from "../../Component/scholarship/details/Gallery";
 import SummaryCard from "../../Component/scholarship/details/SummaryCard";
 import StickyApplyBar from "../../Component/scholarship/details/StickyApplyBar";
@@ -59,7 +60,8 @@ export default function ScholarshipDetails() {
   const displayCount = isStaff ? (staffReviews?.length ?? review?.length ?? 0) : (review?.length ?? 0);
   const toggleSave = useToggleSave();
   const isSaved = useMemo(() => (savedDocs || []).some((d) => String(d.scholarshipId) === String(id)), [savedDocs, id]);
-  const [compareOn, setCompareOn] = useState(() => { try { return new Set(JSON.parse(localStorage.getItem("compareIds") || "[]")).has(String(id)); } catch { return false; } });
+  const { has: hasCompare, toggle: toggleCompare } = useCompare();
+  const compareOn = hasCompare(String(id));
   const dl = getDeadlineState(scholarship?.applicationDeadline);
   const isExpired = dl.tone === "rose" && dl.label === "Expired";
   const cur = scholarship?.currency || "USD";
@@ -78,13 +80,7 @@ export default function ScholarshipDetails() {
     try { await navigator.clipboard.writeText(window.location.href); toast.success("Link copied"); } catch { window.prompt("Copy", window.location.href); }
   };
   const handleCompare = () => {
-    const sid = String(id);
-    const raw = JSON.parse(localStorage.getItem("compareIds") || "[]");
-    let set = new Set(raw.map(String));
-    if (set.has(sid)) set.delete(sid); else { if (set.size >= 4) return toast.error("Compare up to 4"); set.add(sid); }
-    localStorage.setItem("compareIds", JSON.stringify([...set]));
-    setCompareOn(set.has(sid));
-    toast.success(set.has(sid) ? "Added to compare" : "Removed");
+    toggleCompare(String(id));
   };
   const handleApply = () => {
     if (isAdmin) return toast.error("Admin cannot apply");

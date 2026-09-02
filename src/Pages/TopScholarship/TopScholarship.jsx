@@ -6,7 +6,8 @@ import ScholarshipGrid from "../../Component/scholarship/ScholarshipGrid";
 import { useSaved, useToggleSave } from "../../Hooks/useSaved";
 import useAuth from "../../Hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import useCompare from "../../Hooks/useCompare";
 import "./TopScholarship.css";
 
 const TopScholarship = () => {
@@ -18,22 +19,14 @@ const TopScholarship = () => {
   const { data: savedDocs } = useSaved();
   const savedIds = useMemo(() => new Set((savedDocs || []).map((d) => String(d.scholarshipId))), [savedDocs]);
   const toggleSave = useToggleSave();
-  const [compareIds, setCompareIds] = useState(() => {
-    try { return new Set(JSON.parse(localStorage.getItem("compareIds") || "[]")); } catch { return new Set(); }
-  });
+  const { ids: compareIds, toggle: toggleCompare } = useCompare();
 
   const handleToggleSave = (s) => {
     if (!user) return navigate("/signIn");
     toggleSave.mutate(String(s._id));
   };
   const handleToggleCompare = (s) => {
-    const id = String(s._id);
-    setCompareIds((prev) => {
-      const n = new Set(prev);
-      if (n.has(id)) n.delete(id); else { if (n.size >= 4) return n; n.add(id); }
-      localStorage.setItem("compareIds", JSON.stringify([...n]));
-      return n;
-    });
+    toggleCompare(String(s._id));
   };
 
   return (

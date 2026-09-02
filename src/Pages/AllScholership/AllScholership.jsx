@@ -7,6 +7,7 @@ import { useSaved, useToggleSave } from "../../Hooks/useSaved";
 import useAuth from "../../Hooks/useAuth";
 import ScholarshipGrid, { ScholarshipList } from "../../Component/scholarship/ScholarshipGrid";
 import FilterChip from "../../Component/scholarship/FilterChip";
+import useCompare from "../../Hooks/useCompare";
 import "./AllScholership.css";
 
 const CATEGORY_OPTS = ["", "Partial", "Full-fund", "Self-fund"];
@@ -47,14 +48,11 @@ export default function AllScholership() {
   const [showFilters, setShowFilters] = useState(false);
   const [localCountry, setLocalCountry] = useState(country);
   const [localMaxFees, setLocalMaxFees] = useState(maxFees);
-  const [compareIds, setCompareIds] = useState(() => {
-    try { return new Set(JSON.parse(localStorage.getItem("compareIds") || "[]")); } catch { return new Set(); }
-  });
+  const { ids: compareIds, toggle: toggleCompare, clear: clearCompare } = useCompare();
 
   useEffect(() => setLocalQ(q), [q]);
   useEffect(() => setLocalCountry(country), [country]);
   useEffect(() => setLocalMaxFees(maxFees), [maxFees]);
-  useEffect(() => { localStorage.setItem("compareIds", JSON.stringify([...compareIds])); }, [compareIds]);
 
   const updateParams = (patch) => {
     const next = new URLSearchParams(searchParams);
@@ -140,16 +138,7 @@ export default function AllScholership() {
     toggleSave.mutate(String(s._id));
   };
   const handleToggleCompare = (s) => {
-    const id = String(s._id);
-    setCompareIds((prev) => {
-      const n = new Set(prev);
-      if (n.has(id)) n.delete(id);
-      else {
-        if (n.size >= 4) return n;
-        n.add(id);
-      }
-      return n;
-    });
+    toggleCompare(String(s._id));
   };
 
   const activeFilters = [];
@@ -315,7 +304,7 @@ export default function AllScholership() {
           <span className="text-sm font-semibold text-slate-700">{compareIds.size} selected</span>
           <span className="hidden text-xs text-slate-400 sm:inline">Compare up to 4</span>
           <div className="ml-auto flex items-center gap-2">
-            <button onClick={() => setCompareIds(new Set())} className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">Clear</button>
+            <button onClick={() => clearCompare()} className="rounded-xl bg-slate-100 px-3 py-2 text-xs font-semibold text-slate-600">Clear</button>
             <Link to={`/compare?ids=${[...compareIds].join(",")}`} className="rounded-xl bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-slate-800">Compare</Link>
           </div>
         </div>
