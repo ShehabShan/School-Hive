@@ -61,10 +61,12 @@ export default function EditScholarship() {
     const coverFile = formData.get("universityImage");
     if (coverFile && coverFile.name) {
       try {
-        const res = await axiosPublic.post(image_hosting_api, { image: coverFile }, { headers: { "Content-Type": "multipart/form-data" } });
-        payload.universityImage = res.data.data.url;
-      } catch {
-        toast.error("Cover upload failed");
+        const fd = new FormData();
+        fd.append("image", coverFile);
+        const res = await axiosPublic.post(image_hosting_api, fd);
+        payload.universityImage = res.data.data.display_url || res.data.data.url;
+      } catch (err) {
+        toast.error(`Cover upload failed: ${err?.response?.data?.error?.message || err.message}`);
         return;
       }
     } else {
@@ -76,10 +78,12 @@ export default function EditScholarship() {
     for (const f of galleryFiles) {
       if (f && f.name && f.size > 0) {
         try {
-          const res = await axiosPublic.post(image_hosting_api, { image: f }, { headers: { "Content-Type": "multipart/form-data" } });
-          galleryUrls.push(res.data.data.url);
-        } catch {
-          toast.error(`Gallery ${f.name} failed`);
+          const fd = new FormData();
+          fd.append("image", f);
+          const res = await axiosPublic.post(image_hosting_api, fd);
+          galleryUrls.push(res.data.data.display_url || res.data.data.url);
+        } catch (err) {
+          toast.error(`Gallery ${f.name} failed: ${err?.response?.data?.error?.message || ""}`);
         }
       }
     }
@@ -105,13 +109,14 @@ export default function EditScholarship() {
     delete payload._raw;
     payload.applicationDeadline = data.applicationDeadline || initial?.applicationDeadline;
 
+    const isDraft = payload.status === "draft";
     try {
       const { data: res } = await axiosSecure.patch(`/allScholership/${id}`, payload);
-      if (res.data?.modifiedCount > 0 || res.modifiedCount > 0) toast.success("Scholarship updated!");
-      else toast.success("Saved");
+      if (res.data?.modifiedCount > 0 || res.modifiedCount > 0) toast.success(isDraft ? "Draft updated!" : "Scholarship updated!");
+      else toast.success(isDraft ? "Draft saved!" : "Saved");
       navigate(isInstitution ? "/institutionDashboard/manageScholarships" : "/adminDashboard/manageScholarships");
     } catch (e) {
-      toast.error(e?.response?.data?.message || "Update failed");
+      toast.error(e?.response?.data?.message || (isDraft ? "Failed to save draft" : "Update failed"));
     }
   };
 

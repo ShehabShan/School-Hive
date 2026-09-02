@@ -96,11 +96,12 @@ export default function ScholarshipCard({
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-brand-700 shadow-sm backdrop-blur">{s.scholarshipCategory || "—"}</span>
+        {s.status === "draft" && <span className="absolute left-3 top-10 rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-white shadow">Draft</span>}
         <div className="absolute right-3 top-3 flex items-center gap-1.5">
           {isManage && (
             <span className="rounded-full bg-slate-900/80 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur">Rank #{s.universityWorldrank || "—"}</span>
           )}
-          {!isManage && <CountdownBadge deadline={s.applicationDeadline} />}
+          {!isManage && s.status !== "draft" && <CountdownBadge deadline={s.applicationDeadline} />}
         </div>
         {onToggleSave && !isManage && (
           <button

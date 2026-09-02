@@ -14,7 +14,9 @@ import { Link } from "react-router-dom";
 import toast from "react-hot-toast";
 
 export default function ManageScholarships() {
-  const [allScholership, refetch] = useScholership();
+  // include drafts for management view
+  const { data: schData, refetch } = useScholership({ status: "all" });
+  const allScholership = schData?.data || schData || [];
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const { isInstitution } = useRole();

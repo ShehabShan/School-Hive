@@ -24,31 +24,34 @@ export default function AddScholarship() {
     const formData = new FormData(formEl);
     const payload = { ...data };
 
-    // cover image
+    // cover image — fixed FormData for imgbb
     const coverFile = formData.get("universityImage");
     if (coverFile && coverFile.name) {
       try {
-        const res = await axiosPublic.post(image_hosting_api, { image: coverFile }, { headers: { "Content-Type": "multipart/form-data" } });
-        payload.universityImage = res.data.data.url;
-      } catch {
-        toast.error("Cover upload failed");
+        const fd = new FormData();
+        fd.append("image", coverFile);
+        const res = await axiosPublic.post(image_hosting_api, fd);
+        payload.universityImage = res.data.data.display_url || res.data.data.url;
+      } catch (err) {
+        toast.error(`Cover upload failed: ${err?.response?.data?.error?.message || err.message}`);
         return;
       }
     } else {
-      // fallback placeholder if required but missing — zod will have caught, but keep
       payload.universityImage = "https://placehold.co/600x400?text=Scholarship";
     }
 
-    // gallery
+    // gallery — fixed FormData
     const galleryFiles = formData.getAll("galleryFiles");
     const galleryUrls = [];
     for (const f of galleryFiles) {
       if (f && f.name && f.size > 0) {
         try {
-          const res = await axiosPublic.post(image_hosting_api, { image: f }, { headers: { "Content-Type": "multipart/form-data" } });
-          galleryUrls.push(res.data.data.url);
-        } catch {
-          toast.error(`Gallery ${f.name} failed`);
+          const fd = new FormData();
+          fd.append("image", f);
+          const res = await axiosPublic.post(image_hosting_api, fd);
+          galleryUrls.push(res.data.data.display_url || res.data.data.url);
+        } catch (err) {
+          toast.error(`Gallery ${f.name} failed: ${err?.response?.data?.error?.message || ""}`);
         }
       }
     }
@@ -82,16 +85,17 @@ export default function AddScholarship() {
     // numbers coerced by zod, but ensure
     if (payload.stipend === "") delete payload.stipend;
 
+    const isDraft = payload.status === "draft";
     try {
       const { data: resData } = await axiosSecure.post("/allScholership", payload);
       if (resData.data?.insertedId || resData.insertedId) {
-        toast.success("Scholarship published!");
+        toast.success(isDraft ? "Draft saved!" : "Scholarship published!");
         navigate(isInstitution ? "/institutionDashboard/manageScholarships" : "/adminDashboard/manageScholarships");
       } else {
-        toast.success("Submitted!");
+        toast.success(isDraft ? "Draft saved!" : "Submitted!");
       }
     } catch (e) {
-      toast.error(e?.response?.data?.message || "Failed to publish");
+      toast.error(e?.response?.data?.message || (isDraft ? "Failed to save draft" : "Failed to publish"));
     }
   };
 
