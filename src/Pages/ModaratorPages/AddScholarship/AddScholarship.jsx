@@ -86,16 +86,15 @@ export default function AddScholarship() {
     if (payload.stipend === "") delete payload.stipend;
 
     const isDraft = payload.status === "draft";
+    const isScheduled = payload.status === "scheduled";
     try {
-      const { data: resData } = await axiosSecure.post("/allScholership", payload);
-      if (resData.data?.insertedId || resData.insertedId) {
-        toast.success(isDraft ? "Draft saved!" : "Scholarship published!");
-        navigate(isInstitution ? "/institutionDashboard/manageScholarships" : "/adminDashboard/manageScholarships");
-      } else {
-        toast.success(isDraft ? "Draft saved!" : "Submitted!");
-      }
+      await axiosSecure.post("/allScholership", payload);
+      if (isDraft) toast.success("Draft saved!");
+      else if (isScheduled) toast.success(`Scheduled for ${new Date(payload.publishAt).toLocaleString()}!`);
+      else toast.success("Scholarship published!");
+      navigate(isInstitution ? "/institutionDashboard/manageScholarships" : "/adminDashboard/manageScholarships", { replace: true });
     } catch (e) {
-      toast.error(e?.response?.data?.message || (isDraft ? "Failed to save draft" : "Failed to publish"));
+      toast.error(e?.response?.data?.message || (isDraft ? "Failed to save draft" : isScheduled ? "Failed to schedule" : "Failed to publish"));
     }
   };
 

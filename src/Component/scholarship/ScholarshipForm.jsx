@@ -95,7 +95,7 @@ export default function ScholarshipForm({
   const watched = watch();
 
   useEffect(() => {
-    setValue("applicationDeadline", format(deadline, "yyyy-MM-dd"));
+    if (deadline && !isNaN(deadline.getTime())) setValue("applicationDeadline", format(deadline, "yyyy-MM-dd"));
   }, [deadline, setValue]);
 
   const fieldsByStep = {
@@ -222,7 +222,6 @@ export default function ScholarshipForm({
                   </span>
                   <span className="text-sm font-bold leading-none">{s.title}</span>
                   <span className={`text-xs ${active ? "text-slate-500" : "text-white/70"}`}>{s.desc}</span>
-                  {active && <motion.div layoutId="step-indicator" className="absolute inset-0 -z-10 rounded-2xl bg-white" />}
                 </button>
               );
             })}
@@ -382,11 +381,11 @@ export default function ScholarshipForm({
                       </div>
                     </FormField>
                     <FormField label="Application Deadline" required error={errors.applicationDeadline?.message}>
-                      <input type="hidden" {...register("applicationDeadline")} value={format(deadline, "yyyy-MM-dd")} />
+                      <input type="hidden" {...register("applicationDeadline")} value={deadline && !isNaN(deadline.getTime()) ? format(deadline, "yyyy-MM-dd") : ""} />
                       <div className="rounded-xl border border-slate-200 bg-white p-2 shadow-soft">
-                        <DatePicker selected={deadline} onChange={(d) => { setDeadline(d); setValue("applicationDeadline", format(d, "yyyy-MM-dd")); }} minDate={new Date()} inline />
+                        <DatePicker selected={deadline} onChange={(d) => { if (d && !isNaN(d.getTime())) { setDeadline(d); setValue("applicationDeadline", format(d, "yyyy-MM-dd")); } }} minDate={new Date()} inline />
                       </div>
-                      <p className="mt-1 text-xs text-slate-500">Selected: <span className="font-semibold text-slate-700">{format(deadline, "PPP")}</span> — {Math.ceil((deadline - new Date()) / (1000 * 60 * 60 * 24))} days left</p>
+                      <p className="mt-1 text-xs text-slate-500">Selected: <span className="font-semibold text-slate-700">{deadline && !isNaN(deadline.getTime()) ? format(deadline, "PPP") : "—"}</span> — {deadline && !isNaN(deadline.getTime()) ? Math.ceil((deadline - new Date()) / (1000 * 60 * 60 * 24)) : "—"} days left</p>
                     </FormField>
                   </div>
 
@@ -406,37 +405,38 @@ export default function ScholarshipForm({
                   </div>
 
                   <div className="space-y-3">
-                    <label className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 cursor-pointer">
-                      <input type="checkbox" checked={isDraft} onChange={(e) => { setIsDraft(e.target.checked); if (e.target.checked) setScheduleEnabled(false); }} className="h-5 w-5 rounded border-amber-300 text-brand-600 focus:ring-brand-500" />
-                      <div>
-                        <p className="flex items-center gap-1.5 text-sm font-bold text-amber-900"><Save className="h-4 w-4" /> Save as draft</p>
-                        <p className="text-xs text-amber-700">Drafts are private — only you see them until you publish. No schedule.</p>
-                      </div>
+                  <div className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
+                    <input id="draft-check" type="checkbox" checked={isDraft} onChange={(e) => { setIsDraft(e.target.checked); if (e.target.checked) setScheduleEnabled(false); }} className="h-5 w-5 rounded border-amber-300 text-brand-600 focus:ring-brand-500" />
+                    <label htmlFor="draft-check" className="flex-1 cursor-pointer">
+                      <p className="flex items-center gap-1.5 text-sm font-bold text-amber-900"><Save className="h-4 w-4" /> Save as draft</p>
+                      <p className="text-xs text-amber-700">Drafts are private — only you see them until you publish. No schedule.</p>
                     </label>
+                  </div>
 
-                    {!isDraft && (
-                      <label className="flex items-start gap-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4 cursor-pointer">
-                        <input type="checkbox" checked={scheduleEnabled} onChange={(e) => setScheduleEnabled(e.target.checked)} className="mt-0.5 h-5 w-5 rounded border-indigo-300 text-brand-600 focus:ring-brand-500" />
-                        <div className="flex-1">
-                          <p className="flex items-center gap-1.5 text-sm font-bold text-indigo-900"><Clock className="h-4 w-4" /> Schedule publish</p>
-                          <p className="text-xs text-indigo-700">Pick a future date/time (max 30 days). Will auto-publish with countdown until then.</p>
-                          {scheduleEnabled && (
-                            <div className="mt-3 space-y-3">
-                              <div className="rounded-xl bg-white p-2 ring-1 ring-indigo-100">
-                                <DatePicker selected={publishAt} onChange={(d) => setPublishAt(d)} showTimeSelect timeIntervals={15} dateFormat="yyyy-MM-dd HH:mm" minDate={new Date()} maxDate={addDays(new Date(), 30)} inline />
-                              </div>
-                              <p className="text-xs text-indigo-600">Selected: <b>{format(publishAt, "PPP p")}</b> • {Math.max(0, Math.ceil((publishAt - new Date()) / (1000 * 60 * 60 * 24)))} days, {Math.max(0, Math.ceil(((publishAt - new Date()) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)))}h left • Max {format(addDays(new Date(), 30), "PPP")}</p>
-                              <label className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 ring-1 ring-indigo-100">
-                                <input type="checkbox" checked={showOnProfile} onChange={(e) => setShowOnProfile(e.target.checked)} className="h-4 w-4 rounded border-indigo-300 text-brand-600" />
-                                <span className="text-xs font-semibold text-slate-700">Show scheduled on my public profile</span>
-                                <span className="ml-auto text-xs text-slate-400">{showOnProfile ? "Visible" : "Hidden"}</span>
-                              </label>
-                              <p className="text-xs text-slate-500">If enabled, visitors to <code className="bg-white px-1 rounded">/profile/:email</code> will see this scheduled card with countdown even before it appears in catalog/compare.</p>
-                            </div>
-                          )}
-                        </div>
+                  <div className={`rounded-xl border p-4 ${isDraft ? "border-slate-200 bg-slate-50 opacity-60" : "border-indigo-200 bg-indigo-50"}`}>
+                    <div className="flex items-start gap-3">
+                      <input id="schedule-check" type="checkbox" checked={scheduleEnabled} onChange={(e) => setScheduleEnabled(e.target.checked)} disabled={isDraft} className="mt-0.5 h-5 w-5 rounded border-indigo-300 text-brand-600 focus:ring-brand-500 disabled:opacity-40" />
+                      <label htmlFor="schedule-check" className={`flex-1 ${isDraft ? "cursor-not-allowed" : "cursor-pointer"}`}>
+                        <p className="flex items-center gap-1.5 text-sm font-bold text-indigo-900"><Clock className="h-4 w-4" /> Schedule publish</p>
+                        <p className="text-xs text-indigo-700">Pick a future date/time (max 30 days). Will auto-publish with countdown until then.</p>
                       </label>
+                    </div>
+                    {isDraft && <p className="mt-2 text-xs font-medium text-amber-700">Uncheck “Save as draft” to enable scheduling</p>}
+                    {scheduleEnabled && !isDraft && (
+                      <div className="mt-3 space-y-3" onClick={(e) => e.stopPropagation()} onMouseDown={(e) => e.stopPropagation()}>
+                        <div className="rounded-xl bg-white p-2 ring-1 ring-indigo-100" onClick={(e) => e.stopPropagation()}>
+                          <DatePicker selected={publishAt} onChange={(d) => d && !isNaN(d.getTime()) && setPublishAt(d)} showTimeSelect timeIntervals={15} dateFormat="yyyy-MM-dd HH:mm" minDate={new Date()} maxDate={addDays(new Date(), 30)} inline />
+                        </div>
+                        <p className="text-xs text-indigo-600">Selected: <b>{publishAt && !isNaN(publishAt.getTime()) ? format(publishAt, "PPP p") : "Invalid date"}</b> • {publishAt && !isNaN(publishAt.getTime()) ? `${Math.max(0, Math.ceil((publishAt - new Date()) / (1000 * 60 * 60 * 24)))} days` : ""} • Max {format(addDays(new Date(), 30), "PPP")}</p>
+                        <div className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 ring-1 ring-indigo-100">
+                          <input id="show-profile-check" type="checkbox" checked={showOnProfile} onChange={(e) => setShowOnProfile(e.target.checked)} className="h-4 w-4 rounded border-indigo-300 text-brand-600" />
+                          <label htmlFor="show-profile-check" className="flex-1 cursor-pointer text-xs font-semibold text-slate-700">Show scheduled on my public profile</label>
+                          <span className="ml-auto text-xs text-slate-400">{showOnProfile ? "Visible" : "Hidden"}</span>
+                        </div>
+                        <p className="text-xs text-slate-500">If enabled, visitors to <code className="bg-white px-1 rounded">/profile/:email</code> will see this scheduled card with countdown even before it appears in catalog/compare.</p>
+                      </div>
                     )}
+                  </div>
                   </div>
 
                   <div className="flex items-start gap-2 rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-100">
@@ -457,10 +457,10 @@ export default function ScholarshipForm({
               </button>
             ) : (
               <div className="flex gap-2">
-                <button type="button" onClick={() => { const vals = getValues(); vals.applicationDeadline = format(deadline, "yyyy-MM-dd"); internalSubmit(vals, true); }} disabled={isSubmitting || uploading} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-60">
+                <button type="button" onClick={() => { const vals = getValues(); vals.applicationDeadline = deadline && !isNaN(deadline.getTime()) ? format(deadline, "yyyy-MM-dd") : ""; internalSubmit(vals, true); }} disabled={isSubmitting || uploading} className="inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-5 py-3 text-sm font-bold text-slate-700 hover:bg-slate-50 disabled:opacity-60">
                   {isSubmitting ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-slate-300 border-t-slate-700" /> : <Save className="h-4 w-4" />}Save Draft
                 </button>
-                <button type="button" onClick={handleSubmit((d) => internalSubmit(d, false))} disabled={isSubmitting || uploading} className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3 text-sm font-bold text-white shadow-soft hover:-translate-y-0.5 hover:shadow-lift disabled:opacity-60">
+                <button type="button" onClick={handleSubmit((d) => internalSubmit(d, false), () => toast.error("Please fix required fields — check all steps"))} disabled={isSubmitting || uploading} className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3 text-sm font-bold text-white shadow-soft hover:-translate-y-0.5 hover:shadow-lift disabled:opacity-60">
                   {isSubmitting ? <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" /> : <Sparkles className="h-4 w-4" />}{submitLabel}
                 </button>
               </div>

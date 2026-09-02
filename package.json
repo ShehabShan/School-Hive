@@ -13,7 +13,7 @@
     "@hookform/resolvers": "^5.9.1",
     "@tanstack/react-query": "^5.65.0",
     "axios": "^1.7.9",
-    "date-fns": "^4.1.0",
+    "date-fns": "^3.6.0",
     "firebase": "^11.2.0",
     "framer-motion": "^12.4.3",
     "lottie-react": "^2.4.1",

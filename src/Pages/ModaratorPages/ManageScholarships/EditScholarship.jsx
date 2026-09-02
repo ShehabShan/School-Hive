@@ -113,13 +113,15 @@ export default function EditScholarship() {
     payload.applicationDeadline = data.applicationDeadline || initial?.applicationDeadline;
 
     const isDraft = payload.status === "draft";
+    const isScheduled = payload.status === "scheduled";
     try {
-      const { data: res } = await axiosSecure.patch(`/allScholership/${id}`, payload);
-      if (res.data?.modifiedCount > 0 || res.modifiedCount > 0) toast.success(isDraft ? "Draft updated!" : "Scholarship updated!");
-      else toast.success(isDraft ? "Draft saved!" : "Saved");
-      navigate(isInstitution ? "/institutionDashboard/manageScholarships" : "/adminDashboard/manageScholarships");
+      await axiosSecure.patch(`/allScholership/${id}`, payload);
+      if (isDraft) toast.success("Draft updated!");
+      else if (isScheduled) toast.success(`Scheduled for ${new Date(payload.publishAt).toLocaleString()}!`);
+      else toast.success("Scholarship updated!");
+      navigate(isInstitution ? "/institutionDashboard/manageScholarships" : "/adminDashboard/manageScholarships", { replace: true });
     } catch (e) {
-      toast.error(e?.response?.data?.message || (isDraft ? "Failed to save draft" : "Update failed"));
+      toast.error(e?.response?.data?.message || (isDraft ? "Failed to save draft" : isScheduled ? "Failed to schedule" : "Update failed"));
     }
   };
 
