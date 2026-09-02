@@ -28,6 +28,8 @@ export const scholarshipSchema = z.object({
   faqs: z.string().trim().max(3000).optional().or(z.literal("")),
   serviceCharge: z.coerce.number().min(0, "Service charge ≥0").max(10000),
   applicationFees: z.coerce.number().min(0, "Application fee ≥0").max(10000),
+  publishAt: z.string().optional().or(z.literal("")),
+  showScheduledOnProfile: z.boolean().optional(),
 });
 
 export const defaultValues = {
@@ -58,4 +60,6 @@ export const defaultValues = {
   faqs: "",
   serviceCharge: "",
   applicationFees: "",
+  publishAt: "",
+  showScheduledOnProfile: false,
 };

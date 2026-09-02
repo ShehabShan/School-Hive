@@ -41,8 +41,9 @@ export default function ScholarshipDetails() {
   const [review] = useReviews(id);
   const [isAdmin] = useAdmin();
   const [isModaretor] = useModaretor();
-  const { isInstitution } = useRole();
+  const { isInstitution, isPending } = useRole();
   const isStaff = isAdmin || isModaretor;
+  const canApply = !isAdmin && !isModaretor && !isInstitution && !isExpired && !isPending;
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const { data: savedDocs } = useSaved();
@@ -80,11 +81,17 @@ export default function ScholarshipDetails() {
     try { await navigator.clipboard.writeText(window.location.href); toast.success("Link copied"); } catch { window.prompt("Copy", window.location.href); }
   };
   const handleCompare = () => {
+    if (scholarship?.status === "draft" || scholarship?.status === "scheduled") {
+      toast.error("Can't compare draft/scheduled — publish first");
+      return;
+    }
     toggleCompare(String(id));
   };
   const handleApply = () => {
     if (isAdmin) return toast.error("Admin cannot apply");
+    if (isModaretor) return toast.error("Moderators cannot apply");
     if (isInstitution) return toast.error("Institution accounts cannot apply");
+    if (isPending) return toast.error("Your institution is pending approval");
     if (isExpired) return toast.error("Deadline passed");
     navigate(`/apply/${id}`);
   };
@@ -113,7 +120,7 @@ export default function ScholarshipDetails() {
 
       <div className="details-main-grid container-page grid grid-cols-1 gap-6 py-6 lg:grid-cols-[1.4fr_0.9fr]">
         <Gallery images={gallery} videoUrl={scholarship.videoUrl} videoPoster={scholarship.videoPoster} alt={scholarship.universityName} />
-        <SummaryCard scholarship={scholarship} isSaved={isSaved} onSave={handleSave} onShare={handleShare} compareOn={compareOn} onCompare={handleCompare} isAdmin={isAdmin} isExpired={isExpired} onApply={handleApply} />
+        <SummaryCard scholarship={scholarship} isSaved={isSaved} onSave={handleSave} onShare={handleShare} compareOn={compareOn} onCompare={handleCompare} isAdmin={isAdmin} isInstitution={isInstitution} isModaretor={isModaretor} isPending={isPending} isExpired={isExpired} canApply={canApply} onApply={handleApply} />
       </div>
 
       <div className="sticky top-0 z-30 -mt-1 hidden border-y border-slate-100 bg-white/90 backdrop-blur supports-[backdrop-filter]:bg-white/70 lg:block">
@@ -223,7 +230,7 @@ export default function ScholarshipDetails() {
         </div>
       </div>
 
-      <StickyApplyBar scholarship={scholarship} isSaved={isSaved} onSave={handleSave} onApply={handleApply} isExpired={isExpired} isAdmin={isAdmin} />
+      <StickyApplyBar scholarship={scholarship} isSaved={isSaved} onSave={handleSave} onApply={handleApply} isExpired={isExpired} isAdmin={isAdmin} isInstitution={isInstitution} isModaretor={isModaretor} isPending={isPending} canApply={canApply} />
     </motion.div>
   );
 }

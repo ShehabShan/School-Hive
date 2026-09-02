@@ -23,21 +23,64 @@ export default function ManageScholarships() {
   const { isInstitution } = useRole();
   const [q, setQ] = useState("");
 
+  const [tab, setTab] = useState("published");
   const myScholarships = useMemo(() => {
     if (!isInstitution) return allScholership;
     const email = (user?.email || "").toLowerCase();
     return allScholership.filter((s) => String(s.createdBy || "").toLowerCase() === email);
   }, [allScholership, isInstitution, user?.email]);
 
+  const tabFiltered = useMemo(() => {
+    if (tab === "all") return myScholarships;
+    return myScholarships.filter((s) => (s.status || "published") === tab);
+  }, [myScholarships, tab]);
+
   const filtered = useMemo(() => {
     const v = q.trim().toLowerCase();
-    if (!v) return myScholarships;
-    return myScholarships.filter((s) => `${s.universityName} ${s.subjectName} ${s.scholarshipCategory} ${s.country}`.toLowerCase().includes(v));
-  }, [myScholarships, q]);
+    if (!v) return tabFiltered;
+    return tabFiltered.filter((s) => `${s.universityName} ${s.subjectName} ${s.scholarshipCategory} ${s.country}`.toLowerCase().includes(v));
+  }, [tabFiltered, q]);
+
+  const counts = useMemo(() => {
+    const c = { published: 0, scheduled: 0, draft: 0, all: myScholarships.length };
+    myScholarships.forEach((s) => {
+      const st = s.status || "published";
+      if (c[st] !== undefined) c[st]++;
+    });
+    return c;
+  }, [myScholarships]);
 
   const addLink = isInstitution
     ? "/institutionDashboard/addScholarships"
     : "/modaratorDashboard/addScholarships";
+
+  const handlePublish = async (_id) => {
+    try {
+      await axiosSecure.patch(`/allScholership/${_id}`, { status: "published", publishAt: null });
+      toast.success("Published!");
+      refetch();
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Publish failed");
+    }
+  };
+  const handlePublishNow = async (_id) => {
+    try {
+      await axiosSecure.patch(`/allScholership/${_id}`, { status: "published", publishAt: null });
+      toast.success("Published now!");
+      refetch();
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Publish failed");
+    }
+  };
+  const handleUnschedule = async (_id) => {
+    try {
+      await axiosSecure.patch(`/allScholership/${_id}`, { status: "draft" });
+      toast.success("Moved to draft");
+      refetch();
+    } catch (e) {
+      toast.error(e.response?.data?.message || "Failed");
+    }
+  };
 
   const handleDelete = (_id) => {
     Swal.fire({
@@ -94,6 +137,23 @@ export default function ManageScholarships() {
         </div>
       </div>
 
+      <div className="flex flex-wrap gap-2">
+        {[
+          { id: "published", label: `Published (${counts.published})` },
+          { id: "scheduled", label: `Scheduled (${counts.scheduled})` },
+          { id: "draft", label: `Draft (${counts.draft})` },
+          { id: "all", label: `All (${counts.all})` },
+        ].map((t) => (
+          <button
+            key={t.id}
+            onClick={() => setTab(t.id)}
+            className={`rounded-full px-4 py-2 text-sm font-bold ring-1 transition ${tab === t.id ? "bg-brand-600 text-white ring-brand-600" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
       {isInitialLoading ? (
         <div className="rounded-2xl bg-white p-8 shadow-soft ring-1 ring-slate-100">
           <CardGridSkeleton count={4} />
@@ -116,7 +176,7 @@ export default function ManageScholarships() {
         <motion.div initial="hidden" animate="visible" variants={{ visible: { transition: { staggerChildren: 0.06 } } }} className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4">
           {filtered.map((scholarship) => (
             <motion.div key={scholarship._id} variants={{ hidden: { opacity: 0, y: 16 }, visible: { opacity: 1, y: 0 } }} transition={{ duration: 0.3 }}>
-              <ScholarshipCard scholarship={scholarship} variant="manage" onDelete={handleDelete} />
+              <ScholarshipCard scholarship={scholarship} variant="manage" onDelete={handleDelete} onPublish={handlePublish} onPublishNow={handlePublishNow} onUnschedule={handleUnschedule} />
             </motion.div>
           ))}
         </motion.div>

@@ -7,6 +7,8 @@ import ProfileHeader from "../../Component/profile/ProfileHeader";
 import AboutSection from "../../Component/profile/AboutSection";
 import Sidebar from "../../Component/profile/Sidebar";
 import ActivitySection from "../../Component/profile/ActivitySection";
+import ScholarshipCard from "../../Component/scholarship/ScholarshipCard";
+import { GraduationCap } from "lucide-react";
 
 export default function PublicProfile() {
   const { email } = useParams();
@@ -35,6 +37,22 @@ export default function PublicProfile() {
       } catch {
         return [];
       }
+    },
+  });
+
+  const { data: scholarships = [] } = useQuery({
+    queryKey: ["public-scholarships", decodedEmail],
+    enabled: !!decodedEmail && user?.role === "institution",
+    queryFn: async () => {
+      const res = await axiosPublic.get("/allScholership", { params: { status: "all" } });
+      const list = res.data.data || [];
+      return list.filter((s) => {
+        const isOwner = String(s.createdBy || "").toLowerCase() === decodedEmail.toLowerCase();
+        if (!isOwner) return false;
+        if (s.status === "draft") return false;
+        if (s.status === "scheduled" && !s.showScheduledOnProfile) return false;
+        return true;
+      });
     },
   });
 
@@ -68,6 +86,20 @@ export default function PublicProfile() {
           {/* Main content */}
           <div className="space-y-5">
             <AboutSection user={user} />
+            {user?.role === "institution" && (
+              <div className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-100">
+                <h3 className="flex items-center gap-2 text-base font-bold text-slate-900"><GraduationCap className="h-5 w-5 text-brand-600" /> Scholarships by {user.orgName || user.name}</h3>
+                {scholarships.length === 0 ? (
+                  <p className="mt-3 text-sm text-slate-500">No published scholarships yet {user.showScheduledOnProfile ? "" : "— scheduled hidden until publish"}</p>
+                ) : (
+                  <div className="mt-4 grid gap-4 md:grid-cols-2">
+                    {scholarships.map((s) => (
+                      <ScholarshipCard key={s._id} scholarship={s} />
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
             <ActivitySection
               reviews={reviews}
               viewAllLink="/allScholership"

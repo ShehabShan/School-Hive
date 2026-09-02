@@ -26,6 +26,10 @@ const TopScholarship = () => {
     toggleSave.mutate(String(s._id));
   };
   const handleToggleCompare = (s) => {
+    if (s.status === "draft" || s.status === "scheduled") {
+      import("react-hot-toast").then(({ default: toast }) => toast.error("Can't compare draft/scheduled"));
+      return;
+    }
     toggleCompare(String(s._id));
   };
 

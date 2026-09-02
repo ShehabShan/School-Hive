@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { format } from "date-fns";
+import { format, addDays } from "date-fns";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { motion, AnimatePresence } from "framer-motion";
@@ -25,6 +25,7 @@ import {
   Eye,
   Save,
   EyeOff,
+  Clock,
 } from "lucide-react";
 import FormField from "../ui/FormField";
 import ChipInput from "../ui/ChipInput";
@@ -73,6 +74,9 @@ export default function ScholarshipForm({
   const [galleryPreviews, setGalleryPreviews] = useState([]);
   const [uploading, setUploading] = useState(false);
   const [isDraft, setIsDraft] = useState(initialValues?.status === "draft");
+  const [scheduleEnabled, setScheduleEnabled] = useState(!!initialValues?.publishAt);
+  const [publishAt, setPublishAt] = useState(initialValues?.publishAt ? new Date(initialValues.publishAt) : addDays(new Date(), 1));
+  const [showOnProfile, setShowOnProfile] = useState(!!initialValues?.showScheduledOnProfile);
 
   const {
     register,
@@ -148,7 +152,24 @@ export default function ScholarshipForm({
         else clean[k] = data[k];
       });
       clean.applicationDeadline = format(deadline, "yyyy-MM-dd");
-      clean.status = draft ? "draft" : "published";
+      // scheduled logic: if not draft and schedule enabled with future publishAt within 30d
+      if (!draft && scheduleEnabled && publishAt) {
+        const now = new Date();
+        const max = addDays(now, 30);
+        if (publishAt <= now) { toast.error("Schedule time must be in the future"); setUploading(false); return; }
+        if (publishAt > max) { toast.error("Schedule max 30 days ahead"); setUploading(false); return; }
+        clean.publishAt = publishAt.toISOString();
+        clean.status = "scheduled";
+        clean.showScheduledOnProfile = showOnProfile;
+      } else if (draft) {
+        clean.status = "draft";
+        clean.publishAt = null;
+        clean.showScheduledOnProfile = false;
+      } else {
+        clean.status = "published";
+        clean.publishAt = null;
+        clean.showScheduledOnProfile = false;
+      }
       await onSubmit(clean, { coverPreview, galleryPreviews, deadline, isDraft: draft });
       if (draft && onDraft) await onDraft(clean);
     } finally {
@@ -384,16 +405,42 @@ export default function ScholarshipForm({
                     </div>
                   </div>
 
-                  <label className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4">
-                    <input type="checkbox" checked={isDraft} onChange={(e) => setIsDraft(e.target.checked)} className="h-5 w-5 rounded border-amber-300 text-brand-600 focus:ring-brand-500" />
-                    <div>
-                      <p className="flex items-center gap-1.5 text-sm font-bold text-amber-900"><Save className="h-4 w-4" /> Save as draft</p>
-                      <p className="text-xs text-amber-700">Drafts are private — only you & superadmin see them until you publish</p>
-                    </div>
-                  </label>
+                  <div className="space-y-3">
+                    <label className="flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 cursor-pointer">
+                      <input type="checkbox" checked={isDraft} onChange={(e) => { setIsDraft(e.target.checked); if (e.target.checked) setScheduleEnabled(false); }} className="h-5 w-5 rounded border-amber-300 text-brand-600 focus:ring-brand-500" />
+                      <div>
+                        <p className="flex items-center gap-1.5 text-sm font-bold text-amber-900"><Save className="h-4 w-4" /> Save as draft</p>
+                        <p className="text-xs text-amber-700">Drafts are private — only you see them until you publish. No schedule.</p>
+                      </div>
+                    </label>
+
+                    {!isDraft && (
+                      <label className="flex items-start gap-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4 cursor-pointer">
+                        <input type="checkbox" checked={scheduleEnabled} onChange={(e) => setScheduleEnabled(e.target.checked)} className="mt-0.5 h-5 w-5 rounded border-indigo-300 text-brand-600 focus:ring-brand-500" />
+                        <div className="flex-1">
+                          <p className="flex items-center gap-1.5 text-sm font-bold text-indigo-900"><Clock className="h-4 w-4" /> Schedule publish</p>
+                          <p className="text-xs text-indigo-700">Pick a future date/time (max 30 days). Will auto-publish with countdown until then.</p>
+                          {scheduleEnabled && (
+                            <div className="mt-3 space-y-3">
+                              <div className="rounded-xl bg-white p-2 ring-1 ring-indigo-100">
+                                <DatePicker selected={publishAt} onChange={(d) => setPublishAt(d)} showTimeSelect timeIntervals={15} dateFormat="yyyy-MM-dd HH:mm" minDate={new Date()} maxDate={addDays(new Date(), 30)} inline />
+                              </div>
+                              <p className="text-xs text-indigo-600">Selected: <b>{format(publishAt, "PPP p")}</b> • {Math.max(0, Math.ceil((publishAt - new Date()) / (1000 * 60 * 60 * 24)))} days, {Math.max(0, Math.ceil(((publishAt - new Date()) % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)))}h left • Max {format(addDays(new Date(), 30), "PPP")}</p>
+                              <label className="flex items-center gap-2 rounded-lg bg-white px-3 py-2 ring-1 ring-indigo-100">
+                                <input type="checkbox" checked={showOnProfile} onChange={(e) => setShowOnProfile(e.target.checked)} className="h-4 w-4 rounded border-indigo-300 text-brand-600" />
+                                <span className="text-xs font-semibold text-slate-700">Show scheduled on my public profile</span>
+                                <span className="ml-auto text-xs text-slate-400">{showOnProfile ? "Visible" : "Hidden"}</span>
+                              </label>
+                              <p className="text-xs text-slate-500">If enabled, visitors to <code className="bg-white px-1 rounded">/profile/:email</code> will see this scheduled card with countdown even before it appears in catalog/compare.</p>
+                            </div>
+                          )}
+                        </div>
+                      </label>
+                    )}
+                  </div>
 
                   <div className="flex items-start gap-2 rounded-xl bg-slate-50 px-4 py-3 text-xs text-slate-600 ring-1 ring-slate-100">
-                    <Eye className="h-4 w-4 shrink-0 text-slate-400" /> <span><b>Draft</b> saves to DB with <code className="rounded bg-white px-1.5 py-0.5 ring-1 ring-slate-200">status:draft</code> — invisible to public. <b>Publish</b> sets <code className="rounded bg-white px-1.5 py-0.5 ring-1 ring-slate-200">status:published</code> and appears in catalog.</span>
+                    <Eye className="h-4 w-4 shrink-0 text-slate-400" /> <span><b>Draft</b> = <code className="rounded bg-white px-1.5 py-0.5 ring-1 ring-slate-200">status:draft</code> private. <b>Scheduled</b> = <code className="rounded bg-white px-1.5 py-0.5 ring-1 ring-slate-200">status:scheduled</code> with <code>publishAt</code> countdown, hidden from catalog/compare until time. <b>Publish</b> = <code>published</code> immediate.</span>
                   </div>
                 </section>
               )}

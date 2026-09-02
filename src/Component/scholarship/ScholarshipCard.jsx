@@ -17,6 +17,9 @@ export default function ScholarshipCard({
   scholarship,
   variant = "browse", // browse | manage | compact
   onDelete,
+  onPublish,
+  onPublishNow,
+  onUnschedule,
   saved = false,
   onToggleSave,
   compareChecked = false,
@@ -97,6 +100,7 @@ export default function ScholarshipCard({
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
         <span className="absolute left-3 top-3 rounded-full bg-white/95 px-3 py-1 text-xs font-bold text-brand-700 shadow-sm backdrop-blur">{s.scholarshipCategory || "—"}</span>
         {s.status === "draft" && <span className="absolute left-3 top-10 rounded-full bg-amber-500 px-3 py-1 text-xs font-bold text-white shadow">Draft</span>}
+        {s.status === "scheduled" && <span className="absolute left-3 top-10 rounded-full bg-indigo-600 px-3 py-1 text-xs font-bold text-white shadow">Scheduled • {s.publishAt ? new Date(s.publishAt).toLocaleDateString() : ""}</span>}
         <div className="absolute right-3 top-3 flex items-center gap-1.5">
           {isManage && (
             <span className="rounded-full bg-slate-900/80 px-2.5 py-1 text-xs font-semibold text-white backdrop-blur">Rank #{s.universityWorldrank || "—"}</span>
@@ -170,7 +174,16 @@ export default function ScholarshipCard({
               </Link>
             </div>
           ) : (
-            <div className="flex items-center gap-1.5">
+            <div className="flex flex-wrap items-center gap-1.5">
+              {s.status === "draft" && (
+                <button onClick={() => onPublish?.(s._id)} aria-label="Publish" className="inline-flex h-9 items-center gap-1 rounded-xl bg-emerald-600 px-3 text-xs font-bold text-white hover:bg-emerald-700">Publish</button>
+              )}
+              {s.status === "scheduled" && (
+                <>
+                  <button onClick={() => onPublishNow?.(s._id)} className="inline-flex h-9 items-center gap-1 rounded-xl bg-emerald-600 px-3 text-xs font-bold text-white hover:bg-emerald-700">Publish now</button>
+                  <button onClick={() => onUnschedule?.(s._id)} className="inline-flex h-9 items-center gap-1 rounded-xl bg-amber-500 px-3 text-xs font-bold text-white hover:bg-amber-600">Unschedule</button>
+                </>
+              )}
               <Link to={`/allScholership/${s._id}`} aria-label="View" className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white hover:bg-slate-800"><Eye className="h-4 w-4" /></Link>
               <Link to={`${s._id}`} aria-label="Edit" className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-brand-600 text-white hover:bg-brand-700"><Pencil className="h-4 w-4" /></Link>
               <button onClick={() => onDelete?.(s._id)} aria-label="Delete" className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-white text-rose-600 ring-1 ring-slate-200 hover:bg-rose-50 hover:ring-rose-200"><Trash2 className="h-4 w-4" /></button>

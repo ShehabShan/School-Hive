@@ -46,8 +46,12 @@ export default function Compare() {
       const arr = await Promise.all(ids.map(async (id) => {
         try { const r = await axiosPublic.get(`/allScholership/${id}`); return r.data.data; } catch { return null; }
       }));
-      const filtered = arr.filter(Boolean);
+      let filtered = arr.filter(Boolean);
       if (filtered.length !== ids.length) toast.error(`${ids.length - filtered.length} scholarship(s) unavailable`);
+      // hide draft/scheduled from compare (per requirement: scheduled hidden from compare)
+      const before = filtered.length;
+      filtered = filtered.filter((s) => s.status !== "draft" && s.status !== "scheduled");
+      if (filtered.length !== before) toast.error(`${before - filtered.length} draft/scheduled hidden from compare`);
       return filtered;
     },
   });

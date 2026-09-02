@@ -9,7 +9,7 @@ const fmt = (n, cur = "USD") => {
   try { return new Intl.NumberFormat("en-US", { style: "currency", currency: cur, maximumFractionDigits: 0 }).format(v); } catch { return `$${v.toLocaleString()}`; }
 };
 
-export default function SummaryCard({ scholarship, isSaved, onSave, onShare, compareOn, onCompare, isAdmin, isExpired, onApply }) {
+export default function SummaryCard({ scholarship, isSaved, onSave, onShare, compareOn, onCompare, isAdmin, isInstitution, isModaretor, isPending, isExpired, canApply, onApply }) {
   const s = scholarship || {};
   const cur = s.currency || "USD";
   const dl = getDeadlineState(s.applicationDeadline);
@@ -60,14 +60,14 @@ export default function SummaryCard({ scholarship, isSaved, onSave, onShare, com
       ) : null}
 
       <div className="mt-6">
-        {isExpired ? (
-          <div className="rounded-2xl bg-rose-50 px-4 py-3 text-center text-sm font-bold text-rose-700 ring-1 ring-rose-200">Expired — deadline {s.applicationDeadline}</div>
-        ) : (
-          <button onClick={onApply} disabled={isAdmin} className="w-full rounded-2xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-4 text-base font-extrabold text-white shadow-soft hover:-translate-y-0.5 hover:shadow-lift disabled:cursor-not-allowed disabled:opacity-60">
-            {isAdmin ? "Admin can't apply" : "Apply Now"}
-          </button>
-        )}
+        <button
+          onClick={onApply}
+          className={`w-full rounded-2xl px-6 py-4 text-base font-extrabold text-white shadow-soft transition-all ${canApply ? "bg-gradient-to-r from-brand-600 to-brand-700 hover:-translate-y-0.5 hover:shadow-lift" : "bg-slate-400 cursor-not-allowed opacity-60 grayscale"}`}
+        >
+          {!canApply ? (isExpired ? `Closed — deadline ${s.applicationDeadline}` : isAdmin ? "Admin can't apply" : isInstitution ? "Institution can't apply" : isModaretor ? "Moderators can't apply" : isPending ? "Pending approval" : "Apply Now") : "Apply Now"}
+        </button>
         <p className="mt-2 text-center text-xs text-slate-400">Deadline <b className="text-slate-600">{s.applicationDeadline || "—"}</b> · Posted {s.postDate || "—"}</p>
+        {!canApply && !isExpired && <p className="mt-2 rounded-xl bg-amber-50 px-3 py-2 text-center text-xs font-medium text-amber-700 ring-1 ring-amber-100">You don&apos;t have permission to apply — click to see reason</p>}
       </div>
 
       <div className="mt-4 grid grid-cols-3 gap-2">

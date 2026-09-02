@@ -48,6 +48,9 @@ export default function EditScholarship() {
         serviceCharge: d.serviceCharge || "",
         applicationFees: d.applicationFees || "",
         applicationDeadline: d.applicationDeadline || "",
+        publishAt: d.publishAt || "",
+        showScheduledOnProfile: !!d.showScheduledOnProfile,
+        status: d.status || "published",
         _raw: d,
       });
     });
