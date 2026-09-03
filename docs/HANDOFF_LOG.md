@@ -8,6 +8,23 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 8: Search + Browse + Filters
+
+### DONE
+- **Task 8 — Browse/Search** (`TASKS.md:40`): `src/Component/QA/QuestionCard.jsx` (grid/list cards, `tagLabel`, vote/views, context badges, lazy images), `src/Pages/QA/BrowseQuestions.jsx` (debounced `localQ` 400ms, `useQuery GET /questions` with `q/category/tag/destinationCountry/homeCountry/studyLevel/sort/page/limit`, `FilterChip` active, URL sync `?q=&category=&tag=&destinationCountry=&homeCountry=&studyLevel=&sort=&page=&view=`, grid/list toggle, pagination 5, sidebar filters, trending placeholder, mobile `showFilters` responsive), `src/routes/Routes.jsx:50` (`/questions` → `BrowseQuestions`).
+- Verified: `npm run lint` PASS, `npm run build` 56 chunks OK (BrowseQuestions 10.91kB), server filter `q+dest+home+level` PASS (1/2/2/1 totals), URL sync via `useSearchParams`, debounce 400ms `useDebounced`, images lazy in cards/detail.
+
+### IN PROGRESS
+- Q&A V1 — Task 9 (Duplicate-detection panel) is next.
+
+### LEFT / NEXT
+- Tasks 9–13 per `TASKS.md:42-50`.
+
+### DECISIONS
+- Reused `FilterChip` + `ScholarshipGrid` pattern but deduped to `QuestionCard`; kept same debounce 400ms as `AllScholership` for consistency. Server `buildQuestionFilter` already handles all/browse filters; no client fallback needed.
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 7: Voting UI + reason-tagged downvote
 
 ### DONE
