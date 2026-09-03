@@ -8,6 +8,29 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A redesign: markdown + Ask/Browse/Detail overhaul (feature/qa-redesign)
+
+### DONE (client `ae515ea`→`268b556`, server `01bce5d` — branches, NOT main, no deploy)
+- **Must-fix: markdown rendering.** Bodies showed raw `**bold**`/`![img](url)` — nothing parsed them (`QuestionDetail` plain `whitespace-pre-wrap`, `AnswerCard` images-only). Added `react-markdown` + `remark-gfm` + `@tailwindcss/typography` (prose classes were dead — plugin never installed); new shared `src/Component/QA/MarkdownBody.jsx` (memoized, GFM tables, lazy images ≤560px, safe links, escapes raw HTML by default). SSR smoke: bold/italic/link/lazy/list/code/gfm-table all PASS. Wired into Detail question body, AnswerCard, editor Preview tab, QuestionPreviewCard (preview = truth).
+- **Real answer counts.** Server `answerCount` denormalized (default 0, `$inc` on createAnswer, idempotent ensureIndexes backfill; live 0→1→list PASS). `QuestionCard`/`QuestionListItem` rebuilt: SO-style stat rail (votes/answers/views), `AnswerStat` green when answered / solid emerald+check when accepted, `stripMarkdown` excerpts (was leaking syntax), category labels, `timeAgo`.
+- **Detail overhaul** (`src/Pages/QA/QuestionDetail.jsx`): breadcrumb + Share (clipboard), title zone w/ category+corridor chips, question vote rail **upvote-only** (spec 1.5) w/ `upvoterIds` active state, clickable tags → `?tag=`, answers header w/ sort tabs (Votes/Newest, accepted always pinned), stats + Related (first tag → category fallback, excludes current) + Ask CTA right rail, `DetailSkeleton`, not-found/guest states, `QAPageSchema` kept. New `AuthorBlock.jsx` + `useAuthor.js` (identity via `GET /users/public/:email`, 5m staleTime, Staff/Institution + Verified badges — no more raw emails). `AnswerCard` rebuilt (arrow rail, reason radios w/ human labels, source chip +3, flag chips, accepted ribbon). `AnswerForm` upgraded to shared `RichTextEditor` (toolbar + drag-drop images merged as markdown on submit) + sourceLink; `RichTextEditor` gained `label` prop.
+- **Browse overhaul** (`BrowseQuestions.jsx`): gradient hero → compact workspace header (dynamic title: category label or search term, count, Ask CTA), search + segmented sort tabs + list/grid toggle (**list-first default**), category pill row as landing nav, desktop "Refine" rail (tag, flag country selects, level chips, corridor tip), mobile spring bottom-sheet drawer, skeleton rows, honest empty states (filtered vs cold-start), fake Trending box removed.
+- **Legacy cleanup:** deleted `/questions/ask-legacy`, `src/Pages/QA/AskQuestion.jsx`, `src/Component/QA/QuestionForm.jsx` (dead since wizard).
+
+### VERIFICATION
+- `npm run lint` PASS after each commit; `VITE_server_url=… npm run build` guard OK (60–62 files); server `node --check`/`npm run check` PASS; live controller test answerCount PASS; SSR markdown smoke PASS.
+
+### DECISIONS
+- Libraries: `react-markdown`+`remark-gfm`+`@tailwindcss/typography` only — no UI kit (daisyUI+framer-motion+lucide suffice; shadcn/Radix would fight the stack). react-markdown is XSS-safe by default (no rehype-raw) so no sanitizer dep.
+- Questions upvote-only in rail (spec 1.5); answers keep reason-gated downvote.
+- Author identity hydrated client-side from existing public endpoint (no schema change) vs denormalizing name snapshots — chose hydration for zero-migration.
+- answerCount denormalized (pattern matches existing voteScore) instead of $lookup per list query.
+
+### LEFT / NEXT
+- Review → merge `feature/qa-redesign` → main (client + server) + deploy — **blocked until owner "deploy approved"**. Then seeding per `docs/QA_SEEDING_CHECKLIST.md`.
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 13: Founding-cohort seeding checklist
 
 ### DONE

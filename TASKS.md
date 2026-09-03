@@ -11,7 +11,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## IN PROGRESS
 
-- **Q&A Forum V1 — all 13 tasks done** — `## TODO — Q&A Forum V1` complete (13/13). Server model/CRUD/voting/reputation, client Ask/Detail/Voting/Browse/Duplicate/Points/Verified/SEO, plus ops seeding checklist `docs/QA_SEEDING_CHECKLIST.md`. Ready for seeding execution and `feature/QandA_system` → `main` merge (deploy blocked until owner approval).
+- **Q&A redesign (feature/qa-redesign) — code complete, awaiting review/merge** — full UI/UX overhaul of Ask/Browse/Detail on `feature/qa-redesign` (client `ae515ea..268b556`, server `01bce5d`): ① markdown finally renders everywhere (`react-markdown` + `remark-gfm` + `@tailwindcss/typography`, shared `MarkdownBody` — **bold/images/tables/code now parse**; was raw text before); ② server `answerCount` denormalized → real answered/accepted state on cards; ③ Detail overhaul (AuthorBlock identity via `/users/public/:email`, upvote-only question rail per spec 1.5, answer sort tabs with accepted pinned, shared RichTextEditor in AnswerForm w/ drag-drop images + source chip, Related rail, stats, skeletons, share); ④ Browse overhaul (list-first workspace header, category pill landing row, sort tabs, mobile filter drawer, skeletons, fake Trending removed); ⑤ legacy `/questions/ask-legacy` + `QuestionForm` deleted (wizard preview now renders true markdown). Lint + guarded build PASS. Merge + deploy blocked until owner "deploy approved".
 
 ## TODO — Q&A Forum V1
 
