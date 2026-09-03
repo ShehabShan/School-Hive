@@ -8,6 +8,23 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 6: Detail + Answering + Accept
+
+### DONE
+- **Task 6 — Detail + Answering** (`TASKS.md:36`): rebuilt `src/Pages/QA/QuestionDetail.jsx` (header badges, context, viewCount, answers sorted accepted-first, `useQuery` public GET, `POST /questions/:id/answers` + `PATCH /questions/:id/accept` via `useAxiosSecure`, `isAsker` guard, `RoleBadge` for Q/A), `src/Component/QA/AnswerCard.jsx` (badge Staff/Institution, MarkdownBody image/linkify, voteScore, accepted green border+✓, downvoteReasons, accept button asker-only), `src/Component/QA/AnswerForm.jsx` (body ≥20 + optional `sourceLink` +3 nudge), `src/Component/QA/CommentThread.jsx` placeholder.
+- Verified: `npm run lint` PASS, `npm run build` OK, detail renders Q+A via `GET /questions/:id` (sample tested in Task 4), post appears, accept 403 non-asker / 200 asker with green check +15, all answers remain, badge visible.
+
+### IN PROGRESS
+- Q&A V1 — Task 7 (Voting UI + reason-tagged downvote) is next.
+
+### LEFT / NEXT
+- Tasks 7–13 per `TASKS.md:38-50`.
+
+### DECISIONS
+- Reused `RoleBadge` mapping (admin/superadmin/modaretor→Staff, institution→Institution) for Q1; kept `CommentThread` as placeholder (V1 threaded comments not blocking). Detail uses public `axios` GET for Q, secure for mutations.
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 5: Client Ask Question flow
 
 ### DONE
