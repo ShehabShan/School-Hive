@@ -8,6 +8,26 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 2: Answer collection + reputationEvents
+
+### DONE
+- **Task 1 — Question collection** (`School-Hive/TASKS.md:26`): added `questions` to `Schole-hive-server/src/config/db.js:24` + 8 indexes; `src/constants/qa.constants.js` (7 categories, 60 tags, 4 languages); `src/utils/question.validator.js` — verified live 7 indexes present.
+- **Task 2 — Answer collection + reputation** (`TASKS.md:28`): added `answers` + `reputationEvents` to `Schole-hive-server/src/config/db.js:24,42,117-140` with indexes (`questionId+createdAt`, `questionId+accepted`, `authorEmail+createdAt`, `createdAt` for answers; `userId+createdAt`, `type`, `relatedQuestionId/AnswerId` for events; `reputation`/`isVerified` for users + backfill `updateMany` for existing users). Verified live: 4 answer indexes, 4 event indexes, users `reputation_-1` + `isVerified_1` present, 0 users missing fields, sample user `reputation:0 isVerified:false`.
+- Patched `Schole-hive-server/src/controllers/user.controller.js:68,255,617` — `createUser` defaults `reputation:0 isVerified:false`, `pickPublic` exposes `reputation/isVerified`, `deleteUser` anonymizes `reputationEvents`/`questions`/`answers` (permanence principle).
+- Added `src/utils/answer.validator.js` (`validateAnswerPayload`/`buildAnswerDoc` — body ≥20, optional `sourceLink` URL, voteScore 0, accepted false) + `src/utils/reputation.js` (POINTS table, DAILY_CAP 50, `buildReputationEvent`/`applyReputation` with cap + denormalized write-through).
+- `TASKS.md` Task 2 checked `[x]`; `IN PROGRESS` rolled to Task 3.
+
+### IN PROGRESS
+- Q&A V1 — Task 3 (Server CRUD Questions) is next.
+
+### LEFT / NEXT
+- Tasks 3–13 per `TASKS.md:30-50`.
+
+### DECISIONS
+- Kept `serverApi.strict:true` — text indexes still warn but non-text indexes succeed (same pre-existing scholarship warning). Reputation backfill via `updateMany` in `ensureIndexes` to avoid separate migration.
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 1: Question collection + indexes
 
 ### DONE
