@@ -8,6 +8,23 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 7: Voting UI + reason-tagged downvote
+
+### DONE
+- **Task 7 — Voting** (`TASKS.md:38`): extended `src/Component/QA/AnswerCard.jsx` (vote column ▲/voteScore/▼, `useRole` rep gate `canDownvote >=125`, `useAxiosSecure POST /answers/:id/upvote` + `downvote` with reason enum, modal select `outdated|unsourced|off-topic|incorrect`, toast + `qc.invalidateQueries(["question",id])`, title tooltip "125 rep required", reason stored visible + hover), updated `src/Pages/QA/QuestionDetail.jsx` to pass `questionId`.
+- Verified: `npm run lint` PASS, `npm run build` OK, upvote +10 via Task 4 controller, downvote 400 no-reason / 403 low-rep PASS, reason stored.
+
+### IN PROGRESS
+- Q&A V1 — Task 8 (Search + Browse + Filters) is next.
+
+### LEFT / NEXT
+- Tasks 8–13 per `TASKS.md:40-50`.
+
+### DECISIONS
+- Kept upvote open to any authed (rep 1) per V1 simplification; downvote hard-gated 125 rep with disabled button + tooltip (spec 2.2). Invalidation replaces optimistic rollback for simplicity.
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 6: Detail + Answering + Accept
 
 ### DONE

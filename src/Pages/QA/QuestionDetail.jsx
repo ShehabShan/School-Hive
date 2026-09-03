@@ -98,7 +98,7 @@ export default function QuestionDetail(){
       <div className="mt-8 space-y-3">
         <h2 className="font-semibold text-lg">Answers ({answersSorted.length})</h2>
         {answersSorted.length===0 && <p className="text-sm opacity-60">No answers yet — be the first.</p>}
-        {answersSorted.map(a=> <AnswerCard key={a._id} answer={a} isAsker={isAsker} onAccept={handleAccept} accepting={acceptingId===String(a._id)} />)}
+        {answersSorted.map(a=> <AnswerCard key={a._id} answer={a} isAsker={isAsker} onAccept={handleAccept} accepting={acceptingId===String(a._id)} questionId={id} />)}
       </div>
 
       <div className="mt-8">
