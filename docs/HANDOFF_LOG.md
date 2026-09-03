@@ -8,6 +8,23 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 9: Duplicate-detection panel
+
+### DONE
+- **Task 9 — Duplicate panel** (`TASKS.md:42`): `src/Component/QA/DuplicatePanel.jsx` (debounced 400ms `GET /questions?q=title&limit=5`, top 5 cards title+category+tags+destination + “Asked X ago”, Link to `/questions/:id`, "No duplicate found, ready to post" empty), `src/Component/QA/QuestionForm.jsx` (integrated `<DuplicatePanel title>` under title input, body nudge `length<40` tip).
+- Verified: `npm run lint` PASS, `npm run build` OK, reuses Task 8 `GET /questions?q=` index, panel within 500ms (400ms debounce), click navigates via `<Link>` prevents duplicate, body nudge on short.
+
+### IN PROGRESS
+- Q&A V1 — Task 10 (Points + starter badges) is next.
+
+### LEFT / NEXT
+- Tasks 10–13 per `TASKS.md:44-50`.
+
+### DECISIONS
+- Kept same regex-based `q` search (no text index due `apiStrict`); panel shows `badge-xs` context for quick relevance. Body nudge threshold 40 chars (V1 minimal effort).
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 8: Search + Browse + Filters
 
 ### DONE

@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { QUESTION_CATEGORIES, QUESTION_TAGS, QUESTION_LANGUAGES, STUDY_LEVELS, tagLabel } from "../../constants/qa";
+import DuplicatePanel from "./DuplicatePanel";
 
 function isQuestionLike(title){
   const t = String(title||"").trim().toLowerCase();
@@ -77,11 +78,13 @@ export default function QuestionForm({ onSubmit, submitting }){
         <input value={title} onChange={e=>setTitle(e.target.value)} placeholder="e.g. What IELTS score is needed for Canada Masters in CS?" className="input input-bordered w-full" />
         {showTitleNudge && <p className="text-xs text-amber-600 mt-1">Tip: phrase as a question (e.g. ends with “?”) — not required but helps search.</p>}
         {errors.title && <p className="text-xs text-rose-600 mt-1">{errors.title}</p>}
+        <DuplicatePanel title={title} />
       </div>
 
       <div>
         <label className="label"><span className="label-text font-medium">Body (markdown) *</span></label>
         <textarea value={body} onChange={e=>setBody(e.target.value)} rows={7} placeholder="Describe the context, what you already tried, and what you need. Markdown supported. Include links/images where helpful." className="textarea textarea-bordered w-full font-mono text-sm" />
+        {body.trim().length>0 && body.trim().length<40 && <p className="text-xs text-amber-600 mt-1">Tip: add a bit more detail — short bodies get fewer answers.</p>}
         <div className="mt-2 flex items-center gap-2">
           <label className="btn btn-xs btn-outline">
             {imageUploading ? "Uploading..." : "Upload image"}
