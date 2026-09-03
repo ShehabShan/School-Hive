@@ -11,7 +11,7 @@ function insertAtCursor(textarea, before, after = "", placeholder = "") {
   return { next };
 }
 
-export default function RichTextEditor({ value, onChange, images = [], onImagesChange, error }) {
+export default function RichTextEditor({ value, onChange, images = [], onImagesChange, error, label = "Details" }) {
   const ref = useRef(null);
   const [dragOver, setDragOver] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -77,7 +77,7 @@ export default function RichTextEditor({ value, onChange, images = [], onImagesC
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-bold text-slate-900">Details <span className="text-rose-500">*</span></label>
+        <label className="text-sm font-bold text-slate-900">{label} <span className="text-rose-500">*</span></label>
         <button
           type="button"
           onClick={() => setPreview((v) => !v)}
