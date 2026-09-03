@@ -28,6 +28,38 @@ export const QUESTION_LANGUAGES = [
 
 export const STUDY_LEVELS = ["bachelors","masters","phd","diploma","foundation-year"];
 
+export const COUNTRIES = [
+  { value: "Canada", label: "Canada", flag: "🇨🇦" },
+  { value: "USA", label: "United States", flag: "🇺🇸" },
+  { value: "UK", label: "United Kingdom", flag: "🇬🇧" },
+  { value: "Germany", label: "Germany", flag: "🇩🇪" },
+  { value: "Australia", label: "Australia", flag: "🇦🇺" },
+  { value: "Netherlands", label: "Netherlands", flag: "🇳🇱" },
+  { value: "Ireland", label: "Ireland", flag: "🇮🇪" },
+  { value: "New Zealand", label: "New Zealand", flag: "🇳🇿" },
+  { value: "Sweden", label: "Sweden", flag: "🇸🇪" },
+  { value: "Japan", label: "Japan", flag: "🇯🇵" },
+  { value: "South Korea", label: "South Korea", flag: "🇰🇷" },
+  { value: "Malaysia", label: "Malaysia", flag: "🇲🇾" },
+  { value: "Bangladesh", label: "Bangladesh", flag: "🇧🇩" },
+  { value: "India", label: "India", flag: "🇮🇳" },
+  { value: "Pakistan", label: "Pakistan", flag: "🇵🇰" },
+  { value: "Nepal", label: "Nepal", flag: "🇳🇵" },
+  { value: "Sri Lanka", label: "Sri Lanka", flag: "🇱🇰" },
+];
+
+export const HOME_BOARDS = [
+  "National Curriculum (BD)",
+  "CBSE",
+  "ICSE",
+  "State Board (India)",
+  "A-Level",
+  "O-Level",
+  "Pakistan — Federal Board",
+  "Nepal — NEB",
+  "Sri Lanka — Edexcel",
+];
+
 export function tagLabel(slug){
   const acronyms = new Set(["ielts","toefl","pte","gre","gmat","sat","act","sop","lor"]);
   if(acronyms.has(slug)) return slug.toUpperCase();

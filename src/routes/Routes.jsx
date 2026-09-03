@@ -45,6 +45,7 @@ const AboutUs = lazy(() => import("../Component/AboutUs/AboutUs"));
 const Compare = lazy(() => import("../Pages/Compare/Compare"));
 const SavedScholarships = lazy(() => import("../Pages/UserPage/Saved/SavedScholarships"));
 const PublicProfile = lazy(() => import("../Pages/PublicProfile/PublicProfile"));
+const AskQuestionWizard = lazy(() => import("../Pages/QA/AskQuestionWizard"));
 const AskQuestion = lazy(() => import("../Pages/QA/AskQuestion"));
 const QuestionDetail = lazy(() => import("../Pages/QA/QuestionDetail"));
 const BrowseQuestions = lazy(() => import("../Pages/QA/BrowseQuestions"));
@@ -77,7 +78,8 @@ const router = createBrowserRouter(
         { path: "scholarships", element: susp(<AllScholership />) },
         { path: "scholarships/:id", element: susp(<ScholarshipDetails />) },
         { path: "profile/:email", element: susp(<PublicProfile />) },
-        { path: "questions/ask", element: <PrivateRoute>{susp(<AskQuestion />)}</PrivateRoute> },
+        { path: "questions/ask", element: <PrivateRoute>{susp(<AskQuestionWizard />)}</PrivateRoute> },
+        { path: "questions/ask-legacy", element: <PrivateRoute>{susp(<AskQuestion />)}</PrivateRoute> },
         { path: "questions/:id", element: susp(<QuestionDetail />) },
         { path: "questions", element: susp(<BrowseQuestions />) },
         { path: "verify", element: <PrivateRoute>{susp(<VerifyRequest />)}</PrivateRoute> },
