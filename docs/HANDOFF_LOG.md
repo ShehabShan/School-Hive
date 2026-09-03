@@ -8,6 +8,24 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 1: Question collection + indexes
+
+### DONE
+- **Task 1 — Question collection** (`School-Hive/TASKS.md:26`): added `questions` to `Schole-hive-server/src/config/db.js:24` + 8 indexes in `ensureIndexes` (`category`, `context.destinationCountry`, `context.homeCountry`, `context.studyLevel`, `authorEmail+createdAt`, `createdAt`, `acceptedAnswerId`, `questions_text_idx` text on `title+body+tags`). Verified live against MongoDB — 7 indexes present (`category_1`, `context.*`, `authorEmail_1_createdAt_-1`, etc.); text index warning `apiStrict:true` same as pre-existing `scholarship_text_idx` (not new regression).
+- Added `Schole-hive-server/src/constants/qa.constants.js` — 7 categories (Q5), 60 tags grouped (Q4), 4 languages (Q8), helpers `tagLabel`; `src/utils/question.validator.js` — `validateQuestionPayload`/`buildQuestionDoc` with 10-char title, 20-char body, 1..5 tags, enum checks (mirrors spec 1.1–1.2).
+- `TASKS.md` Task 1 checked `[x]`; `IN PROGRESS` rolled to Task 2.
+
+### IN PROGRESS
+- Q&A V1 — Task 2 (Answer collection + vote/accept + reputation field/events) is next; Tasks 1 done on `feature/QandA_system`.
+
+### LEFT / NEXT
+- Tasks 2–13 per `TASKS.md:28-50`; then seeding ops checklist (Task 13).
+
+### DECISIONS
+- Used raw `mongodb` driver collections (existing pattern) not Mongoose — kept `ensureIndexes` style with `background:true`. Text index attempted but blocked by `serverApi.strict:true` (same as scholarship); left as warning, no DB config change.
+
+---
+
 ## 2026-09-02 — Perf & Pipeline Hardening (code-split + lint + security)
 
 ### DONE
