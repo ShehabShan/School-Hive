@@ -13,93 +13,10 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - E2E smoke test of login/roles vs `localhost:5000` — **blocked**: `Schole-hive-server/.env` not yet created (user must add MONGO/DB creds + ACCESS_TOKEN_SECRET + ADMIN_EMAILS).
 
-## DONE — Institution Role Restrictions + Saved Count Fix (2026-09-02)
-
-- [x] **Saved count bug fixed**: `MyProfile.jsx` — replaced `GET /allScholership` query with `useSaved()` hook for the "Saved" stat (was showing total scholarships, now shows actual saved count)
-- [x] **Clickable profile stats**: `ProfileHeader.jsx` — stats support `to` property, render as `<Link>` for navigation (Applications -> dashboard, Reviews -> reviews, Saved -> /saved)
-- [x] **Institution blocked from applying**: `ScholarshipDetails.jsx` — `handleApply` now checks `isInstitution` in addition to `isAdmin`; server `POST /apply` rejects non-`user` roles with 403
-- [x] **Applications page removed from institution**: `AdminDashboard.jsx` sidebar + `Routes.jsx` — institution no longer sees "Applications" in nav or routes
-- [x] **Institution sees only own scholarships**: `ManageScholarships.jsx` — client-side filter by `createdBy === user.email` for institution role; "Add Scholarship" link dynamically routes to `/institutionDashboard/addScholarships`
-- [x] Server `index.js` — `POST /apply` now uses `loadAuthUser` + role guard (`role !== "user"` -> 403)
-- [x] Client commit `47beafc`, server commit `4c7ef48`, both pushed to `feature/login-roles`
-
-## DONE — LinkedIn-Style Profile Refactor (2026-09-02)
-
-- [x] `src/Component/profile/RoleBadge.jsx` — shared role metadata (single source of truth, used by MyProfile, PublicProfile, ManageUsers)
-- [x] `src/Component/profile/ProfileHeader.jsx` — cover photo (full-bleed), avatar (overlapping), name, role badge, location, joined date, stats row, edit button
-- [x] `src/Component/profile/AboutSection.jsx` — bio with show-more truncation (180 chars), skills tags
-- [x] `src/Component/profile/Sidebar.jsx` — contact info (email, phone, location, website), member info card
-- [x] `src/Component/profile/ActivitySection.jsx` — applications + reviews with status badges and star ratings
-- [x] `PublicProfile.jsx` rewritten — two-column LinkedIn layout (main + sidebar), responsive
-- [x] `MyProfile.jsx` rewritten — 572→~300 lines, modal edit overlay, uses shared components
-- [x] `ManageUsers.jsx` updated — imports shared `roleMeta` from RoleBadge (replaces inline `roleBadge` function)
-- [x] `npm run build` passes, lint clean (no new errors)
-- [x] Commit `8ea2169`, pushed to `feature/login-roles`
-
-## DONE — Deploy Guard: no more localhost leaks (2026-09-02)
-
-- [x] `scripts/check-dist-server-url.mjs` — scans `dist`; **fails** if any `localhost:<port>`/`127.0.0.1:<port>` survives or if the Vercel URL is missing
-- [x] `scripts/prod-build.mjs` — forces `VITE_server_url=https://server-six-vert.vercel.app` (ignores dev `.env`), builds, then runs the check
-- [x] `scripts/deploy.mjs` — guarded build + `firebase deploy` (token read from `docs/CREDENTIALS.md`)
-- [x] `package.json` → `build:prod` + `deploy`; `npm run build` remains DEV-ONLY (bakes localhost:5000)
-- [x] Verified: dev build fails the guard (exit 1, `localhost:5000` found); `build:prod` passes (0 local refs, Vercel URL present)
-- [x] `docs/CREDENTIALS.md` — fresh `VERCEL_TOKEN` (validated: HTTP 200, accesses project `server`); `npm run deploy` usage
-- [x] `docs/DEPLOY.md` rewritten — localhost-trap section, guarded deploy, server = push to `main` auto-deploy (Vercel already GitHub-linked)
-- [x] GitHub push protection allowlisted for the token (owner clicked Allow); pushed `3463a0e`
-- [x] Server repo docs aligned (`6207508`): deploy = push to `main`; creds live in client repo
-
-## DONE — Role Portals, Institution Signup & Approvals (2026-09-02)
-
-- [x] **3-role login** (`Login.jsx`): Student / Staff / Institution portal picker, password show-hide, inline forgot-password (reset email), busy states, role-routed post-login via `waitForToken` + `GET /users/me` + `dashboardForRole`; Google sign-in posts `accountType: student`
-- [x] **Registration split** (`Registation.jsx`): Student vs Institution selector; institution collects org fields (orgName/orgType/orgCountry/orgWebsite/orgDescription) → `accountType:"institution"` → pending → `/pendingApproval`; SocialLogin only for students
-- [x] **New pages/guards**: `PendingApproval` + `RejectedApproval` (`InstitutionStatus.jsx`), `InstitutionRoute` (approved-institution only), `SuperAdminRoute` (owner-only scholarship/approvals)
-- [x] **Routes**: `/pendingApproval`, `/rejectedApproval`, `/institutionDashboard/*`; scholarship CRUD stripped from admin/mod dashboards; admin scholarship + `institutionApprovals` wrapped in `SuperAdminRoute`
-- [x] **Dashboards/nav role-aware**: `AdminDashboard` sidebar (institution profile/add/manage/applications; superadmin + approvals; admin/mod lose scholarship items), `AdminNavbar` (institution label, review-history hidden for institutions), `Nabvar` (institution dashboard link + status link)
-- [x] **Approvals page** (`InstitutionApprovals`): pending/approved/rejected tabs, approve, reject-with-reason, move-to-pending; `ManageUsers` shows institution + status badges
-- [x] **`useRole` extended**: `status`, `me`, `isSuperAdmin`, `isInstitution`, `isApprovedInstitution`, `isPending`, `isRejected`; `MyProfile`/`PublicProfile` roleMeta + institution badge
-- [x] **AuthProvider**: `sendResetPassword` (Firebase password reset) exposed
-- [x] New helpers: `waitForToken.js`, `dashboardForRole.js`, `friendlyAuthError.js`
-- [x] Lint-clean for touched files (pre-existing AuthProvider + PublicProfile warnings untouched); `npm run build` passes (localhost baked — dev only)
-- [x] Committed `f0e683c`, pushed `origin/feature/login-roles`
-
-## DONE — Review + Navbar Refactor (2026-09-01)
-
-- [x] **Manage Reviews simplified** — removed category tabs (All/Pending/Approved/Rejected/Hidden/Removed) & `activeTab`; now queries fixed `status=approved` only (auto-approve model); header shows `total/approved/removed` + single `View History` link; removed bulk approve/reject & per-card history; kept Search + per-card `Remove` (with required reason + note) + `Edit` (typo fix)
-- [x] **ReviewCard slimmed** — deleted `Approve/Reject/Hide` branches (dead on live server, `/moderate` 404) and per-card `View history` button; keeps `Remove` + `Edit` + avatar fallback + clickable profile; still supports `MyReviews` (owner delete+edit)
-- [x] **New `ReviewHistory` page** — `GET /reviews/removed` list w/ reason/removedBy/removedAt/note + expandable per-review timeline via `GET /reviews/history/:id`; routes `/adminDashboard/manageReviews/history` + `/modaratorDashboard/myReviews/history`; accessible from ManageReviews header + dashboard navbar dropdown
-- [x] **`useRole` hook** — consolidates 3 role queries (`useAdmin/useModaretor/useUser`) into one `GET /users/me` call returning `{role,isAdmin,isModaretor,isUser,loading}`
-- [x] **Main navbar** — single `useRole`, click-outside + Esc to close profile dropdown, added `Saved Scholarships` dropdown item
-- [x] **AdminNavbar** — `Log Out` now really calls `logOut()` + navigate `/`; avatar/initials fallback; header shows real `displayName + email + role` (not `@Admin`); removed filler (language dropdown, Billing/Invite/Support), kept theme + bell, added role-aware `Review History` link; removed `use client` + unused import
-- [x] **AdminDashboard sidebar** — pruned dead `Widget`/`Application` sections (9 NotFound links); flat role-aware nav (`admin/mod/user` submenus rendered directly); role-aware settings link + avatar fallback + role label in footer
-- [x] Lint-clean for touched files; `npm run build` passes
-
-## DONE — Scholarship Transformation (2026-09-01)
-
-- [x] Phase 0 — Archive DONE → `docs/TASK_HISTORY.md` (both repos)
-- [x] Phase 1 — Server: faceted `GET /allScholership` (+ aliases), pagination `{data,total,page,totalPages}`, indexes, secured writes `verifyToken+verifyModaretor`, saved collection `POST/GET/DELETE /saved`, `GET /scholarships/stats`, schema `eligibility/benefits/duration/tags/currency` (pushed `a811734`, Vercel token blocked)
-- [x] Phase 2 — Unified `ScholarshipCard` (browse/manage/compact) + `ScholarshipGrid/ScholarshipList` + `CountdownBadge` + `FilterChip`; `useScholership` params-aware + `useSaved/useToggleSave/useScholarshipStats`; `AllScholership` rebuilt (debounced q `400ms`, facets drawer/bottom-sheet, chips, sort `recommended/deadline/rating/newest/fees`, Grid/List, pagination 12/10, URL sync `?q=&category=&degree=&country=&maxFees=&sort=&page&view`, compare bar 4, saved toggle, `EmptyState` fix); `TopScholarship` rated sort + `Highlights` wired to `/stats` + `ScholershipStatic` rewritten to How it works + trending destinations
-- [x] Phase 3 — `ScholarshipDetails` countdown + save/share/compare + eligibility/benefits/tags pills + `Intl.NumberFormat` + expired guard; new routes `/compare` + `/saved` + `/userDashboard/saved` + aliases `/scholarships/*`; `SavedScholarships` + `Compare` pages
-- [x] Phase 4 — `ManageScholarships` unified card + search + `useAxiosSecure` delete; `AddScholarship/EditScholarship` secured (`useAxiosSecure`), new fields `currency/duration/eligibility/benefits/tags`, fix `masters→Masters` + `subjectName2` drop, `build 1.16MB` ok, dev `http://localhost:5173` ok
-
----
-
-## DONE — Perf & Pipeline Hardening (2026-09-02)
-
-- [x] **Code-split routes** (`Routes.jsx`): 23 pages lazy-loaded via `React.lazy` + `Suspense` (`RouteFallback` spinner); initial bundle 1.23MB -> 235KB vendor + 178KB main + on-demand chunks (66% cut, verified `npm run build` split output)
-- [x] **Vite manualChunks** (`vite.config.js`): vendor / query / ui / firebase chunks, chunkSizeWarning 600
-- [x] **ESLint pipeline fixed** (`.eslintrc.cjs`): disable `react/prop-types` (no prop-types lib), `no-console`/`no-empty`/`react-refresh`/`exhaustive-deps` off; cleaned 33 stale `eslint-disable` comments; `npm run lint` now passes with --max-warnings 0
-- [x] **QueryClient hardened** (`main.jsx`): retry 1, stale 5m, gc 10m, refetchOnWindowFocus false; root `ErrorBoundary`
-- [x] **New UI primitives**: `ErrorBoundary.jsx` + `RouteFallback.jsx`
-- [x] **Fixes**: `UserDashboard` desktop nav restored (was unused navList), `ProfileHeader` unused email, `AllScholership` unused motion, `ScholarshipDetails` unused Banknote/CalendarDays, `SavedScholarships` unused Trash2, `Gallery` empty block
-- [x] **Security**: `npm audit fix` 27->3 vulns (remaining esbuild/vite requires breaking vite 8)
-- [x] **Server** (`index.js`): json limit 100kb, security headers (nosniff/DENY/XSS/Referrer/Permissions), rate limiter POST /jwt 20/min/IP (429)
-- [x] Commits `cb2dc56` client + `0acbbfe` server, pushed to `feature/login-roles`
-
 ## BACKLOG / KNOWN GAPS
 
-- [ ] E2E smoke test of login-roles vs `localhost:5000` — needs `Schole-hive-server/.env`.
-- [ ] Merge `feature/login-roles` → `main` (both repos) to go live: Vercel auto-deploys server, then `npm run deploy` for client.
-- [ ] Add automated tests (no test framework — `npm test` undefined).
-- [ ] Centralize remaining duplicated cards (application/review).
-- [ ] Accessibility & responsive polish for Home/hero.
-- [ ] Consider `zod` validation centralization for `ScholarshipForm` dedup (partial done — fields added but not full `zod`).
+- Merge `feature/login-roles` → `main` (both repos) to go live: Vercel auto-deploys server, then `npm run deploy` for client.
+- Add automated tests (no test framework — `npm test` undefined).
+- Centralize remaining duplicated cards (application/review).
+- Accessibility & responsive polish for Home/hero.
+- Consider `zod` validation centralization for `ScholarshipForm` dedup (partial done — fields added but not full `zod`).
