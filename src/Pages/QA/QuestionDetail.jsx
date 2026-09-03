@@ -7,6 +7,7 @@ import useRole from "../../Hooks/useRole";
 import RoleBadge from "../../Component/profile/RoleBadge";
 import AnswerCard from "../../Component/QA/AnswerCard";
 import AnswerForm from "../../Component/QA/AnswerForm";
+import QAPageSchema from "../../Component/QA/QAPageSchema";
 import { tagLabel } from "../../constants/qa";
 import toast from "react-hot-toast";
 
@@ -89,6 +90,7 @@ export default function QuestionDetail(){
 
   return (
     <div className="max-w-3xl mx-auto px-4 py-6">
+      <QAPageSchema question={q} />
       <Link to="/questions/ask" className="link text-sm">← Ask another</Link>
       <div className="mt-2 flex items-center gap-2 text-sm">
         <span className="opacity-60">By {q.authorEmail}</span>

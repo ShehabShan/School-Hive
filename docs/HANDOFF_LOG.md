@@ -8,6 +8,23 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 12: SEO QAPage markup
+
+### DONE
+- **Task 12 — SEO** (`TASKS.md:48`): `src/Component/QA/QAPageSchema.jsx` (`@type QAPage` + `mainEntity Question` + `author`/`upvoteCount`/`datePublished`/`dateModified`/`answerCount`/`acceptedAnswer`/`suggestedAnswer`, url via `window.location.origin`), `src/Pages/QA/QuestionDetail.jsx` (+ `<QAPageSchema question>`).
+- Verified: `node --check` PASS, `npm run lint` PASS, `npm run build` 58 OK, JSON-LD valid QAPage/mainEntity/acceptedAnswer upvoteCount PASS, passes Google Rich Results shape.
+
+### IN PROGRESS
+- Q&A V1 — Task 13 (Founding-cohort seeding ops checklist) is next.
+
+### LEFT / NEXT
+- Task 13 per `TASKS.md:50`.
+
+### DECISIONS
+- Used `dangerouslySetInnerHTML JSON.stringify` for `application/ld+json`; kept `suggestedAnswer` 3 filtered not accepted to avoid duplication.
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 11: Verified badge flow
 
 ### DONE
