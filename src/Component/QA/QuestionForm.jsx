@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { QUESTION_CATEGORIES, QUESTION_TAGS, QUESTION_LANGUAGES, STUDY_LEVELS, tagLabel } from "../../constants/qa";
 import DuplicatePanel from "./DuplicatePanel";
+import toast from "react-hot-toast";
 
 function isQuestionLike(title){
   const t = String(title||"").trim().toLowerCase();
@@ -18,6 +19,8 @@ export default function QuestionForm({ onSubmit, submitting }){
   const [context,setContext]=useState({ destinationCountry:"", homeCountry:"", studyLevel:"", fieldOfStudy:"" });
   const [language,setLanguage]=useState("english");
   const [imageUploading,setImageUploading]=useState(false);
+  const [images,setImages]=useState([]);
+  const [dragOver,setDragOver]=useState(false);
   const [errors,setErrors]=useState({});
 
   const showTitleNudge = useMemo(()=> title.trim().length>=10 && !isQuestionLike(title), [title]);
@@ -37,20 +40,28 @@ export default function QuestionForm({ onSubmit, submitting }){
   };
   const removeTag=(t)=> setTags(tags.filter(x=>x!==t));
 
-  const handleImageUpload= async (e)=>{
-    const file=e.target.files?.[0];
+  const handleImageUpload= async (file)=>{
     if(!file) return;
+    if(!file.type.startsWith("image/")){ toast.error("Only images allowed"); return; }
+    if(file.size > 5*1024*1024){ toast.error("Image must be under 5MB"); return; }
+    const key=import.meta.env.VITE_IMAGE_HOSTING_KEY;
+    if(!key){ toast.error("Image hosting not configured (VITE_IMAGE_HOSTING_KEY missing)"); return; }
     setImageUploading(true);
     try{
-      const key=import.meta.env.VITE_IMAGE_HOSTING_KEY;
-      if(!key){ setBody(prev=> prev + `\n\n![${file.name}](upload-failed-no-key)`); return; }
       const fd=new FormData(); fd.append("image", file);
       const res= await fetch(`https://api.imgbb.com/1/upload?key=${key}`, { method:"POST", body:fd });
       const j= await res.json();
       const url=j?.data?.url;
-      if(url) setBody(prev=> prev + `\n\n![${file.name}](${url})`);
-    } finally { setImageUploading(false); e.target.value=""; }
+      if(!url) throw new Error(j?.error?.message || "Upload failed");
+      setImages((prev)=> [...prev, { id: `${Date.now()}-${file.name}`, name: file.name, url }]);
+      toast.success("Image added");
+    } catch(e){
+      toast.error(e?.message || "Upload failed");
+    } finally { setImageUploading(false); }
   };
+  const onFileChange=(e)=>{ handleImageUpload(e.target.files?.[0]); e.target.value=""; };
+  const onDrop=(e)=>{ e.preventDefault(); setDragOver(false); const f=Array.from(e.dataTransfer.files||[]).find(f=>f.type.startsWith("image/")); if(f) handleImageUpload(f); };
+  const removeImage=(id)=> setImages((prev)=> prev.filter(img=>img.id!==id));
 
   const validate=()=>{
     const e={};
@@ -68,7 +79,8 @@ export default function QuestionForm({ onSubmit, submitting }){
   const handleSubmit=(e)=>{
     e.preventDefault();
     if(!validate()) return;
-    onSubmit({ title: title.trim(), body: body.trim(), category, tags, context, language });
+    const mergedBody = body.trim() + (images.length ? "\n\n" + images.map((img)=> `![${img.name}](${img.url})`).join("\n\n") : "");
+    onSubmit({ title: title.trim(), body: mergedBody, category, tags, context, language });
   };
 
   return (
@@ -82,17 +94,40 @@ export default function QuestionForm({ onSubmit, submitting }){
       </div>
 
       <div>
-        <label className="label"><span className="label-text font-medium">Body (markdown) *</span></label>
-        <textarea value={body} onChange={e=>setBody(e.target.value)} rows={7} placeholder="Describe the context, what you already tried, and what you need. Markdown supported. Include links/images where helpful." className="textarea textarea-bordered w-full font-mono text-sm" />
-        {body.trim().length>0 && body.trim().length<40 && <p className="text-xs text-amber-600 mt-1">Tip: add a bit more detail — short bodies get fewer answers.</p>}
-        <div className="mt-2 flex items-center gap-2">
-          <label className="btn btn-xs btn-outline">
-            {imageUploading ? "Uploading..." : "Upload image"}
-            <input type="file" accept="image/*" className="hidden" onChange={handleImageUpload} disabled={imageUploading} />
-          </label>
-          <span className="text-xs opacity-60">Images append as markdown <code>![alt](url)</code></span>
+        <label className="label"><span className="label-text font-medium">Details *</span></label>
+        <div
+          onDragOver={(e)=>{ e.preventDefault(); setDragOver(true); }}
+          onDragEnter={(e)=>{ e.preventDefault(); setDragOver(true); }}
+          onDragLeave={()=> setDragOver(false)}
+          onDrop={onDrop}
+          className={`rounded-2xl border bg-white shadow-sm transition-all ${dragOver ? "border-brand-400 ring-4 ring-brand-50" : errors.body ? "border-rose-300" : "border-slate-200 hover:border-slate-300"}`}
+        >
+          <textarea value={body} onChange={e=>setBody(e.target.value)} rows={7} placeholder="Describe the context, what you already tried, and what you need. Drag & drop an image here — e.g. screenshot of portal, rejection letter, test score." className="min-h-[160px] w-full resize-y rounded-t-2xl bg-transparent px-4 py-3 text-sm placeholder:text-slate-400 focus:outline-none" />
+          {dragOver && <div className="mx-2 mb-2 flex items-center justify-center gap-2 rounded-xl border-2 border-dashed border-brand-300 bg-brand-50 px-4 py-4 text-sm font-semibold text-brand-700">Drop image to upload</div>}
+          {images.length>0 && (
+            <div className="border-t border-slate-100 bg-slate-50/70 px-3 py-3">
+              <p className="mb-2 text-xs font-bold text-slate-700">{images.length} image{images.length>1?"s":""} attached — shown as thumbnails, not raw text</p>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                {images.map((img)=> (
+                  <div key={img.id} className="group relative overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+                    <img src={img.url} alt={img.name} className="h-24 w-full object-cover" loading="lazy" />
+                    <div className="p-2"><p className="truncate text-xs font-medium text-slate-700">{img.name}</p></div>
+                    <button type="button" onClick={()=>removeImage(img.id)} className="absolute right-1.5 top-1.5 rounded-full bg-slate-900/80 p-1 text-white opacity-0 transition-opacity group-hover:opacity-100 hover:bg-rose-600">×</button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+          <div className="flex items-center justify-between border-t border-slate-100 px-4 py-2 text-xs">
+            <span className="text-slate-500">Tip: images appear as thumbnails above, not raw markdown</span>
+            <label className={`inline-flex cursor-pointer items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold text-white ${imageUploading ? "bg-slate-400" : "bg-slate-900 hover:bg-black"}`}>
+              {imageUploading ? "Uploading…" : "Upload image"}
+              <input type="file" accept="image/*" className="hidden" onChange={onFileChange} disabled={imageUploading} />
+            </label>
+          </div>
         </div>
-        {errors.body && <p className="text-xs text-rose-600 mt-1">{errors.body}</p>}
+        {body.trim().length>0 && body.trim().length<40 && <p className="text-xs text-amber-600 mt-1">Tip: add a bit more detail — short bodies get fewer answers.</p>}
+        {errors.body && <p className="text-xs font-medium text-rose-600 mt-1">{errors.body}</p>}
       </div>
 
       <div>

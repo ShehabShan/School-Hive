@@ -22,6 +22,7 @@ const initial = {
   tags: [],
   context: { destinationCountry: "", homeCountry: "", studyLevel: "", fieldOfStudy: "" },
   language: "english",
+  images: [],
 };
 
 export default function AskQuestionWizard() {
@@ -66,9 +67,10 @@ export default function AskQuestionWizard() {
     if (!draft.category) { setErrors((p) => ({ ...p, category: "Category is required" })); setStep(1); return; }
     setSubmitting(true);
     try {
+      const mergedBody = draft.body.trim() + ((draft.images || []).length ? "\n\n" + (draft.images || []).map((img) => `![${img.name}](${img.url})`).join("\n\n") : "");
       const payload = {
         title: draft.title.trim(),
-        body: draft.body.trim(),
+        body: mergedBody,
         category: draft.category,
         tags: draft.tags,
         context: draft.context,
@@ -181,7 +183,7 @@ export default function AskQuestionWizard() {
                       </div>
                       {errors.category && <p className="mt-1 text-xs font-medium text-rose-600">{errors.category}</p>}
                     </div>
-                    <RichTextEditor value={draft.body} onChange={(v) => setDraft({ ...draft, body: v })} error={errors.body} />
+                    <RichTextEditor value={draft.body} onChange={(v) => setDraft({ ...draft, body: v })} images={draft.images || []} onImagesChange={(imgs) => setDraft({ ...draft, images: imgs })} error={errors.body} />
                   </div>
                 )}
 
