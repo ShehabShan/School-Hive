@@ -8,6 +8,23 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 5: Client Ask Question flow
+
+### DONE
+- **Task 5 — Ask Question** (`TASKS.md:34`): `src/constants/qa.js` (7 categories, 60 tags, 4 languages, tagLabel), `src/Component/QA/QuestionForm.jsx` (title nudge `isQuestionLike`, body markdown + imgbb upload, category select, tags 1–5 autocomplete `tagSuggestions` + free-form, context 4 fields, language pills, validation `title≥10 body≥20 category+tags required`, not blocking nudge), `src/Pages/QA/AskQuestion.jsx` (role badge `Staff`/`Institution` via `useRole` + `RoleBadge`, `axiosSecure POST /questions` → navigate `/questions/:id`, toast), `src/routes/Routes.jsx:48,75` (`/questions/ask` PrivateRoute + `/questions/:id` + `/questions`), placeholder `src/Pages/QA/QuestionDetail.jsx`.
+- Verified: `npm run lint` PASS, `npm run build` 53 chunks OK (AskQuestion 9.94kB), form validation title nudge not blocking, missing category/tags error, badge renders per Q1.
+
+### IN PROGRESS
+- Q&A V1 — Task 6 (Question detail + Answering + Accept) is next.
+
+### LEFT / NEXT
+- Tasks 6–13 per `TASKS.md:36-50`.
+
+### DECISIONS
+- Reused `useAxiosSecure` + `useRole`/`RoleBadge` + imgbb upload pattern from `AddScholarship`; left institutions allowed to ask per Q1 (flag before Task 5 not blocking). Detail placeholder supports Task 5 redirect; full detail lands in Task 6.
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 4: Answers, voting, reputation
 
 ### DONE

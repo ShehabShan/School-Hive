@@ -45,6 +45,8 @@ const AboutUs = lazy(() => import("../Component/AboutUs/AboutUs"));
 const Compare = lazy(() => import("../Pages/Compare/Compare"));
 const SavedScholarships = lazy(() => import("../Pages/UserPage/Saved/SavedScholarships"));
 const PublicProfile = lazy(() => import("../Pages/PublicProfile/PublicProfile"));
+const AskQuestion = lazy(() => import("../Pages/QA/AskQuestion"));
+const QuestionDetail = lazy(() => import("../Pages/QA/QuestionDetail"));
 
 // helper to wrap lazy in Suspense
 const susp = (el) => <Suspense fallback={<RouteFallback />}>{el}</Suspense>;
@@ -72,6 +74,9 @@ const router = createBrowserRouter(
         { path: "scholarships", element: susp(<AllScholership />) },
         { path: "scholarships/:id", element: susp(<ScholarshipDetails />) },
         { path: "profile/:email", element: susp(<PublicProfile />) },
+        { path: "questions/ask", element: <PrivateRoute>{susp(<AskQuestion />)}</PrivateRoute> },
+        { path: "questions/:id", element: susp(<QuestionDetail />) },
+        { path: "questions", element: susp(<QuestionDetail />) },
       ],
     },
     {
