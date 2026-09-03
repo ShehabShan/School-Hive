@@ -139,13 +139,13 @@ export default function ScholarshipDetails() {
             {scholarship.scholarshipDescription && scholarship.scholarshipDescription.length > 400 && <p className="mt-3 text-xs text-slate-400">Tip: use save to revisit this scholarship while you prepare.</p>}
           </SectionAccordion>
 
-          <SectionAccordion id="facts" icon={Info} title="Quick facts" excerpt={`${scholarship.degree} · ${scholarship.country}`}>
+          <SectionAccordion id="facts" icon={Info} title="Quick facts" excerpt={[scholarship.degree, scholarship.country].filter(Boolean).join(" · ") || "Quick facts"}>
             <div className="grid gap-3 sm:grid-cols-2">
               {[
                 ["Category", scholarship.scholarshipCategory],
                 ["Subject", scholarship.subjectName],
                 ["Degree", scholarship.degree],
-                ["Location", `${scholarship.city}, ${scholarship.country}`],
+                ["Location", [scholarship.city, scholarship.country].filter(Boolean).join(", ") || "—"],
                 ["Duration", scholarship.duration || "—"],
                 ["World rank", scholarship.universityWorldrank ? `#${scholarship.universityWorldrank}` : "—"],
                 ["Posted", scholarship.postDate || "—"],

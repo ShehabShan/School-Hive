@@ -51,7 +51,7 @@ export default function ScholarshipCard({
             <CountdownBadge deadline={s.applicationDeadline} compact />
           </div>
           <p className="mt-0.5 line-clamp-1 text-sm text-slate-500">
-            {s.degree || s.scholarshipCategory} · {s.subjectName} · {s.city}, {s.country}
+            {[s.degree || s.scholarshipCategory, s.subjectName, [s.city, s.country].filter(Boolean).join(", ")].filter(Boolean).join(" · ")}
           </p>
           {s.scholarshipDescription && <p className="mt-2 line-clamp-2 text-sm leading-relaxed text-slate-600">{s.scholarshipDescription}</p>}
           <div className="mt-3 flex flex-wrap items-center gap-2">
@@ -133,7 +133,7 @@ export default function ScholarshipCard({
           </p>
           <p className="flex items-center gap-2">
             <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-md bg-brand-50 text-brand-500"><MapPin className="h-3.5 w-3.5" /></span>
-            <span className="truncate">{s.city}, {s.country}</span>
+            <span className="truncate">{[s.city, s.country].filter(Boolean).join(", ") || "—"}</span>
           </p>
           <div className="flex items-center gap-2">
             <Stars rating={s.rating} showValue />

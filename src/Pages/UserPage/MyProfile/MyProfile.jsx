@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "react-router-dom";
-import { ShieldCheck, Users, FileText, Star, GraduationCap, Save, X, Upload, Briefcase, Award, Trophy, Settings, LayoutDashboard, Building2, BookOpen, Heart, Globe } from "lucide-react";
+import { ShieldCheck, Users, FileText, Star, GraduationCap, Save, X, Upload, Briefcase, Award, Trophy, Settings, LayoutDashboard, Building2, BookOpen, Heart, Globe, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import useAuth from "../../../Hooks/useAuth";
@@ -13,25 +13,92 @@ import useRole from "../../../Hooks/useRole";
 import { useSaved } from "../../../Hooks/useSaved";
 import { useMeStats } from "../../../Hooks/useProfileStats";
 import Spinner from "../../../Component/ui/Spinner";
-import ProfileHeroV2 from "../../../Component/profile/ProfileHeroV2";
+import ProfileLayout from "../../../Component/profile/ProfileLayout";
+import StatsRow from "../../../Component/profile/StatsRow";
 import Sidebar from "../../../Component/profile/Sidebar";
+import SocialLinks from "../../../Component/profile/SocialLinks";
 import ActivitySection from "../../../Component/profile/ActivitySection";
 import GalleryStrip from "../../../Component/profile/GalleryStrip";
 import { EducationTimeline, ExperienceTimeline, CertificationsSection, AchievementsSection, LanguagesInterests } from "../../../Component/profile/TimelineSection";
 import PreferencesPanel from "../../../Component/profile/PreferencesPanel";
 import InstitutionStudentPortal from "../../../Component/profile/InstitutionStudentPortal";
+import { hasValue } from "../../../utils/hasValue";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
-  { id: "education", label: "Education & Experience", icon: GraduationCap },
+  { id: "education", label: "Education", icon: GraduationCap },
   { id: "achievements", label: "Achievements", icon: Trophy },
   { id: "activity", label: "Activity", icon: FileText },
   { id: "students", label: "Students", icon: Users, institutionOnly: true },
   { id: "settings", label: "Settings", icon: Settings },
 ];
+
+function BioSection({ user, isOwner, onEdit }) {
+  const bio = hasValue(user?.bio) ? user.bio : null;
+  const skills = (user?.skills || []).filter(Boolean);
+  const headline = hasValue(user?.headline) ? user.headline : null;
+  const [expanded, setExpanded] = useState(false);
+  const limit = 220;
+  const isLong = bio && bio.length > limit;
+  const displayBio = bio ? (expanded || !isLong ? bio : bio.slice(0, limit) + "…") : null;
+  if (!bio && !skills.length && !headline) {
+    if (!isOwner) return null;
+    return (
+      <div className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-100">
+        <h3 className="flex items-center gap-2 text-base font-bold text-slate-900"><Sparkles className="h-4 w-4 text-brand-500" /> About</h3>
+        <p className="mt-2 text-sm text-slate-500">Tell your story — where you study, what you aim for, and how you help.</p>
+        <button onClick={onEdit} className="mt-3 inline-flex rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white hover:bg-brand-700">+ Add your bio</button>
+      </div>
+    );
+  }
+  return (
+    <div className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-100">
+      <h3 className="flex items-center gap-2 text-base font-bold text-slate-900"><Sparkles className="h-4 w-4 text-brand-500" /> About</h3>
+      {displayBio && <p className="mt-3 whitespace-pre-wrap text-sm leading-relaxed text-slate-600">{displayBio} {isLong && <button onClick={()=> setExpanded(!expanded)} className="ml-1 font-bold text-brand-600 hover:underline">{expanded ? "Show less" : "Show more"}</button>}</p>}
+      {!displayBio && isOwner && <button onClick={onEdit} className="mt-3 inline-flex rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-brand-600 ring-1 ring-slate-200">+ Add bio</button>}
+      {headline && <p className="mt-3 border-l-2 border-brand-100 pl-3 text-sm italic text-slate-500">“{headline}”</p>}
+      {skills.length > 0 && <div className="mt-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Skills</p><div className="mt-2 flex flex-wrap gap-1.5">{skills.map(s=> <span key={s} className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700 ring-1 ring-brand-100">{s}</span>)}</div></div>}
+      {isOwner && !skills.length && <button onClick={onEdit} className="mt-3 inline-flex rounded-full bg-slate-50 px-3 py-1 text-xs font-semibold text-brand-600 ring-1 ring-slate-200">+ Add skills</button>}
+    </div>
+  );
+}
+
+function InstitutionCard({ user, isOwner, onEdit }) {
+  if (!user || user.role !== "institution") return null;
+  const hasAny = hasValue(user.orgName) || hasValue(user.orgDescription) || hasValue(user.orgCountry) || hasValue(user.orgHighlights) || hasValue(user.orgDepartments);
+  if (!hasAny) {
+    if (!isOwner) return null;
+    return (
+      <div className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-100">
+        <h3 className="flex items-center gap-2 text-base font-bold text-slate-900"><Building2 className="h-4 w-4 text-violet-600" /> Institution</h3>
+        <p className="mt-2 text-sm text-slate-500">Add your institution profile to build trust.</p>
+        <button onClick={onEdit} className="mt-3 inline-flex rounded-xl bg-violet-600 px-4 py-2 text-xs font-bold text-white">+ Add details</button>
+      </div>
+    );
+  }
+  return (
+    <div className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-100">
+      <h3 className="flex items-center gap-2 text-base font-bold text-slate-900"><Building2 className="h-4 w-4 text-violet-600" /> {user.orgName || "Institution"}</h3>
+      <div className="mt-3 grid gap-2 text-sm">
+        {hasValue(user.orgCountry) && <p><span className="font-semibold">Country:</span> {user.orgCountry}</p>}
+        {hasValue(user.orgFounded) && <p><span className="font-semibold">Founded:</span> {user.orgFounded}</p>}
+        {hasValue(user.orgAccreditation) && <p><span className="font-semibold">Accreditation:</span> {user.orgAccreditation}</p>}
+        {(hasValue(user.orgStudentCount) || hasValue(user.orgFacultyCount)) && <p><span className="font-semibold">Community:</span> {user.orgStudentCount ?? "—"} students • {user.orgFacultyCount ?? "—"} faculty</p>}
+        {hasValue(user.orgDescription) && <p className="text-slate-600 whitespace-pre-wrap">{user.orgDescription}</p>}
+        {Array.isArray(user.orgHighlights) && user.orgHighlights.filter(Boolean).length>0 && <div className="flex flex-wrap gap-1.5">{user.orgHighlights.filter(Boolean).map(h=> <span key={h} className="rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700 ring-1 ring-violet-100">{h}</span>)}</div>}
+        {Array.isArray(user.orgDepartments) && user.orgDepartments.filter(Boolean).length>0 && <p className="text-xs text-slate-500">Departments: {user.orgDepartments.filter(Boolean).join(", ")}</p>}
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        {hasValue(user.orgWebsite) && <a href={user.orgWebsite} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-700"><Globe className="h-3 w-3" /> Website</a>}
+        {hasValue(user.orgBrochureUrl) && <a href={user.orgBrochureUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700"><BookOpen className="h-3 w-3" /> Brochure</a>}
+        {hasValue(user.orgMapUrl) && <a href={user.orgMapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700"><Globe className="h-3 w-3" /> Map</a>}
+      </div>
+    </div>
+  );
+}
 
 export default function ProfilePage() {
   const { user, updateUserProfile } = useAuth();
@@ -119,7 +186,6 @@ export default function ProfilePage() {
       orgBrochureUrl: dbUser?.orgBrochureUrl || "",
       orgMapUrl: dbUser?.orgMapUrl || "",
       orgHighlights: (dbUser?.orgHighlights || []).join(", "),
-      // temp helpers for education/experience inline add
       _edu: { school:"", degree:"", field:"", startYear:"", endYear:"", grade:"", description:"" },
       _exp: { title:"", org:"", location:"", startDate:"", endDate:"", current:false, description:"" },
       _cert: { name:"", issuer:"", issueDate:"", url:"" },
@@ -229,22 +295,22 @@ export default function ProfilePage() {
   const completeness = statsData?.completeness ?? dbUser?.completeness ?? 0;
   const userStats = [
     ...(!isInstitution ? [
-      { label: "Applications", value: String(statsData?.applications ?? myApply.length), icon: FileText, color: "text-brand-600 bg-brand-50", to: "/userDashboard/myApplication" },
-      { label: "Reviews", value: String(statsData?.reviews ?? myReviews.length), icon: Star, color: "text-amber-600 bg-amber-50", to: "/userDashboard/myReviews" },
+      { label: "Applications", value: statsData?.applications ?? myApply.length ?? 0, icon: FileText, color: "text-brand-600 bg-brand-50", to: "/userDashboard/myApplication" },
+      { label: "Reviews", value: statsData?.reviews ?? myReviews.length ?? 0, icon: Star, color: "text-amber-600 bg-amber-50", to: "/userDashboard/myReviews" },
     ] : []),
     ...(isInstitution ? [
-      { label: "Scholarships", value: String(statsData?.scholarshipsCreated ?? "—"), icon: BookOpen, color: "text-violet-600 bg-violet-50", to: "/institutionDashboard/manageScholarships" },
-      { label: "Students", value: String(statsData?.studentsCount ?? "—"), icon: Users, color: "text-emerald-600 bg-emerald-50", to: "#students" },
-      { label: "Applicants", value: String(statsData?.applications ?? "—"), icon: Users, color: "text-sky-600 bg-sky-50" },
+      { label: "Scholarships", value: statsData?.scholarshipsCreated ?? "—", icon: BookOpen, color: "text-violet-600 bg-violet-50", to: "/institutionDashboard/manageScholarships" },
+      { label: "Students", value: statsData?.studentsCount ?? "—", icon: Users, color: "text-emerald-600 bg-emerald-50", to: "#students" },
+      { label: "Applicants", value: statsData?.applications ?? "—", icon: Users, color: "text-sky-600 bg-sky-50" },
     ] : []),
-    { label: "Saved", value: String(statsData?.saved ?? savedDocs.length), icon: GraduationCap, color: "text-emerald-600 bg-emerald-50", to: "/saved" },
-    { label: "Followers", value: String(statsData?.followers ?? dbUser?.followersCount ?? 0), icon: Heart, color: "text-rose-600 bg-rose-50" },
+    { label: "Saved", value: statsData?.saved ?? savedDocs.length ?? 0, icon: GraduationCap, color: "text-emerald-600 bg-emerald-50", to: "/saved" },
+    { label: "Followers", value: statsData?.followers ?? dbUser?.followersCount ?? 0, icon: Heart, color: "text-rose-600 bg-rose-50" },
   ];
   const adminStats = [
-    { label: "Users", value: String(allUsers?.length || allUsers?.total || "—"), icon: Users, color: "text-brand-600 bg-brand-50" },
-    { label: "Scholarships", value: String(scholership.length), icon: GraduationCap, color: "text-sky-600 bg-sky-50" },
-    { label: "Applications", value: String(statsData?.applications ?? myApply.length), icon: FileText, color: "text-emerald-600 bg-emerald-50" },
-    { label: "Pending Reviews", value: String(reviewStats?.pending ?? "—"), icon: Star, color: "text-amber-600 bg-amber-50" },
+    { label: "Users", value: allUsers?.length || allUsers?.total || "—", icon: Users, color: "text-brand-600 bg-brand-50" },
+    { label: "Scholarships", value: scholership.length ?? 0, icon: GraduationCap, color: "text-sky-600 bg-sky-50" },
+    { label: "Applications", value: statsData?.applications ?? myApply.length ?? 0, icon: FileText, color: "text-emerald-600 bg-emerald-50" },
+    { label: "Pending", value: reviewStats?.pending ?? "—", icon: Star, color: "text-amber-600 bg-amber-50" },
   ];
 
   const visibleTabs = TABS.filter(t=> !t.institutionOnly || isInstitution);
@@ -252,48 +318,21 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-50 py-6">
       <div className="mx-auto max-w-6xl px-4">
-        <ProfileHeroV2 user={dbUser} isOwnProfile={true} onEdit={openEdit} stats={isAdminOrMod ? adminStats : userStats} completeness={completeness} />
+        <ProfileLayout user={dbUser} isOwnProfile={true} onEdit={openEdit} completeness={completeness} tabs={visibleTabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-1">
-          {visibleTabs.map(t=> (
-            <button key={t.id} onClick={()=> setActiveTab(t.id)} className={`inline-flex items-center gap-1.5 whitespace-nowrap rounded-full px-4 py-2 text-xs font-bold ring-1 ${activeTab===t.id ? "bg-brand-600 text-white ring-brand-600" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>
-              <t.icon className="h-3.5 w-3.5" /> {t.label}
-            </button>
-          ))}
+        <div className="mt-4">
+          <StatsRow stats={isAdminOrMod ? adminStats : userStats} />
         </div>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_340px]">
           <div className="space-y-5">
             {activeTab==="overview" && (
               <>
-                <div className="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-slate-100 sm:p-6">
-                  <h3 className="text-base font-bold text-slate-900">About</h3>
-                  <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-600">{dbUser?.bio || "No bio provided. Click Edit Profile to add your story."}</p>
-                  {dbUser?.skills?.length >0 && <div className="mt-4"><p className="text-xs font-semibold uppercase tracking-wide text-slate-400">Skills</p><div className="mt-2 flex flex-wrap gap-1.5">{dbUser.skills.map(s=> <span key={s} className="rounded-full bg-brand-50 px-3 py-1 text-xs font-semibold text-brand-700 ring-1 ring-brand-100">{s}</span>)}</div></div>}
-                  {dbUser?.headline && <p className="mt-3 text-sm text-slate-500 italic">&quot;{dbUser.headline}&quot;</p>}
-                </div>
+                <BioSection user={dbUser} isOwner={true} onEdit={openEdit} />
+                {hasValue(dbUser?.socials) && <div className="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-slate-100"><h4 className="text-sm font-bold text-slate-900">Links</h4><div className="mt-3"><SocialLinks socials={dbUser.socials} email={dbUser.email} /></div></div>}
                 <LanguagesInterests languages={dbUser?.languages} interests={dbUser?.interests} />
                 <GalleryStrip images={dbUser?.gallery} videoUrl={dbUser?.videoIntro} orgGallery={dbUser?.orgGallery} />
-                {isInstitution && (
-                  <div className="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-slate-100 sm:p-6">
-                    <h3 className="flex items-center gap-2 text-base font-bold text-slate-900"><Building2 className="h-4 w-4 text-violet-600" /> Institution Details</h3>
-                    <div className="mt-3 grid gap-2 text-sm">
-                      {dbUser?.orgName && <p><span className="font-semibold">Name:</span> {dbUser.orgName} • {dbUser.orgType}</p>}
-                      {dbUser?.orgCountry && <p><span className="font-semibold">Country:</span> {dbUser.orgCountry}</p>}
-                      {dbUser?.orgFounded && <p><span className="font-semibold">Founded:</span> {dbUser.orgFounded}</p>}
-                      {dbUser?.orgAccreditation && <p><span className="font-semibold">Accreditation:</span> {dbUser.orgAccreditation}</p>}
-                      {(dbUser?.orgStudentCount || dbUser?.orgFacultyCount) && <p><span className="font-semibold">Community:</span> {dbUser.orgStudentCount || "—"} students • {dbUser.orgFacultyCount || "—"} faculty</p>}
-                      {dbUser?.orgDescription && <p className="text-slate-600">{dbUser.orgDescription}</p>}
-                      {dbUser?.orgHighlights?.length>0 && <div className="flex flex-wrap gap-1.5">{dbUser.orgHighlights.map(h=> <span key={h} className="rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700 ring-1 ring-violet-100">{h}</span>)}</div>}
-                      {dbUser?.orgDepartments?.length>0 && <p className="text-xs text-slate-500">Departments: {dbUser.orgDepartments.join(", ")}</p>}
-                    </div>
-                    <div className="mt-3 flex flex-wrap gap-2">
-                      {dbUser?.orgWebsite && <a href={dbUser.orgWebsite} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-700"><Globe className="h-3 w-3" /> Website</a>}
-                      {dbUser?.orgBrochureUrl && <a href={dbUser.orgBrochureUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700"><BookOpen className="h-3 w-3" /> Brochure</a>}
-                      {dbUser?.orgMapUrl && <a href={dbUser.orgMapUrl} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-3 py-1 text-xs font-bold text-emerald-700"><Globe className="h-3 w-3" /> Map</a>}
-                    </div>
-                  </div>
-                )}
+                <InstitutionCard user={dbUser} isOwner={true} onEdit={openEdit} />
                 {!isInstitution && <ActivitySection applications={myApply} reviews={myReviews} viewAllLink="/userDashboard/myApplication" reviewLink="/userDashboard/myReviews" />}
                 {isAdminOrMod && (
                   <motion.div initial={{ opacity:0, y:8 }} animate={{opacity:1, y:0}} className="rounded-2xl border border-amber-100 bg-amber-50 p-5 shadow-soft">
@@ -311,20 +350,33 @@ export default function ProfilePage() {
               <>
                 <EducationTimeline education={dbUser?.education} />
                 <ExperienceTimeline experience={dbUser?.experience} />
-                {(!dbUser?.education?.length && !dbUser?.experience?.length) && <div className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500">No education or experience yet. Add them via Edit Profile.</div>}
+                {(!hasValue(dbUser?.education) && !hasValue(dbUser?.experience)) && (
+                  <div className="rounded-2xl bg-white p-8 text-center shadow-soft ring-1 ring-slate-100">
+                    <GraduationCap className="mx-auto h-8 w-8 text-slate-300" />
+                    <p className="mt-2 text-sm font-semibold text-slate-700">No education or experience yet</p>
+                    <p className="text-xs text-slate-500">Add your journey to build credibility.</p>
+                    <button onClick={openEdit} className="mt-3 rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white">+ Add education</button>
+                  </div>
+                )}
               </>
             )}
             {activeTab==="achievements" && (
               <>
                 <CertificationsSection certifications={dbUser?.certifications} />
                 <AchievementsSection achievements={dbUser?.achievements} />
-                {(!dbUser?.certifications?.length && !dbUser?.achievements?.length) && <div className="rounded-2xl bg-white p-8 text-center text-sm text-slate-500">No certifications or achievements yet.</div>}
+                {(!hasValue(dbUser?.certifications) && !hasValue(dbUser?.achievements)) && (
+                  <div className="rounded-2xl bg-white p-8 text-center shadow-soft ring-1 ring-slate-100">
+                    <Trophy className="mx-auto h-8 w-8 text-slate-300" />
+                    <p className="mt-2 text-sm font-semibold text-slate-700">No certifications or achievements yet</p>
+                    <button onClick={openEdit} className="mt-3 rounded-xl bg-brand-600 px-4 py-2 text-xs font-bold text-white">+ Add achievement</button>
+                  </div>
+                )}
               </>
             )}
             {activeTab==="activity" && (
               <>
                 {isInstitution ? (
-                  <div className="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-slate-100">
+                  <div className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-100">
                     <h3 className="text-base font-bold text-slate-900">Institution Activity</h3>
                     <p className="mt-2 text-sm text-slate-600">Scholarships created: <span className="font-bold">{statsData?.scholarshipsCreated ?? "—"}</span> • Total applicants: <span className="font-bold">{statsData?.applications ?? "—"}</span></p>
                     <Link to="/institutionDashboard/manageScholarships" className="mt-3 inline-flex rounded-xl bg-violet-600 px-4 py-2 text-xs font-bold text-white">Manage Scholarships</Link>
@@ -344,7 +396,14 @@ export default function ProfilePage() {
 
           <div className="space-y-5">
             <Sidebar user={dbUser} />
-            {dbUser?.socials && <div className="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-slate-100"><h4 className="text-sm font-bold text-slate-900">Socials</h4><p className="mt-2 text-xs text-slate-500">Linked on hero. Edit to add more.</p></div>}
+            <div className="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-slate-100">
+              <h4 className="flex items-center gap-2 text-sm font-bold text-slate-900"><Globe className="h-4 w-4 text-brand-500" /> Highlights</h4>
+              <div className="mt-3 space-y-2 text-xs text-slate-600">
+                <p>Profile completeness <span className="font-bold text-brand-600">{completeness}%</span></p>
+                <div className="h-2 overflow-hidden rounded-full bg-slate-100"><div className="h-full bg-brand-600" style={{width:`${Math.min(100,completeness)}%`}}/></div>
+                <p className="text-[11px] text-slate-400">Add bio, skills, education and links to reach 100% and get more visibility.</p>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -452,7 +511,7 @@ export default function ProfilePage() {
                         <div className="grid grid-cols-1 gap-2"><label><span className="text-xs font-semibold">Video URL</span><input value={form.orgVideoUrl} onChange={(e)=> setForm(f=>({...f,orgVideoUrl:e.target.value}))} className="mt-1 w-full rounded-lg border px-2 py-1.5 text-sm" /></label><label><span className="text-xs font-semibold">Brochure URL</span><input value={form.orgBrochureUrl} onChange={(e)=> setForm(f=>({...f,orgBrochureUrl:e.target.value}))} className="mt-1 w-full rounded-lg border px-2 py-1.5 text-sm" /></label><label><span className="text-xs font-semibold">Map URL</span><input value={form.orgMapUrl} onChange={(e)=> setForm(f=>({...f,orgMapUrl:e.target.value}))} className="mt-1 w-full rounded-lg border px-2 py-1.5 text-sm" /></label></div>
                       </>
                     ) : (
-                      <div className="rounded-xl bg-slate-50 p-4 text-center text-sm text-slate-600">No institution fields for your role. You can still save previous steps or go back to edit.</div>
+                      <div className="rounded-xl bg-slate-50 p-4 text-center text-sm text-slate-600">No institution fields for your role. Save previous steps or go back.</div>
                     )}
                   </>
                 )}

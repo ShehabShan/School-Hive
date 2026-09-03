@@ -11,11 +11,12 @@ export default function SocialLinks({ socials, email }) {
   const items = [];
   if (socials) {
     for (const l of links) {
-      const url = socials[l.key];
+      const raw = socials[l.key];
+      const url = typeof raw === "string" ? raw.trim() : "";
       if (url) items.push({ ...l, href: url.startsWith("http") ? url : `https://${url}` });
     }
   }
-  if (email) items.push({ key: "email", icon: Mail, label: email, href: `mailto:${email}`, color: "text-emerald-600 bg-emerald-50 ring-emerald-100" });
+  if (email && String(email).trim()) items.push({ key: "email", icon: Mail, label: email, href: `mailto:${email}`, color: "text-emerald-600 bg-emerald-50 ring-emerald-100" });
   if (items.length === 0) return null;
   return (
     <div className="flex flex-wrap gap-1.5">
