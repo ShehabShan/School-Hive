@@ -5,6 +5,7 @@ import {
   GraduationCap,
   LogOut,
   Menu,
+  MessageCircleQuestion,
   Sparkles,
   UserCircle2,
   X,
@@ -90,6 +91,14 @@ const Navbar = () => {
           onClick={() => setMobileOpen(false)}
         >
           Scholarships
+        </NavLink>
+      </li>
+      <li className="flex items-center gap-1">
+        <NavLink to="/questions" className={navLinkClass} onClick={() => setMobileOpen(false)}>
+          <span className="inline-flex items-center gap-1.5"><MessageCircleQuestion className="h-4 w-4" /> Q&A</span>
+        </NavLink>
+        <NavLink to="/questions/ask" className="rounded-full bg-brand-600 px-3 py-2 text-xs font-bold text-white hover:bg-brand-700" onClick={() => setMobileOpen(false)}>
+          Ask
         </NavLink>
       </li>
       <li>
@@ -202,6 +211,33 @@ const Navbar = () => {
                   >
                     <Sparkles className="h-4 w-4 text-slate-400" />
                     Saved Scholarships
+                  </Link>
+                  <Link
+                    to="/questions"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                    role="menuitem"
+                  >
+                    <MessageCircleQuestion className="h-4 w-4 text-slate-400" />
+                    Browse Q&A
+                  </Link>
+                  <Link
+                    to="/questions/ask"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                    role="menuitem"
+                  >
+                    <MessageCircleQuestion className="h-4 w-4 text-slate-400" />
+                    Ask Question
+                  </Link>
+                  <Link
+                    to="/verify"
+                    onClick={() => setProfileOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 hover:text-slate-900"
+                    role="menuitem"
+                  >
+                    <Sparkles className="h-4 w-4 text-slate-400" />
+                    Get Verified
                   </Link>
                   <div className="mx-4 my-1 flex items-center gap-2 rounded-lg bg-brand-50 px-3 py-2 text-xs font-semibold text-brand-700">
                     <Sparkles className="h-3.5 w-3.5" />
