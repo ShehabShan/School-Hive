@@ -1,4 +1,5 @@
 import { tagLabel } from "../../../constants/qa";
+import MarkdownBody from "../MarkdownBody";
 
 export default function QuestionPreviewCard({ data }) {
   const { title, body, category, tags, context, language, images } = data;
@@ -15,7 +16,7 @@ export default function QuestionPreviewCard({ data }) {
     <div className="rounded-2xl border border-slate-200 bg-white shadow-sm">
       <div className="p-4">
         <h3 className="line-clamp-2 text-[15px] font-bold leading-snug text-slate-900">{title || "Untitled question — add a specific title"}</h3>
-        <p className="mt-1 line-clamp-3 whitespace-pre-wrap text-sm text-slate-600">{body ? String(body).slice(0, 160) : "Body preview — write details on the left."}</p>
+        <div className="mt-1 line-clamp-4 text-sm text-slate-600">{body ? <MarkdownBody text={body} compact className="line-clamp-4" /> : <p className="text-slate-400">Body preview — write details on the left.</p>}</div>
         {images && images.length > 0 && (
           <div className="mt-2 grid grid-cols-3 gap-1.5">
             {images.slice(0, 3).map((img) => (
