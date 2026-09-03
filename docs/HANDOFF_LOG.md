@@ -8,6 +8,23 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 3: Server CRUD Questions
+
+### DONE
+- **Task 3 — Questions CRUD** (`TASKS.md:30`): `Schole-hive-server/src/services/question.service.js` (`buildQuestionFilter` with `q/category/tag/destinationCountry/homeCountry/studyLevel` + `$and` text-or, `buildQuestionSort` newest/votes/views/relevance), `src/controllers/question.controller.js` (5 handlers: `POST /questions` 201 with `validateQuestionPayload`/`buildQuestionDoc`; `GET /questions` public pagination filter `{data,total,page,totalPages}`; `GET /questions/:id` with `answers` + `acceptedAnswer` + `viewCount` inc; `PATCH /questions/:id` owner|staff with `normalizeQuestionPatch` + 403 guard; `DELETE /questions/:id` owner|staff cascade `answers`), `src/routes/question.routes.js` + mount in `src/app.js:26,59`.
+- Verified live via controller integration: `POST` 201 (institution role Q1), `GET` total pagination, `GET ?category=test-prep&destinationCountry=Canada` filtered 1, `GET ?q=IELTS` 1, `GET /:id` includes `answers[]` + `viewCount` inc, `PATCH` owner 200 vs non-owner 403, `DELETE` 403/200, cleanup; `buildQuestionFilter` unit PASS.
+
+### IN PROGRESS
+- Q&A V1 — Task 4 (Answers, accept, voting, reputation) is next.
+
+### LEFT / NEXT
+- Tasks 4–13 per `TASKS.md:32-50`.
+
+### DECISIONS
+- Used regex fallback for `q` (not `$text`) because `apiStrict:true` blocks text indexes (pre-existing scholarship warning) — filter supports `$and` with `$or` for text search. Kept Q1 open-to-all auth roles for POST (no role gate).
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 2: Answer collection + reputationEvents
 
 ### DONE
