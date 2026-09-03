@@ -8,6 +8,7 @@ import RoleBadge from "../../Component/profile/RoleBadge";
 import AnswerCard from "../../Component/QA/AnswerCard";
 import AnswerForm from "../../Component/QA/AnswerForm";
 import QAPageSchema from "../../Component/QA/QAPageSchema";
+import MarkdownBody from "../../Component/QA/MarkdownBody";
 import { tagLabel } from "../../constants/qa";
 import toast from "react-hot-toast";
 
@@ -106,7 +107,7 @@ export default function QuestionDetail(){
         {q.context?.studyLevel && <span className="badge badge-outline">{q.context.studyLevel}</span>}
         <span className="badge badge-ghost">{q.language}</span>
       </div>
-      <div className="mt-4 prose max-w-none whitespace-pre-wrap text-sm">{q.body}</div>
+      <div className="mt-4"><MarkdownBody text={q.body} /></div>
       <div className="mt-3 flex items-center gap-2">
         <button onClick={handleQuestionUpvote} disabled={!me} className="btn btn-xs btn-outline gap-1">▲ Upvote <span className="badge badge-sm">{q.voteScore ?? 0}</span></button>
         <span className="text-xs opacity-60">viewCount {q.viewCount ?? 0} • {new Date(q.createdAt).toLocaleString()} {q.acceptedAnswerId && <span className="badge badge-success badge-sm ml-2">Accepted</span>}</span>

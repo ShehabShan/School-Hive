@@ -1,5 +1,6 @@
 import { useRef, useState } from "react";
 import { Bold, Italic, Link2, List, Code2, Image as ImageIcon, Eye, PenLine, X, Upload } from "lucide-react";
+import MarkdownBody from "../MarkdownBody";
 import toast from "react-hot-toast";
 
 function insertAtCursor(textarea, before, after = "", placeholder = "") {
@@ -145,9 +146,7 @@ export default function RichTextEditor({ value, onChange, images = [], onImagesC
         </div>
       ) : (
         <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
-          <div className="prose max-w-none whitespace-pre-wrap text-sm leading-relaxed">
-            {value.trim() ? value : <span className="text-slate-400">Nothing to preview yet — write something in Edit.</span>}
-          </div>
+          {value.trim() ? <MarkdownBody text={value} /> : <p className="text-sm text-slate-400">Nothing to preview yet — write something in Edit.</p>}
           {images && images.length > 0 && (
             <div className="mt-3 grid grid-cols-2 gap-2">
               {images.map((img) => (

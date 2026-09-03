@@ -3,26 +3,11 @@ import { useQueryClient } from "@tanstack/react-query";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useRole from "../../Hooks/useRole";
 import RoleBadge from "../profile/RoleBadge";
+import MarkdownBody from "./MarkdownBody";
 import toast from "react-hot-toast";
 
 function formatDate(d){
   try{ return new Date(d).toLocaleDateString(); } catch{ return ""; }
-}
-
-function MarkdownBody({ text }){
-  // simple markdown image render: ![alt](url) -> <img>
-  const parts = String(text||"").split(/(!\[.*?\]\(.*?\))/g);
-  return (
-    <div className="prose max-w-none whitespace-pre-wrap text-sm">
-      {parts.map((p,i)=>{
-        const m = p.match(/!\[(.*?)\]\((.*?)\)/);
-        if(m) return <img key={i} src={m[2]} alt={m[1]} className="my-2 max-w-full rounded border" loading="lazy" />;
-        // linkify http urls
-        const linkParts = p.split(/(https?:\/\/[^\s]+)/g);
-        return <span key={i}>{linkParts.map((lp,ji)=> /https?:\/\//.test(lp) ? <a key={ji} href={lp} target="_blank" rel="noreferrer" className="link">{lp}</a> : lp)}</span>;
-      })}
-    </div>
-  );
 }
 
 export default function AnswerCard({ answer, isAsker, onAccept, accepting, questionId }){
