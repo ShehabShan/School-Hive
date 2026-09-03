@@ -6,6 +6,10 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build && node scripts/check-dist-server-url.mjs",
+    "build:prod": "VITE_server_url=https://server-six-vert.vercel.app vite build && node scripts/check-dist-server-url.mjs",
+    "deploy": "./scripts/deploy.sh",
+    "deploy:server": "./scripts/deploy.sh --server-only",
+    "deploy:client": "./scripts/deploy.sh --client-only",
     "lint": "eslint . --ext js,jsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview"
   },

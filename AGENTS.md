@@ -11,7 +11,7 @@ When you start a session in this repo, in this order:
 
 1. Read `TASKS.md` — the current state: what is DONE, what is IN PROGRESS, what is LEFT.
 2. Read the newest (top) entry in `docs/HANDOFF_LOG.md` — the most recent session summary and any decisions/context.
-3. Read `docs/DEPLOY.md` — how to build/deploy (client = Firebase Hosting, server = Vercel).
+3. Read `docs/DEPLOY.md` + `deploy.env` header (deploy tokens live gitignored in `deploy.env` — `VERCEL_TOKEN`/`FIREBASE_TOKEN`, correct parsing is `cut -d= -f2-` not `cut -d= -f2` due to `1//...`, or `source deploy.env`; run `./scripts/deploy.sh --help` for one-command deploy). Do not assume tokens are in `docs/CREDENTIALS.md`.
 4. Read this repo's sibling `../Schole-hive-server/AGENTS.md` if present — the MERN backend lives in a separate repo and the client talks to its API.
 
 Do NOT re-discover the codebase from scratch. Use the above files to orient first,
@@ -28,7 +28,7 @@ These are the ground rules you must follow for the whole session:
   - When you START a unit of work: move it to IN PROGRESS in `TASKS.md`.
   - When you FINISH a unit: mark it DONE in `TASKS.md`.
   - When you finish a meaningful chunk (or end the session / hit budget limits): append a dated entry to `docs/HANDOFF_LOG.md` describing what was done, what's in progress, what's left, and any decisions/context the next session needs. Commit and push these updates.
-- **Deploy credentials live in this repo on purpose.** The Vercel/Firebase deploy tokens for this low-stakes test project are committed in `docs/CREDENTIALS.md` — the owner accepted this so credentials persist across session environments. Do NOT assume this pattern is safe for production projects. Never commit NEW secrets (DB URIs, JWT secrets, real passwords) — those stay in Vercel env vars / local `.env`.
+- **Deploy credentials are local-only, never committed.** `VERCEL_TOKEN`/`FIREBASE_TOKEN` live gitignored in `deploy.env` (`chmod 600`) at repo root — identical in `School-Hive/deploy.env` and `Schole-hive-server/deploy.env` (keep in sync, `cp` if drift). Vercel revokes exposed `vcp_` tokens. Do NOT commit tokens or add them to `docs/CREDENTIALS.md`. Never commit NEW secrets (DB URIs, JWT secrets, real passwords) — those stay in Vercel env vars / local `.env`. See `deploy.env` header + `docs/DEPLOY.md` for correct `cut -d= -f2-` parsing (not `cut -d= -f2` — `FIREBASE_TOKEN` contains `//`) and one-command `./scripts/deploy.sh`.
 - **DEPLOY BLOCK — owner permission required (client + server).** NEVER run `npm run deploy`, `npm run build:prod` for deploy purposes, `npx firebase deploy`, `npx firebase-tools deploy`, `npx vercel --prod`, `vercel --prod`, `git push origin main` (server auto-deploys), or `git merge feature/* -> main` without the owner's explicit permission in the current session. Permission must be an explicit user message such as `deploy approved`, `yes deploy`, or `allow deploy`. If a task would require a deploy, you MUST first ask the owner via the `question` tool and wait for affirmative confirmation. Document the decision in `docs/HANDOFF_LOG.md`. This rule overrides "Commit frequently / Push after every commit" for production deploys — pushing to `feature/*` branches is allowed, pushing/deploying to `main`/production is not. The technical guard `scripts/deploy.mjs` also enforces this (requires `DEPLOY_APPROVED=yes` or `--allow-deploy`).
 - **No debug leftovers.** Remove `console.log` debug statements before committing.
 
@@ -45,11 +45,15 @@ Live deployments:
 ## 4. Commands
 
 ```bash
-npm install          # install dependencies (node_modules is gitignored)
-npm run dev          # start Vite dev server (default http://localhost:5173)
-npm run build        # production build -> dist/
-npm run lint         # eslint (js,jsx), --max-warnings 0
-npm run preview      # preview the production build
+npm install              # install dependencies (node_modules is gitignored)
+npm run dev              # start Vite dev server (default http://localhost:5173)
+npm run build            # production build -> dist/ (runs guard, needs VITE_server_url)
+npm run build:prod       # guarded prod build (forces VITE_server_url=https://server-six-vert.vercel.app)
+npm run deploy           # ./scripts/deploy.sh — server then client, guarded (needs deploy.env)
+npm run deploy:server    # only Vercel
+npm run deploy:client    # only Firebase (guarded build)
+npm run lint             # eslint (js,jsx), --max-warnings 0
+npm run preview          # preview the production build
 ```
 
 - The app reads Firebase config from `.env` (Vite env vars, prefix `VITE_`). See `.env.example` for the required variables; copy it to `.env` for local dev. `.env` is gitignored.
