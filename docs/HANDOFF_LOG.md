@@ -8,6 +8,23 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 4: Answers, voting, reputation
+
+### DONE
+- **Task 4 — Answers/voting/reputation** (`TASKS.md:32`): `src/controllers/answer.controller.js` (4 handlers: `POST /questions/:id/answers` 201 `accepted:false voteScore:0` + sourceLink +3 & first-tag +5 via `applyReputation`; `PATCH /questions/:id/accept` asker-only → `acceptedAnswerId` + `answers.accepted` +15; `POST /answers/:id/upvote` +10 cap, self-vote & double-vote 409, `reputationEvents` write-through; `POST /answers/:id/downvote` reason required `outdated|unsourced|off-topic|incorrect` 400, rep≥125 403, stored), `src/routes/answer.routes.js` + mount `src/app.js:27,60`.
+- Verified live: create answer 201 accepted false voteScore 0, after sourceLink rep 8 (3+5), upvote voteScore 1 rep 18 (+10), upvote event exists, double 409 PASS, downvote no-reason 400 PASS, low-rep 403 PASS, valid downvote voteScore -1 reason stored PASS, accept non-asker 403 PASS, accept asker 200 +15 final rep 33, question `acceptedAnswerId` PASS, `GET /users/me` rep/isVerified PASS.
+
+### IN PROGRESS
+- Q&A V1 — Task 5 (Client Ask Question flow) is next.
+
+### LEFT / NEXT
+- Tasks 5–13 per `TASKS.md:34-50`.
+
+### DECISIONS
+- Kept daily cap 50 via `applyReputation` (denormalized `users.reputation` + `reputationEvents`), mutual-vote discount deferred (needs usage data per Phase 3). SourceLink immediate per Q7; firstAnswerNewTag heuristic (first answer of tag-unique question).
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 3: Server CRUD Questions
 
 ### DONE
