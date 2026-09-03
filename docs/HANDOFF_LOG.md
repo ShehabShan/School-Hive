@@ -29,6 +29,10 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 ### LEFT / NEXT
 - Review → merge `feature/qa-redesign` → main (client + server) + deploy — **blocked until owner "deploy approved"**. Then seeding per `docs/QA_SEEDING_CHECKLIST.md`.
 
+### DEPLOYED (owner-approved, same day)
+- Client merged `d81864f` → Firebase `✔ Deploy complete` (QuestionDetail/BrowseQuestions/AskQuestionWizard chunks verified HTTP 200 live).
+- Server merged `5c8e19f` + hotfix `05a5bdb` (backfill sat after the throwing text-index call in one try — own try/catch now; verified 0/3 docs missing) → `npx vercel --prod --yes` `✓ Ready 13s` aliased. Live `GET /questions` returns `answerCount` per doc. Note: GitHub auto-deploy did NOT promote on push (2nd occurrence) — manual vercel deploy remains the reliable path.
+
 ---
 
 ## 2026-09-03 — Q&A Forum V1 Task 13: Founding-cohort seeding checklist
