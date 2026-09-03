@@ -4,6 +4,27 @@ Completed work moved from `TASKS.md`. `TASKS.md` stays lean (IN PROGRESS / TODO 
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Complete (13/13) + Q&A Redesign Merged & Deployed
+
+- **Q&A redesign (feature/qa-redesign → main d81864f / server 5c8e19f+05a5bdb)** — markdown rendering (`react-markdown` + `remark-gfm` + `@tailwindcss/typography`, `MarkdownBody` — bold/images/tables/code parse), `answerCount` denormalized + backfill, Detail overhaul (AuthorBlock via `/users/public/:email`, upvote-only question rail, sort tabs accepted pinned, `RichTextEditor` + source chip, Related rail, skeletons, share), Browse overhaul (list-first workspace header, category pills, sort, mobile drawer, Trending removed), legacy `/questions/ask-legacy` + `QuestionForm` deleted. Guarded build 60–62 files, lint passing, merged + deployed Firebase/Vercel.
+- **Task 1 — Question collection** — `questions` + 8 indexes (`category`, `context.*`, `authorEmail+createdAt`, `createdAt`, `acceptedAnswerId`, `questions_text_idx`), `qa.constants.js` 7 categories + 60 tags + 4 languages, `question.validator.js`.
+- **Task 2 — Answer collection + reputationEvents** — `answers` + `reputationEvents` collections + indexes + `users.reputation=0`/`isVerified=false` backfill + `pickPublic` expose + anonymize on delete + `answer.validator.js` + `reputation.js` (POINTS, DAILY_CAP 50).
+- **Task 3 — Server CRUD Questions** — `question.service.js` (`buildQuestionFilter`/`buildQuestionSort`), 5 handlers `POST /questions`, `GET /questions` paginated `?q=&category=&tag=&dest=&home=&studyLevel=&sort=&page=&limit=`, `GET /questions/:id` (+answers/accepted/viewCount), `PATCH`/`DELETE` owner|staff.
+- **Task 4 — Answers, voting, reputation** — `POST /questions/:id/answers` (+3 sourceLink, +5 first-tag), `PATCH /questions/:id/accept` (+15 asker-only), `POST /answers/:id/upvote` (+10, self 400, dup 409), `POST /answers/:id/downvote` (reason enum, rep ≥125) + `reputationEvents` write-through + daily cap.
+- **Task 5 — Ask Question flow** — `/questions/ask` + `AskQuestionWizard` + `qa.js` constants + `QuestionForm` (title nudge, markdown+imgbb, category/tags 1–5 autocomplete, context 4 fields, language pills) + `RoleBadge` Staff/Institution.
+- **Task 6 — Detail + Answering + Accept** — `/questions/:id` header badges + viewCount + answers accepted-first + `AnswerForm` + `AnswerCard` (badge, MarkdownBody, vote, accepted border) + `CommentThread`.
+- **Task 7 — Voting UI + reason-tagged downvote** — `AnswerCard` ▲/▼ + rep gate 125 + modal `outdated|unsourced|off-topic|incorrect` + toast + invalidate.
+- **Task 8 — Search + Browse + Filters** — `BrowseQuestions.jsx` debounced `q` 400ms + `GET /questions` filters `?q=&category=&tag=&dest=&home=&studyLevel=&sort=&page=&view=` URL sync + grid/list + FiltersBar.
+- **Task 9 — Duplicate-detection panel** — `DuplicatePanel.jsx` debounced `GET /questions?q=title&limit=5` top 5 + `AskQuestion` integration + body nudge.
+- **Task 10 — Points + starter badges** — question +2 `upvoterIds`, `ProfileHeader` reputation + `BadgeRow` 4 badges, `QuestionDetail` upvote button, daily cap 50.
+- **Task 11 — Verified badge flow** — `verifyRequests` collection + indexes + `verify.controller.js` (`POST` pending, `GET /me`, `GET` superadmin, `PATCH` approved→`isVerified:true`) + `VerifyRequest.jsx` (imgbb) + `VerifyApprovals.jsx` SuperAdmin.
+- **Task 12 — SEO QAPage** — `QAPageSchema.jsx` `@type QAPage` + `mainEntity` + `acceptedAnswer`/`suggestedAnswer`/`author`/`upvoteCount`/`datePublished`.
+- **Task 13 — Founding-cohort seeding checklist** — `docs/QA_SEEDING_CHECKLIST.md` ops-only (corridor BD→CA provisional, 15–25 founders, 100–300 Q&A, 7 categories ≥10, Verified badges, launch readiness).
+- Q1–Q9 resolved (roles open, separate `verifyRequests`, dual reputation, 45-tag vocab, 7 categories, cap 50, immediate sourceLink, Mixed language, BD→CA corridor provisional).
+- Deployed: client `d81864f` → `https://scholarhive-913e4.web.app`, server `5c8e19f`+`05a5bdb` → `https://server-six-vert.vercel.app` (manual `npx vercel --prod --yes`).
+
+---
+
 ## 2026-09-02 — Perf & Pipeline Hardening
 
 - Code-split routes (`Routes.jsx`): 23 pages lazy-loaded via `React.lazy` + `Suspense` (`RouteFallback` spinner); initial bundle 1.23MB -> 235KB vendor + 178KB main + on-demand chunks (66% cut, verified `npm run build` split output)
