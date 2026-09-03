@@ -31,6 +31,17 @@ export default function QuestionDetail(){
   const q = data;
   const isAsker = Boolean(q && me && String(q.authorEmail||"").toLowerCase()===String(me.email||"").toLowerCase());
 
+  const handleQuestionUpvote = async ()=>{
+    if(!me){ toast.error("Sign in to vote"); return; }
+    try{
+      await axiosSecure.post(`/questions/${id}/upvote`);
+      toast.success("Question upvoted +2");
+      qc.invalidateQueries({ queryKey: ["question", id] });
+    } catch(e){
+      toast.error(e?.response?.data?.message || e.message);
+    }
+  };
+
   const handleAnswer = async ({ body, sourceLink })=>{
     if(!me) { toast.error("Please sign in to answer"); return; }
     setSubmittingAns(true);
@@ -93,7 +104,10 @@ export default function QuestionDetail(){
         <span className="badge badge-ghost">{q.language}</span>
       </div>
       <div className="mt-4 prose max-w-none whitespace-pre-wrap text-sm">{q.body}</div>
-      <div className="mt-2 text-xs opacity-60">viewCount {q.viewCount ?? 0} • {new Date(q.createdAt).toLocaleString()} {q.acceptedAnswerId && <span className="badge badge-success badge-sm ml-2">Accepted answer exists</span>}</div>
+      <div className="mt-3 flex items-center gap-2">
+        <button onClick={handleQuestionUpvote} disabled={!me} className="btn btn-xs btn-outline gap-1">▲ Upvote <span className="badge badge-sm">{q.voteScore ?? 0}</span></button>
+        <span className="text-xs opacity-60">viewCount {q.viewCount ?? 0} • {new Date(q.createdAt).toLocaleString()} {q.acceptedAnswerId && <span className="badge badge-success badge-sm ml-2">Accepted</span>}</span>
+      </div>
 
       <div className="mt-8 space-y-3">
         <h2 className="font-semibold text-lg">Answers ({answersSorted.length})</h2>

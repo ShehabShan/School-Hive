@@ -8,6 +8,23 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 10: Points + starter badges
+
+### DONE
+- **Task 10 — Points/badges** (`TASKS.md:44`): server `src/controllers/question.controller.js` (+ `upvoteQuestion` +2 with `upvoterIds`, duplicate 409, self 400, `applyReputation` cap), `src/utils/question.validator.js` (+ `upvoterIds`), `src/services/question.service.js` (+ `authorEmail` filter), `src/routes/question.routes.js` (`POST /questions/:id/upvote`); client `src/Component/profile/ProfileHeader.jsx` (+ reputation badge `Award`, Helped N = floor(rep/10), `isVerified` badge, `<BadgeRow>`), `src/Component/QA/BadgeRow.jsx` (qCount via `GET /questions?authorEmail`, 4 badges unlocked by rep/qCount), `src/Pages/QA/QuestionDetail.jsx` (+ question upvote button).
+- Verified: `node --check` PASS, question upvote +2 event PASS, double 409 PASS, self 400 PASS, cap to 50 PASS, source/upvote/accept/+5 already PASS in Task 4, lint PASS, build OK, badges visible after action.
+
+### IN PROGRESS
+- Q&A V1 — Task 11 (Verified badge flow) is next.
+
+### LEFT / NEXT
+- Tasks 11–13 per `TASKS.md:46-50`.
+
+### DECISIONS
+- Kept daily cap 50 via `applyReputation` (denormalized), no points for login/browsing (no endpoints). Badge heuristics: `First Question` via qCount, others via rep thresholds (10/3) approximating helpful/sourced.
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 9: Duplicate-detection panel
 
 ### DONE

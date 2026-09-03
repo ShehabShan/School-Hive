@@ -1,7 +1,8 @@
-import { MapPin, CalendarDays, Edit3 } from "lucide-react";
+import { MapPin, CalendarDays, Edit3, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import RoleBadge from "./RoleBadge";
+import BadgeRow from "../QA/BadgeRow";
 import bg from "../../assist/bgImg/profileBg.jpg";
 
 export default function ProfileHeader({ user, isOwnProfile, onEdit, stats }) {
@@ -15,6 +16,9 @@ export default function ProfileHeader({ user, isOwnProfile, onEdit, stats }) {
   const joined = user?.createdAt
     ? new Date(user.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short" })
     : "Recently";
+  const reputation = typeof user?.reputation === "number" ? user.reputation : 0;
+  const isVerified = Boolean(user?.isVerified);
+  const helped = Math.max(0, Math.floor(reputation / 10) + (reputation >= 15 ? 1 : 0));
 
   return (
     <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }}>
@@ -59,9 +63,21 @@ export default function ProfileHeader({ user, isOwnProfile, onEdit, stats }) {
           </div>
         </div>
 
+        {/* Reputation + impact (Q&A V1 Task 10) */}
+        <div className="mt-2 flex flex-wrap items-center gap-2">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-sm font-bold text-amber-800 ring-1 ring-amber-200">
+            <Award className="h-4 w-4" /> {reputation} reputation
+          </span>
+          {isVerified && <span className="badge badge-success badge-sm">✓ Verified</span>}
+          <span className="text-sm text-slate-600">Helped {helped} students{helped ? "" : " — start answering!"}</span>
+        </div>
+        <div className="mt-3">
+          <BadgeRow user={user} />
+        </div>
+
         {/* Stats row */}
         {stats && stats.length > 0 && (
-          <div className="flex gap-3 overflow-x-auto pb-1">
+          <div className="mt-3 flex gap-3 overflow-x-auto pb-1">
             {stats.map((s) => {
               const Tag = s.to ? Link : "div";
               const props = s.to ? { to: s.to } : {};
