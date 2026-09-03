@@ -8,6 +8,231 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 13: Founding-cohort seeding checklist
+
+### DONE
+- **Task 13 — Seeding checklist** (`TASKS.md:50`): created `docs/QA_SEEDING_CHECKLIST.md` (ops-only, no code) — corridor validation (2–3 BD↔CA FB groups + India→Germany fallback, Q9 provisional), recruit 15–25 scholarship recipients + 5–10 best FB answerers (pitch: expertise evaporates, here compounds), seed 100–300 Q&A (category+tags 1–5+context Canada/Bangladesh+level+field+language+sourceLink), 7 categories ≥10 each, controlled slugs, duplicate check via AskQuestion, Verified via `POST /verify-request` → superadmin approve → `isVerified:true` badge on profile/answers, quality/freshness peer review, launch readiness (populated `/questions`, QAPage, point table +10/+2/+15/+3 daily cap 50).
+- Verified: checklist exists at `docs/QA_SEEDING_CHECKLIST.md:1`, covers all Verify items (100–300, Verified badges, populated resource), no code stubs.
+
+### IN PROGRESS
+- Q&A V1 complete (13/13). Next: execute seeding per checklist, then merge `feature/QandA_system` → `main` (deploy blocked until approval).
+
+### LEFT / NEXT
+- Seeding execution + `feature/QandA_system` → `main` merge + Vercel/Firebase deploy.
+
+### DECISIONS
+- Kept ops-only per spec 5.1–5.2; no code for seeding. Corridor stays provisional until FB validation (Q9 caveat retained).
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 12: SEO QAPage markup
+
+### DONE
+- **Task 12 — SEO** (`TASKS.md:48`): `src/Component/QA/QAPageSchema.jsx` (`@type QAPage` + `mainEntity Question` + `author`/`upvoteCount`/`datePublished`/`dateModified`/`answerCount`/`acceptedAnswer`/`suggestedAnswer`, url via `window.location.origin`), `src/Pages/QA/QuestionDetail.jsx` (+ `<QAPageSchema question>`).
+- Verified: `node --check` PASS, `npm run lint` PASS, `npm run build` 58 OK, JSON-LD valid QAPage/mainEntity/acceptedAnswer upvoteCount PASS, passes Google Rich Results shape.
+
+### IN PROGRESS
+- Q&A V1 — Task 13 (Founding-cohort seeding ops checklist) is next.
+
+### LEFT / NEXT
+- Task 13 per `TASKS.md:50`.
+
+### DECISIONS
+- Used `dangerouslySetInnerHTML JSON.stringify` for `application/ld+json`; kept `suggestedAnswer` 3 filtered not accepted to avoid duplication.
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 11: Verified badge flow
+
+### DONE
+- **Task 11 — Verified** (`TASKS.md:46`): server `src/config/db.js` (+ `verifyRequests` collection + indexes `email/status/userId`), `src/controllers/verify.controller.js` (`POST /verify-request` pending, `GET /verify-requests/me`, `GET /verify-requests` superadmin, `PATCH /verify-request/:id` approved→`isVerified:true`), `src/routes/verify.routes.js` + mount `src/app.js`, `src/utils/*validator` (+ `authorIsVerified`), `src/Component/QA/AnswerCard.jsx` + `src/Pages/QA/QuestionDetail.jsx` (Verified badge), client `src/Pages/QA/VerifyRequest.jsx` (credentialUrl upload via imgbb, type, note), `src/Pages/AdminPages/VerifyApprovals.jsx` (superadmin tabs pending/approved/rejected, approve/reject), `src/routes/Routes.jsx` (`/verify` + `/adminDashboard/verifyRequests` SuperAdminRoute).
+- Verified: `node --check` PASS, live `POST pending` → `GET my pending` → `PATCH approved` → `isVerified:true` PASS, answer `authorIsVerified` true PASS, lint PASS, build 58 OK.
+
+### IN PROGRESS
+- Q&A V1 — Task 12 (SEO QAPage markup) is next.
+
+### LEFT / NEXT
+- Tasks 12–13 per `TASKS.md:48-50`.
+
+### DECISIONS
+- Used separate `verifyRequests` (not `institutionApprovals`) per Q2; same UX pending→approved/rejected with `rejectReason`. Kept `isVerified` denormalized on users + authorIsVerified snapshot on Q/A for fast badge.
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 10: Points + starter badges
+
+### DONE
+- **Task 10 — Points/badges** (`TASKS.md:44`): server `src/controllers/question.controller.js` (+ `upvoteQuestion` +2 with `upvoterIds`, duplicate 409, self 400, `applyReputation` cap), `src/utils/question.validator.js` (+ `upvoterIds`), `src/services/question.service.js` (+ `authorEmail` filter), `src/routes/question.routes.js` (`POST /questions/:id/upvote`); client `src/Component/profile/ProfileHeader.jsx` (+ reputation badge `Award`, Helped N = floor(rep/10), `isVerified` badge, `<BadgeRow>`), `src/Component/QA/BadgeRow.jsx` (qCount via `GET /questions?authorEmail`, 4 badges unlocked by rep/qCount), `src/Pages/QA/QuestionDetail.jsx` (+ question upvote button).
+- Verified: `node --check` PASS, question upvote +2 event PASS, double 409 PASS, self 400 PASS, cap to 50 PASS, source/upvote/accept/+5 already PASS in Task 4, lint PASS, build OK, badges visible after action.
+
+### IN PROGRESS
+- Q&A V1 — Task 11 (Verified badge flow) is next.
+
+### LEFT / NEXT
+- Tasks 11–13 per `TASKS.md:46-50`.
+
+### DECISIONS
+- Kept daily cap 50 via `applyReputation` (denormalized), no points for login/browsing (no endpoints). Badge heuristics: `First Question` via qCount, others via rep thresholds (10/3) approximating helpful/sourced.
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 9: Duplicate-detection panel
+
+### DONE
+- **Task 9 — Duplicate panel** (`TASKS.md:42`): `src/Component/QA/DuplicatePanel.jsx` (debounced 400ms `GET /questions?q=title&limit=5`, top 5 cards title+category+tags+destination + “Asked X ago”, Link to `/questions/:id`, "No duplicate found, ready to post" empty), `src/Component/QA/QuestionForm.jsx` (integrated `<DuplicatePanel title>` under title input, body nudge `length<40` tip).
+- Verified: `npm run lint` PASS, `npm run build` OK, reuses Task 8 `GET /questions?q=` index, panel within 500ms (400ms debounce), click navigates via `<Link>` prevents duplicate, body nudge on short.
+
+### IN PROGRESS
+- Q&A V1 — Task 10 (Points + starter badges) is next.
+
+### LEFT / NEXT
+- Tasks 10–13 per `TASKS.md:44-50`.
+
+### DECISIONS
+- Kept same regex-based `q` search (no text index due `apiStrict`); panel shows `badge-xs` context for quick relevance. Body nudge threshold 40 chars (V1 minimal effort).
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 8: Search + Browse + Filters
+
+### DONE
+- **Task 8 — Browse/Search** (`TASKS.md:40`): `src/Component/QA/QuestionCard.jsx` (grid/list cards, `tagLabel`, vote/views, context badges, lazy images), `src/Pages/QA/BrowseQuestions.jsx` (debounced `localQ` 400ms, `useQuery GET /questions` with `q/category/tag/destinationCountry/homeCountry/studyLevel/sort/page/limit`, `FilterChip` active, URL sync `?q=&category=&tag=&destinationCountry=&homeCountry=&studyLevel=&sort=&page=&view=`, grid/list toggle, pagination 5, sidebar filters, trending placeholder, mobile `showFilters` responsive), `src/routes/Routes.jsx:50` (`/questions` → `BrowseQuestions`).
+- Verified: `npm run lint` PASS, `npm run build` 56 chunks OK (BrowseQuestions 10.91kB), server filter `q+dest+home+level` PASS (1/2/2/1 totals), URL sync via `useSearchParams`, debounce 400ms `useDebounced`, images lazy in cards/detail.
+
+### IN PROGRESS
+- Q&A V1 — Task 9 (Duplicate-detection panel) is next.
+
+### LEFT / NEXT
+- Tasks 9–13 per `TASKS.md:42-50`.
+
+### DECISIONS
+- Reused `FilterChip` + `ScholarshipGrid` pattern but deduped to `QuestionCard`; kept same debounce 400ms as `AllScholership` for consistency. Server `buildQuestionFilter` already handles all/browse filters; no client fallback needed.
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 7: Voting UI + reason-tagged downvote
+
+### DONE
+- **Task 7 — Voting** (`TASKS.md:38`): extended `src/Component/QA/AnswerCard.jsx` (vote column ▲/voteScore/▼, `useRole` rep gate `canDownvote >=125`, `useAxiosSecure POST /answers/:id/upvote` + `downvote` with reason enum, modal select `outdated|unsourced|off-topic|incorrect`, toast + `qc.invalidateQueries(["question",id])`, title tooltip "125 rep required", reason stored visible + hover), updated `src/Pages/QA/QuestionDetail.jsx` to pass `questionId`.
+- Verified: `npm run lint` PASS, `npm run build` OK, upvote +10 via Task 4 controller, downvote 400 no-reason / 403 low-rep PASS, reason stored.
+
+### IN PROGRESS
+- Q&A V1 — Task 8 (Search + Browse + Filters) is next.
+
+### LEFT / NEXT
+- Tasks 8–13 per `TASKS.md:40-50`.
+
+### DECISIONS
+- Kept upvote open to any authed (rep 1) per V1 simplification; downvote hard-gated 125 rep with disabled button + tooltip (spec 2.2). Invalidation replaces optimistic rollback for simplicity.
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 6: Detail + Answering + Accept
+
+### DONE
+- **Task 6 — Detail + Answering** (`TASKS.md:36`): rebuilt `src/Pages/QA/QuestionDetail.jsx` (header badges, context, viewCount, answers sorted accepted-first, `useQuery` public GET, `POST /questions/:id/answers` + `PATCH /questions/:id/accept` via `useAxiosSecure`, `isAsker` guard, `RoleBadge` for Q/A), `src/Component/QA/AnswerCard.jsx` (badge Staff/Institution, MarkdownBody image/linkify, voteScore, accepted green border+✓, downvoteReasons, accept button asker-only), `src/Component/QA/AnswerForm.jsx` (body ≥20 + optional `sourceLink` +3 nudge), `src/Component/QA/CommentThread.jsx` placeholder.
+- Verified: `npm run lint` PASS, `npm run build` OK, detail renders Q+A via `GET /questions/:id` (sample tested in Task 4), post appears, accept 403 non-asker / 200 asker with green check +15, all answers remain, badge visible.
+
+### IN PROGRESS
+- Q&A V1 — Task 7 (Voting UI + reason-tagged downvote) is next.
+
+### LEFT / NEXT
+- Tasks 7–13 per `TASKS.md:38-50`.
+
+### DECISIONS
+- Reused `RoleBadge` mapping (admin/superadmin/modaretor→Staff, institution→Institution) for Q1; kept `CommentThread` as placeholder (V1 threaded comments not blocking). Detail uses public `axios` GET for Q, secure for mutations.
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 5: Client Ask Question flow
+
+### DONE
+- **Task 5 — Ask Question** (`TASKS.md:34`): `src/constants/qa.js` (7 categories, 60 tags, 4 languages, tagLabel), `src/Component/QA/QuestionForm.jsx` (title nudge `isQuestionLike`, body markdown + imgbb upload, category select, tags 1–5 autocomplete `tagSuggestions` + free-form, context 4 fields, language pills, validation `title≥10 body≥20 category+tags required`, not blocking nudge), `src/Pages/QA/AskQuestion.jsx` (role badge `Staff`/`Institution` via `useRole` + `RoleBadge`, `axiosSecure POST /questions` → navigate `/questions/:id`, toast), `src/routes/Routes.jsx:48,75` (`/questions/ask` PrivateRoute + `/questions/:id` + `/questions`), placeholder `src/Pages/QA/QuestionDetail.jsx`.
+- Verified: `npm run lint` PASS, `npm run build` 53 chunks OK (AskQuestion 9.94kB), form validation title nudge not blocking, missing category/tags error, badge renders per Q1.
+
+### IN PROGRESS
+- Q&A V1 — Task 6 (Question detail + Answering + Accept) is next.
+
+### LEFT / NEXT
+- Tasks 6–13 per `TASKS.md:36-50`.
+
+### DECISIONS
+- Reused `useAxiosSecure` + `useRole`/`RoleBadge` + imgbb upload pattern from `AddScholarship`; left institutions allowed to ask per Q1 (flag before Task 5 not blocking). Detail placeholder supports Task 5 redirect; full detail lands in Task 6.
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 4: Answers, voting, reputation
+
+### DONE
+- **Task 4 — Answers/voting/reputation** (`TASKS.md:32`): `src/controllers/answer.controller.js` (4 handlers: `POST /questions/:id/answers` 201 `accepted:false voteScore:0` + sourceLink +3 & first-tag +5 via `applyReputation`; `PATCH /questions/:id/accept` asker-only → `acceptedAnswerId` + `answers.accepted` +15; `POST /answers/:id/upvote` +10 cap, self-vote & double-vote 409, `reputationEvents` write-through; `POST /answers/:id/downvote` reason required `outdated|unsourced|off-topic|incorrect` 400, rep≥125 403, stored), `src/routes/answer.routes.js` + mount `src/app.js:27,60`.
+- Verified live: create answer 201 accepted false voteScore 0, after sourceLink rep 8 (3+5), upvote voteScore 1 rep 18 (+10), upvote event exists, double 409 PASS, downvote no-reason 400 PASS, low-rep 403 PASS, valid downvote voteScore -1 reason stored PASS, accept non-asker 403 PASS, accept asker 200 +15 final rep 33, question `acceptedAnswerId` PASS, `GET /users/me` rep/isVerified PASS.
+
+### IN PROGRESS
+- Q&A V1 — Task 5 (Client Ask Question flow) is next.
+
+### LEFT / NEXT
+- Tasks 5–13 per `TASKS.md:34-50`.
+
+### DECISIONS
+- Kept daily cap 50 via `applyReputation` (denormalized `users.reputation` + `reputationEvents`), mutual-vote discount deferred (needs usage data per Phase 3). SourceLink immediate per Q7; firstAnswerNewTag heuristic (first answer of tag-unique question).
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 3: Server CRUD Questions
+
+### DONE
+- **Task 3 — Questions CRUD** (`TASKS.md:30`): `Schole-hive-server/src/services/question.service.js` (`buildQuestionFilter` with `q/category/tag/destinationCountry/homeCountry/studyLevel` + `$and` text-or, `buildQuestionSort` newest/votes/views/relevance), `src/controllers/question.controller.js` (5 handlers: `POST /questions` 201 with `validateQuestionPayload`/`buildQuestionDoc`; `GET /questions` public pagination filter `{data,total,page,totalPages}`; `GET /questions/:id` with `answers` + `acceptedAnswer` + `viewCount` inc; `PATCH /questions/:id` owner|staff with `normalizeQuestionPatch` + 403 guard; `DELETE /questions/:id` owner|staff cascade `answers`), `src/routes/question.routes.js` + mount in `src/app.js:26,59`.
+- Verified live via controller integration: `POST` 201 (institution role Q1), `GET` total pagination, `GET ?category=test-prep&destinationCountry=Canada` filtered 1, `GET ?q=IELTS` 1, `GET /:id` includes `answers[]` + `viewCount` inc, `PATCH` owner 200 vs non-owner 403, `DELETE` 403/200, cleanup; `buildQuestionFilter` unit PASS.
+
+### IN PROGRESS
+- Q&A V1 — Task 4 (Answers, accept, voting, reputation) is next.
+
+### LEFT / NEXT
+- Tasks 4–13 per `TASKS.md:32-50`.
+
+### DECISIONS
+- Used regex fallback for `q` (not `$text`) because `apiStrict:true` blocks text indexes (pre-existing scholarship warning) — filter supports `$and` with `$or` for text search. Kept Q1 open-to-all auth roles for POST (no role gate).
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 2: Answer collection + reputationEvents
+
+### DONE
+- **Task 1 — Question collection** (`School-Hive/TASKS.md:26`): added `questions` to `Schole-hive-server/src/config/db.js:24` + 8 indexes; `src/constants/qa.constants.js` (7 categories, 60 tags, 4 languages); `src/utils/question.validator.js` — verified live 7 indexes present.
+- **Task 2 — Answer collection + reputation** (`TASKS.md:28`): added `answers` + `reputationEvents` to `Schole-hive-server/src/config/db.js:24,42,117-140` with indexes (`questionId+createdAt`, `questionId+accepted`, `authorEmail+createdAt`, `createdAt` for answers; `userId+createdAt`, `type`, `relatedQuestionId/AnswerId` for events; `reputation`/`isVerified` for users + backfill `updateMany` for existing users). Verified live: 4 answer indexes, 4 event indexes, users `reputation_-1` + `isVerified_1` present, 0 users missing fields, sample user `reputation:0 isVerified:false`.
+- Patched `Schole-hive-server/src/controllers/user.controller.js:68,255,617` — `createUser` defaults `reputation:0 isVerified:false`, `pickPublic` exposes `reputation/isVerified`, `deleteUser` anonymizes `reputationEvents`/`questions`/`answers` (permanence principle).
+- Added `src/utils/answer.validator.js` (`validateAnswerPayload`/`buildAnswerDoc` — body ≥20, optional `sourceLink` URL, voteScore 0, accepted false) + `src/utils/reputation.js` (POINTS table, DAILY_CAP 50, `buildReputationEvent`/`applyReputation` with cap + denormalized write-through).
+- `TASKS.md` Task 2 checked `[x]`; `IN PROGRESS` rolled to Task 3.
+
+### IN PROGRESS
+- Q&A V1 — Task 3 (Server CRUD Questions) is next.
+
+### LEFT / NEXT
+- Tasks 3–13 per `TASKS.md:30-50`.
+
+### DECISIONS
+- Kept `serverApi.strict:true` — text indexes still warn but non-text indexes succeed (same pre-existing scholarship warning). Reputation backfill via `updateMany` in `ensureIndexes` to avoid separate migration.
+
+---
+
+## 2026-09-03 — Q&A Forum V1 Task 1: Question collection + indexes
+
+### DONE
+- **Task 1 — Question collection** (`School-Hive/TASKS.md:26`): added `questions` to `Schole-hive-server/src/config/db.js:24` + 8 indexes in `ensureIndexes` (`category`, `context.destinationCountry`, `context.homeCountry`, `context.studyLevel`, `authorEmail+createdAt`, `createdAt`, `acceptedAnswerId`, `questions_text_idx` text on `title+body+tags`). Verified live against MongoDB — 7 indexes present (`category_1`, `context.*`, `authorEmail_1_createdAt_-1`, etc.); text index warning `apiStrict:true` same as pre-existing `scholarship_text_idx` (not new regression).
+- Added `Schole-hive-server/src/constants/qa.constants.js` — 7 categories (Q5), 60 tags grouped (Q4), 4 languages (Q8), helpers `tagLabel`; `src/utils/question.validator.js` — `validateQuestionPayload`/`buildQuestionDoc` with 10-char title, 20-char body, 1..5 tags, enum checks (mirrors spec 1.1–1.2).
+- `TASKS.md` Task 1 checked `[x]`; `IN PROGRESS` rolled to Task 2.
+
+### IN PROGRESS
+- Q&A V1 — Task 2 (Answer collection + vote/accept + reputation field/events) is next; Tasks 1 done on `feature/QandA_system`.
+
+### LEFT / NEXT
+- Tasks 2–13 per `TASKS.md:28-50`; then seeding ops checklist (Task 13).
+
+### DECISIONS
+- Used raw `mongodb` driver collections (existing pattern) not Mongoose — kept `ensureIndexes` style with `background:true`. Text index attempted but blocked by `serverApi.strict:true` (same as scholarship); left as warning, no DB config change.
+
+---
+
 ## 2026-09-02 — Perf & Pipeline Hardening (code-split + lint + security)
 
 ### DONE
