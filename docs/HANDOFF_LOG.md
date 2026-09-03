@@ -8,6 +8,23 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 13: Founding-cohort seeding checklist
+
+### DONE
+- **Task 13 — Seeding checklist** (`TASKS.md:50`): created `docs/QA_SEEDING_CHECKLIST.md` (ops-only, no code) — corridor validation (2–3 BD↔CA FB groups + India→Germany fallback, Q9 provisional), recruit 15–25 scholarship recipients + 5–10 best FB answerers (pitch: expertise evaporates, here compounds), seed 100–300 Q&A (category+tags 1–5+context Canada/Bangladesh+level+field+language+sourceLink), 7 categories ≥10 each, controlled slugs, duplicate check via AskQuestion, Verified via `POST /verify-request` → superadmin approve → `isVerified:true` badge on profile/answers, quality/freshness peer review, launch readiness (populated `/questions`, QAPage, point table +10/+2/+15/+3 daily cap 50).
+- Verified: checklist exists at `docs/QA_SEEDING_CHECKLIST.md:1`, covers all Verify items (100–300, Verified badges, populated resource), no code stubs.
+
+### IN PROGRESS
+- Q&A V1 complete (13/13). Next: execute seeding per checklist, then merge `feature/QandA_system` → `main` (deploy blocked until approval).
+
+### LEFT / NEXT
+- Seeding execution + `feature/QandA_system` → `main` merge + Vercel/Firebase deploy.
+
+### DECISIONS
+- Kept ops-only per spec 5.1–5.2; no code for seeding. Corridor stays provisional until FB validation (Q9 caveat retained).
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 12: SEO QAPage markup
 
 ### DONE

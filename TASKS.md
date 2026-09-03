@@ -11,7 +11,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## IN PROGRESS
 
-- **Q&A Forum V1 — Tasks 1–12 done, Task 13 next** — `## TODO — Q&A Forum V1` (13 tasks). Tasks 1–12 complete: QAPage schema with mainEntity/acceptedAnswer upvoteCount. Next: Task 13 — Founding-cohort seeding ops checklist.
+- **Q&A Forum V1 — all 13 tasks done** — `## TODO — Q&A Forum V1` complete (13/13). Server model/CRUD/voting/reputation, client Ask/Detail/Voting/Browse/Duplicate/Points/Verified/SEO, plus ops seeding checklist `docs/QA_SEEDING_CHECKLIST.md`. Ready for seeding execution and `feature/QandA_system` → `main` merge (deploy blocked until owner approval).
 
 ## TODO — Q&A Forum V1
 
@@ -47,7 +47,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - [x] **12. SEO — QAPage schema.org markup** — Every `GET /questions/:id` page renders `application/ld+json` with `QAPage` type (schema.org) — same markup Stack Overflow/Quora use for Q&A rich results + AI-answer-engine citation. Include `mainEntity` (Question), `acceptedAnswer` if any, `author`, `upvoteCount`, `datePublished`, `dateModified`. Cheap from day one; value compounds with time indexed (4.3). Not a traffic guarantee — just clean signal. Touches: `src/Component/QA/QAPageSchema.jsx` rendered in `QuestionDetail.jsx`. Verify: view page source on `/questions/:id` → valid `application/ld+json` with `"@type":"QAPage"`; passes Google Rich Results Test / schema validator.
 
-- [ ] **13. Founding-cohort seeding — ops checklist (no code)** — Corridor-by-corridor launch, not all countries at once. Pick one high-activity corridor (e.g. Bangladesh→Canada or India→Germany — validate against current Facebook-group activity, don’t assume). Recruit founding cohort pre-launch: recent scholarship recipients / current students abroad / best FB-group answerers, seed 100–300 real high-quality Q&A pairs before public. Pitch: expertise evaporates in chat, here it compounds + is credited. Trust transfer from day one via Verified badge. Ops tasks only — no stubs. Touches: docs checklist + outreach, not code. Verify: before public launch, corridor has 100–300 seeded questions each with category+tags+context+source where factual; founding cohort has Verified badges; day-one visitor sees populated, credible resource not empty room.
+- [x] **13. Founding-cohort seeding — ops checklist (no code)** — Corridor-by-corridor launch, not all countries at once. Pick one high-activity corridor (e.g. Bangladesh→Canada or India→Germany — validate against current Facebook-group activity, don’t assume). Recruit founding cohort pre-launch: recent scholarship recipients / current students abroad / best FB-group answerers, seed 100–300 real high-quality Q&A pairs before public. Pitch: expertise evaporates in chat, here it compounds + is credited. Trust transfer from day one via Verified badge. Ops tasks only — no stubs. Touches: docs checklist + outreach, not code. Verify: before public launch, corridor has 100–300 seeded questions each with category+tags+context+source where factual; founding cohort has Verified badges; day-one visitor sees populated, credible resource not empty room.
 
 ### Open questions
 
