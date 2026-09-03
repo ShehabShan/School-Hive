@@ -1,11 +1,15 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
+import { AnimatePresence, motion } from "framer-motion";
 import axios from "axios";
-import { Search, SlidersHorizontal, X, LayoutGrid, List, ChevronLeft, ChevronRight } from "lucide-react";
+import { Search, SlidersHorizontal, X, LayoutGrid, List, ChevronLeft, ChevronRight, Plus, FilterX, Inbox } from "lucide-react";
 import FilterChip from "../../Component/scholarship/FilterChip";
-import { QUESTION_CATEGORIES, STUDY_LEVELS } from "../../constants/qa";
+import { QUESTION_CATEGORIES, STUDY_LEVELS, COUNTRIES } from "../../constants/qa";
 import { QuestionCard, QuestionListItem } from "../../Component/QA/QuestionCard";
+
+const baseURL = import.meta.env.VITE_server_url || "https://server-six-vert.vercel.app";
+const SORTS = [["newest","Newest"],["votes","Top voted"],["views","Most viewed"],["relevance","Relevance"]];
 
 function useDebounced(v, ms=400){
   const [d,setD]=useState(v);
@@ -13,9 +17,58 @@ function useDebounced(v, ms=400){
   return d;
 }
 
+function BrowseSkeleton({ view }){
+  return (
+    <div className="space-y-3">
+      {Array.from({length:5}).map((_,i)=> (
+        <div key={i} className="animate-pulse rounded-2xl border border-slate-100 bg-white p-4">
+          <div className="flex gap-4">
+            {view!=="grid" && <div className="hidden w-24 shrink-0 flex-col gap-2 sm:flex"><div className="h-5 w-16 rounded bg-slate-100" /><div className="h-5 w-12 rounded bg-slate-100" /><div className="h-4 w-10 rounded bg-slate-100" /></div>}
+            <div className="flex-1 space-y-2"><div className={`h-4 rounded bg-slate-200 ${i%2?"w-2/3":"w-5/6"}`} /><div className="h-3 w-full rounded bg-slate-100" /><div className="h-3 w-3/4 rounded bg-slate-100" /><div className="flex gap-1.5 pt-1"><div className="h-5 w-20 rounded-full bg-slate-100" /><div className="h-5 w-16 rounded-full bg-slate-100" /></div></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FiltersBody({ updateParams, tag, destinationCountry, homeCountry, studyLevel }){
+  return (
+    <div className="space-y-4">
+      <label className="block">
+        <span className="mb-1 block text-xs font-extrabold tracking-wide text-slate-500 uppercase">Tag</span>
+        <input value={tag} onChange={e=>updateParams({tag:e.target.value.toLowerCase()})} placeholder="e.g. ielts, canada" className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-4 focus:ring-brand-50 focus:outline-none" />
+      </label>
+      <label className="block">
+        <span className="mb-1 block text-xs font-extrabold tracking-wide text-slate-500 uppercase">Destination country</span>
+        <select value={destinationCountry} onChange={e=>updateParams({destinationCountry:e.target.value})} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-4 focus:ring-brand-50 focus:outline-none">
+          <option value="">Any</option>
+          {COUNTRIES.map(c=> <option key={c.value} value={c.value}>{c.flag} {c.label}</option>)}
+        </select>
+      </label>
+      <label className="block">
+        <span className="mb-1 block text-xs font-extrabold tracking-wide text-slate-500 uppercase">Home country</span>
+        <select value={homeCountry} onChange={e=>updateParams({homeCountry:e.target.value})} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm focus:border-brand-500 focus:ring-4 focus:ring-brand-50 focus:outline-none">
+          <option value="">Any</option>
+          {COUNTRIES.map(c=> <option key={c.value} value={c.value}>{c.flag} {c.label}</option>)}
+        </select>
+      </label>
+      <label className="block">
+        <span className="mb-1 block text-xs font-extrabold tracking-wide text-slate-500 uppercase">Study level</span>
+        <div className="flex flex-wrap gap-1.5">
+          <button type="button" onClick={()=>updateParams({studyLevel:""})} className={`rounded-full px-3 py-1.5 text-xs font-semibold ring-1 transition-colors ${!studyLevel?"bg-slate-900 text-white ring-slate-900":"bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>Any</button>
+          {STUDY_LEVELS.map(s=> (
+            <button key={s} type="button" onClick={()=>updateParams({studyLevel: studyLevel===s?"":s})} className={`rounded-full px-3 py-1.5 text-xs font-semibold capitalize ring-1 transition-colors ${studyLevel===s?"bg-slate-900 text-white ring-slate-900":"bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>{s}</button>
+          ))}
+        </div>
+      </label>
+      <p className="rounded-xl bg-brand-50 px-3 py-2.5 text-xs leading-relaxed text-brand-700">The corridor filter — <b>Destination × Home × Level</b> — is what no Facebook group search can do. Try <b>Canada · Bangladesh · masters</b>.</p>
+    </div>
+  );
+}
+
 export default function BrowseQuestions(){
   const [searchParams,setSearchParams]=useSearchParams();
-  const baseURL = import.meta.env.VITE_server_url || "https://server-six-vert.vercel.app";
 
   const q = searchParams.get("q") || "";
   const category = searchParams.get("category") || "";
@@ -25,11 +78,11 @@ export default function BrowseQuestions(){
   const studyLevel = searchParams.get("studyLevel") || "";
   const sort = searchParams.get("sort") || "newest";
   const page = Math.max(1, parseInt(searchParams.get("page")||"1",10)||1);
-  const view = searchParams.get("view") || "grid";
+  const view = searchParams.get("view") || "list";
 
   const [localQ,setLocalQ]=useState(q);
   const debouncedQ = useDebounced(localQ,400);
-  const [showFilters,setShowFilters]=useState(false);
+  const [drawerOpen,setDrawerOpen]=useState(false);
 
   useEffect(()=> setLocalQ(q),[q]);
 
@@ -38,16 +91,15 @@ export default function BrowseQuestions(){
     Object.entries(patch).forEach(([k,v])=>{
       if(v===""||v==null) next.delete(k); else next.set(k,String(v));
     });
-    if(patch.q!==undefined||patch.category!==undefined||patch.tag!==undefined||patch.destinationCountry!==undefined||patch.homeCountry!==undefined||patch.studyLevel!==undefined||patch.sort!==undefined){
+    if(["q","category","tag","destinationCountry","homeCountry","studyLevel","sort"].some(k=>patch[k]!==undefined)){
       if(patch.page===undefined) next.set("page","1");
     }
     setSearchParams(next,{replace:true});
   };
   useEffect(()=>{ if(debouncedQ!==q) updateParams({ q: debouncedQ }); },[debouncedQ]);
 
-  const queryKey = ["questions-browse", { q: debouncedQ, category, tag, destinationCountry, homeCountry, studyLevel, sort, page, view }];
   const { data: resp, isLoading } = useQuery({
-    queryKey,
+    queryKey: ["questions-browse", { q: debouncedQ, category, tag, destinationCountry, homeCountry, studyLevel, sort, page, view }],
     queryFn: async ()=>{
       const params={};
       if(debouncedQ) params.q=debouncedQ;
@@ -58,7 +110,7 @@ export default function BrowseQuestions(){
       if(studyLevel) params.studyLevel=studyLevel;
       if(sort) params.sort=sort;
       params.page=page;
-      params.limit= view==="list" ? 10 : 12;
+      params.limit= view==="list" ? 15 : 12;
       const res= await axios.get(`${baseURL}/questions`, { params });
       return res.data;
     }
@@ -66,113 +118,149 @@ export default function BrowseQuestions(){
 
   const list = resp?.data || [];
   const total = resp?.total ?? list.length;
-  const totalPages = resp?.totalPages || Math.max(1, Math.ceil(total / (view==="list"?10:12)));
+  const totalPages = resp?.totalPages || Math.max(1, Math.ceil(total / (view==="list"?15:12)));
 
   const activeFilters=[];
   if(q) activeFilters.push({k:"q", label:`"${q}"`});
-  if(category) activeFilters.push({k:"category", label: category});
-  if(tag) activeFilters.push({k:"tag", label: tag});
-  if(destinationCountry) activeFilters.push({k:"destinationCountry", label: destinationCountry});
-  if(homeCountry) activeFilters.push({k:"homeCountry", label: homeCountry});
-  if(studyLevel) activeFilters.push({k:"studyLevel", label: studyLevel});
+  if(tag) activeFilters.push({k:"tag", label:`#${tag}`});
+  if(destinationCountry) activeFilters.push({k:"destinationCountry", label:destinationCountry});
+  if(homeCountry) activeFilters.push({k:"homeCountry", label:homeCountry});
+  if(studyLevel) activeFilters.push({k:"studyLevel", label:studyLevel});
 
   const clearAll=()=>{
     setLocalQ("");
-    setSearchParams(new URLSearchParams({ sort:"newest", view }),{replace:true});
+    setSearchParams(new URLSearchParams({ sort, view }),{replace:true});
   };
 
+  const activeCategoryLabel = QUESTION_CATEGORIES.find(c=>c.value===category)?.label;
+  const isFiltered = activeFilters.length>0 || Boolean(category) || Boolean(debouncedQ);
+
   return (
-    <section className="bg-slate-50 pb-16">
-      <div className="bg-gradient-to-b from-brand-700 to-brand-900 py-10 text-white">
-        <div className="container mx-auto px-4 text-center">
-          <h1 className="text-3xl font-extrabold">Browse Questions</h1>
-          <p className="mx-auto mt-2 max-w-xl text-brand-100 text-sm">Search, filter by category, tag, country, level — mobile-friendly with 400ms debounced search.</p>
-          <div className="mx-auto mt-6 max-w-3xl flex items-center gap-2 rounded-2xl bg-white p-2 pl-4 shadow">
-            <Search className="h-5 w-5 text-slate-400" />
-            <input value={localQ} onChange={e=>setLocalQ(e.target.value)} placeholder="Search title, body, tags…" className="w-full bg-transparent py-2 text-sm text-slate-800 placeholder:text-slate-400 focus:outline-none" aria-label="Search questions" />
-            {localQ && <button onClick={()=>setLocalQ("")} className="p-1.5 text-slate-400"><X className="h-4 w-4" /></button>}
-            <button onClick={()=>setShowFilters(v=>!v)} className={`hidden sm:inline-flex items-center gap-1.5 rounded-xl px-3 py-2 text-xs font-semibold ${showFilters?"bg-brand-600 text-white":"bg-slate-100 text-slate-600"}`}><SlidersHorizontal className="h-3.5 w-3.5"/>Filters {activeFilters.length?`(${activeFilters.length})`:""}</button>
-            <span className="hidden sm:inline-flex rounded-xl bg-slate-900 px-3 py-2 text-xs font-bold text-white">{total} results</span>
-          </div>
-          <div className="mt-3 flex flex-wrap justify-center gap-2">
-            <select value={sort} onChange={e=>updateParams({sort:e.target.value})} className="rounded-xl bg-white/90 px-3 py-2 text-sm text-slate-700">
-              <option value="newest">Newest</option>
-              <option value="votes">Most votes</option>
-              <option value="views">Most views</option>
-              <option value="relevance">Relevance</option>
-            </select>
-            <div className="inline-flex bg-white/90 rounded-xl p-1">
-              <button onClick={()=>updateParams({view:"grid"})} className={`rounded-lg px-3 py-1.5 ${view==="grid"?"bg-slate-900 text-white":"text-slate-600"}`}><LayoutGrid className="h-4 w-4"/></button>
-              <button onClick={()=>updateParams({view:"list"})} className={`rounded-lg px-3 py-1.5 ${view==="list"?"bg-slate-900 text-white":"text-slate-600"}`}><List className="h-4 w-4"/></button>
+    <div className="min-h-screen bg-slate-50 pb-16">
+      {/* Workspace header */}
+      <div className="border-b border-slate-200 bg-white">
+        <div className="mx-auto max-w-[1200px] px-4 pt-6 sm:px-6">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h1 className="text-2xl font-extrabold tracking-tight text-slate-900 sm:text-3xl">{activeCategoryLabel || (debouncedQ ? `Search: “${debouncedQ}”` : "All Questions")}</h1>
+              <p className="mt-1 text-sm text-slate-500">{total} question{total===1?"":"s"} · permanent, sourced, searchable — not another group chat</p>
             </div>
+            <Link to="/questions/ask" className="inline-flex items-center gap-1.5 rounded-full bg-gradient-to-r from-brand-600 to-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-md hover:from-brand-700 hover:to-indigo-700">
+              <Plus className="h-4 w-4" /> Ask a question
+            </Link>
+          </div>
+
+          {/* Search + controls */}
+          <div className="mt-5 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <div className="flex flex-1 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-4 py-2.5 shadow-sm transition-all focus-within:border-brand-500 focus-within:ring-4 focus-within:ring-brand-50">
+              <Search className="h-4 w-4 shrink-0 text-slate-400" />
+              <input value={localQ} onChange={e=>setLocalQ(e.target.value)} placeholder="Search questions, tags, context…" className="w-full bg-transparent text-sm placeholder:text-slate-400 focus:outline-none" aria-label="Search questions" />
+              {localQ && <button onClick={()=>setLocalQ("")} className="rounded-full p-1 text-slate-400 hover:bg-slate-100" aria-label="Clear search"><X className="h-3.5 w-3.5" /></button>}
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="inline-flex rounded-2xl border border-slate-200 bg-white p-0.5 shadow-sm">
+                {SORTS.map(([v,l])=> (
+                  <button key={v} onClick={()=>updateParams({sort:v})} className={`rounded-xl px-3 py-2 text-xs font-bold transition-colors ${sort===v?"bg-slate-900 text-white":"text-slate-500 hover:text-slate-800"}`}>{l}</button>
+                ))}
+              </div>
+              <button onClick={()=>setDrawerOpen(true)} className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-600 shadow-sm hover:bg-slate-50 lg:hidden">
+                <SlidersHorizontal className="h-3.5 w-3.5" /> Filters{activeFilters.length?` (${activeFilters.length})`:""}
+              </button>
+              <div className="hidden inline-flex rounded-2xl border border-slate-200 bg-white p-0.5 shadow-sm sm:inline-flex">
+                <button onClick={()=>updateParams({view:"list"})} className={`rounded-xl p-2 ${view==="list"?"bg-slate-900 text-white":"text-slate-400 hover:text-slate-700"}`} aria-label="List view"><List className="h-4 w-4" /></button>
+                <button onClick={()=>updateParams({view:"grid"})} className={`rounded-xl p-2 ${view==="grid"?"bg-slate-900 text-white":"text-slate-400 hover:text-slate-700"}`} aria-label="Grid view"><LayoutGrid className="h-4 w-4" /></button>
+              </div>
+            </div>
+          </div>
+
+          {/* Category pills — landing nav */}
+          <div className="scrollbar-none mt-4 flex gap-1.5 overflow-x-auto pb-4">
+            <button onClick={()=>updateParams({category:""})} className={`shrink-0 rounded-full px-3.5 py-2 text-xs font-bold ring-1 transition-colors ${!category?"bg-brand-600 text-white ring-brand-600":"bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>All</button>
+            {QUESTION_CATEGORIES.map(c=> (
+              <button key={c.value} onClick={()=>updateParams({category: category===c.value?"":c.value})} className={`shrink-0 rounded-full px-3.5 py-2 text-xs font-bold ring-1 transition-colors ${category===c.value?"bg-brand-600 text-white ring-brand-600":"bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>{c.label}</button>
+            ))}
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 -mt-6">
+      <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
+        {/* Active filters */}
         {activeFilters.length>0 && (
-          <div className="mb-4 flex flex-wrap gap-2 bg-white p-3 rounded-2xl shadow">
-            <span className="text-xs font-semibold text-slate-400">Active:</span>
+          <div className="mt-4 flex flex-wrap items-center gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-sm">
+            <span className="text-xs font-bold uppercase tracking-wide text-slate-400">Filters</span>
             {activeFilters.map(f=> <FilterChip key={f.k} label={f.label} onRemove={()=>updateParams({[f.k]:""})} />)}
-            <button onClick={clearAll} className="ml-auto text-xs font-semibold text-brand-600">Clear all</button>
+            <button onClick={clearAll} className="ml-auto inline-flex items-center gap-1 text-xs font-bold text-rose-600 hover:text-rose-700"><FilterX className="h-3.5 w-3.5" /> Clear all</button>
           </div>
         )}
-        <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
-          <aside className={`${showFilters?"block":"hidden"} lg:block`}>
-            <div className="sticky top-20 bg-white p-5 rounded-2xl border shadow-sm space-y-4">
-              <div className="flex justify-between items-center"><h3 className="font-bold">Filters</h3><button onClick={clearAll} className="text-xs text-slate-500">Reset</button></div>
-              <label className="block"><span className="text-xs font-semibold text-slate-500">Category</span>
-                <select value={category} onChange={e=>updateParams({category:e.target.value})} className="w-full mt-1 rounded-xl border px-3 py-2 text-sm">
-                  <option value="">All</option>
-                  {QUESTION_CATEGORIES.map(c=> <option key={c.value} value={c.value}>{c.label}</option>)}
-                </select>
-              </label>
-              <label className="block"><span className="text-xs font-semibold text-slate-500">Tag</span>
-                <input value={tag} onChange={e=>updateParams({tag:e.target.value.toLowerCase()})} placeholder="e.g. ielts" className="w-full mt-1 rounded-xl border px-3 py-2 text-sm" />
-              </label>
-              <label className="block"><span className="text-xs font-semibold text-slate-500">Destination country</span>
-                <input value={destinationCountry} onChange={e=>updateParams({destinationCountry:e.target.value})} placeholder="e.g. Canada" className="w-full mt-1 rounded-xl border px-3 py-2 text-sm" />
-              </label>
-              <label className="block"><span className="text-xs font-semibold text-slate-500">Home country</span>
-                <input value={homeCountry} onChange={e=>updateParams({homeCountry:e.target.value})} placeholder="e.g. Bangladesh" className="w-full mt-1 rounded-xl border px-3 py-2 text-sm" />
-              </label>
-              <label className="block"><span className="text-xs font-semibold text-slate-500">Study level</span>
-                <select value={studyLevel} onChange={e=>updateParams({studyLevel:e.target.value})} className="w-full mt-1 rounded-xl border px-3 py-2 text-sm">
-                  <option value="">All</option>
-                  {STUDY_LEVELS.map(s=> <option key={s} value={s}>{s}</option>)}
-                </select>
-              </label>
-              <p className="text-xs bg-brand-50 p-2 rounded-xl text-brand-700">Try: <b>Canada + Bangladesh + Masters</b> → 2 clicks filter path.</p>
+
+        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr]">
+          {/* Desktop filters */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-24 space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+              <div className="flex items-center justify-between">
+                <h3 className="flex items-center gap-1.5 text-sm font-extrabold text-slate-900"><SlidersHorizontal className="h-4 w-4 text-slate-400" /> Refine</h3>
+                {isFiltered && <button onClick={clearAll} className="text-xs font-bold text-rose-600 hover:text-rose-700">Reset</button>}
+              </div>
+              <FiltersBody updateParams={updateParams} tag={tag} destinationCountry={destinationCountry} homeCountry={homeCountry} studyLevel={studyLevel} />
             </div>
           </aside>
 
-          <div>
-            <div className="mb-3 text-sm text-slate-500">Showing <b className="text-slate-900">{list.length}</b> of <b className="text-slate-900">{total}</b> • Page {page} of {totalPages}</div>
-            {isLoading ? <div className="text-center py-10">Loading…</div> : list.length===0 ? (
-              <div className="text-center py-10 bg-white rounded-2xl border"><p className="font-semibold">No matching questions</p><p className="text-sm opacity-60">Try broadening filters or search.</p><button onClick={clearAll} className="mt-3 btn btn-sm btn-primary">Clear filters</button></div>
-            ) : view==="list" ? (
-              <div className="space-y-3">{list.map(q=> <QuestionListItem key={q._id} q={q} />)}</div>
+          {/* Results */}
+          <div className="min-w-0">
+            <div className="mb-3 flex items-center justify-between text-sm text-slate-500">
+              <span>Page <b className="text-slate-900">{page}</b> of <b className="text-slate-900">{totalPages}</b></span>
+              <span className="hidden sm:block">Showing {list.length} of {total}</span>
+            </div>
+
+            {isLoading ? <BrowseSkeleton view={view} /> : list.length===0 ? (
+              <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center">
+                <Inbox className="mx-auto h-10 w-10 text-slate-300" />
+                <p className="mt-3 font-extrabold text-slate-800">{isFiltered ? "No matching questions" : "No questions yet"}</p>
+                <p className="mx-auto mt-1 max-w-sm text-sm text-slate-500">{isFiltered ? "Try broadening the filters or search — or be the first to ask this." : "Be the founding voice — the first questions set the tone for the corridor."}</p>
+                <div className="mt-4 flex justify-center gap-2">
+                  {isFiltered && <button onClick={clearAll} className="btn btn-sm btn-outline">Clear filters</button>}
+                  <Link to="/questions/ask" className="btn btn-sm btn-primary">Ask a question</Link>
+                </div>
+              </div>
+            ) : view==="grid" ? (
+              <div className="grid gap-4 sm:grid-cols-2">{list.map(q=> <QuestionCard key={q._id} q={q} />)}</div>
             ) : (
-              <div className="grid sm:grid-cols-2 gap-4">{list.map(q=> <QuestionCard key={q._id} q={q} />)}</div>
+              <div className="space-y-3">{list.map(q=> <QuestionListItem key={q._id} q={q} />)}</div>
             )}
 
             {totalPages>1 && (
-              <div className="mt-6 flex justify-center gap-2">
-                <button disabled={page<=1} onClick={()=>updateParams({page: page-1})} className="h-10 w-10 border rounded-xl bg-white disabled:opacity-40"><ChevronLeft className="h-4 w-4 mx-auto"/></button>
+              <div className="mt-8 flex items-center justify-center gap-1.5">
+                <button disabled={page<=1} onClick={()=>updateParams({page: page-1})} className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm disabled:opacity-40" aria-label="Previous page"><ChevronLeft className="h-4 w-4" /></button>
                 {Array.from({length: Math.min(5,totalPages)},(_,i)=>{
                   let p; if(totalPages<=5) p=i+1; else if(page<=3) p=i+1; else if(page>=totalPages-2) p=totalPages-4+i; else p=page-2+i;
-                  return <button key={p} onClick={()=>updateParams({page:p})} className={`h-10 min-w-10 rounded-xl px-3 text-sm font-bold ${p===page?"bg-slate-900 text-white":"bg-white border"}`}>{p}</button>;
+                  return <button key={p} onClick={()=>updateParams({page:p})} className={`h-10 min-w-10 rounded-xl px-3 text-sm font-bold shadow-sm transition-colors ${p===page?"bg-slate-900 text-white":"border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}>{p}</button>;
                 })}
-                <button disabled={page>=totalPages} onClick={()=>updateParams({page: page+1})} className="h-10 w-10 border rounded-xl bg-white disabled:opacity-40"><ChevronRight className="h-4 w-4 mx-auto"/></button>
+                <button disabled={page>=totalPages} onClick={()=>updateParams({page: page+1})} className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm disabled:opacity-40" aria-label="Next page"><ChevronRight className="h-4 w-4" /></button>
               </div>
             )}
-            <div className="mt-8 bg-white p-4 rounded-2xl border">
-              <h3 className="font-bold">Trending / Best of</h3>
-              <p className="text-sm opacity-60">Top voted questions in current filter — best-of placeholder (Task 8).</p>
-            </div>
           </div>
         </div>
       </div>
-    </section>
+
+      {/* Mobile filter drawer */}
+      <AnimatePresence>
+        {drawerOpen && (
+          <>
+            <motion.div initial={{opacity:0}} animate={{opacity:1}} exit={{opacity:0}} className="fixed inset-0 z-40 bg-slate-900/40 backdrop-blur-sm lg:hidden" onClick={()=>setDrawerOpen(false)} />
+            <motion.div initial={{y:"100%"}} animate={{y:0}} exit={{y:"100%"}} transition={{type:"spring", damping:30, stiffness:300}} className="fixed inset-x-0 bottom-0 z-50 max-h-[80vh] overflow-y-auto rounded-t-3xl bg-white p-5 pb-8 shadow-lift lg:hidden">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="flex items-center gap-1.5 text-base font-extrabold text-slate-900"><SlidersHorizontal className="h-4 w-4 text-slate-400" /> Refine</h3>
+                <button onClick={()=>setDrawerOpen(false)} className="rounded-full p-2 hover:bg-slate-100" aria-label="Close filters"><X className="h-5 w-5" /></button>
+              </div>
+              <FiltersBody updateParams={(p)=>updateParams(p)} tag={tag} destinationCountry={destinationCountry} homeCountry={homeCountry} studyLevel={studyLevel} />
+              <div className="mt-5 flex gap-2">
+                {isFiltered && <button onClick={()=>{clearAll();}} className="flex-1 rounded-full border border-slate-200 px-4 py-3 text-sm font-bold text-rose-600">Reset</button>}
+                <button onClick={()=>setDrawerOpen(false)} className="flex-1 rounded-full bg-slate-900 px-4 py-3 text-sm font-bold text-white">Show {total} results</button>
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
