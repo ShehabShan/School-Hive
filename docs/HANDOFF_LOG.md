@@ -8,6 +8,23 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-03 — Q&A Forum V1 Task 11: Verified badge flow
+
+### DONE
+- **Task 11 — Verified** (`TASKS.md:46`): server `src/config/db.js` (+ `verifyRequests` collection + indexes `email/status/userId`), `src/controllers/verify.controller.js` (`POST /verify-request` pending, `GET /verify-requests/me`, `GET /verify-requests` superadmin, `PATCH /verify-request/:id` approved→`isVerified:true`), `src/routes/verify.routes.js` + mount `src/app.js`, `src/utils/*validator` (+ `authorIsVerified`), `src/Component/QA/AnswerCard.jsx` + `src/Pages/QA/QuestionDetail.jsx` (Verified badge), client `src/Pages/QA/VerifyRequest.jsx` (credentialUrl upload via imgbb, type, note), `src/Pages/AdminPages/VerifyApprovals.jsx` (superadmin tabs pending/approved/rejected, approve/reject), `src/routes/Routes.jsx` (`/verify` + `/adminDashboard/verifyRequests` SuperAdminRoute).
+- Verified: `node --check` PASS, live `POST pending` → `GET my pending` → `PATCH approved` → `isVerified:true` PASS, answer `authorIsVerified` true PASS, lint PASS, build 58 OK.
+
+### IN PROGRESS
+- Q&A V1 — Task 12 (SEO QAPage markup) is next.
+
+### LEFT / NEXT
+- Tasks 12–13 per `TASKS.md:48-50`.
+
+### DECISIONS
+- Used separate `verifyRequests` (not `institutionApprovals`) per Q2; same UX pending→approved/rejected with `rejectReason`. Kept `isVerified` denormalized on users + authorIsVerified snapshot on Q/A for fast badge.
+
+---
+
 ## 2026-09-03 — Q&A Forum V1 Task 10: Points + starter badges
 
 ### DONE

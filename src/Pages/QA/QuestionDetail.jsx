@@ -93,6 +93,7 @@ export default function QuestionDetail(){
       <div className="mt-2 flex items-center gap-2 text-sm">
         <span className="opacity-60">By {q.authorEmail}</span>
         {badgeRole && <RoleBadge role={badgeRole} size="sm" />}
+        {q.authorIsVerified && <span className="badge badge-info badge-sm">✓ Verified</span>}
       </div>
       <h1 className="text-2xl font-bold mt-2">{q.title}</h1>
       <div className="mt-2 flex flex-wrap gap-2 text-xs">

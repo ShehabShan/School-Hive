@@ -30,6 +30,7 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
   const isStaff = ["admin","superadmin","modaretor"].includes(role);
   const badgeRole = isStaff ? role : role==="institution" ? "institution" : null;
   const isAccepted = Boolean(answer.accepted);
+  const isVerified = Boolean(answer.authorIsVerified);
   const axiosSecure = useAxiosSecure();
   const { me } = useRole();
   const qc = useQueryClient();
@@ -80,6 +81,7 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
             <div className="flex items-center gap-2 text-sm">
               <span className="font-medium">{answer.authorEmail}</span>
               {badgeRole && <RoleBadge role={badgeRole} size="sm" />}
+              {isVerified && <span className="badge badge-info badge-sm">✓ Verified</span>}
               {isAccepted && <span className="badge badge-success badge-sm gap-1">✓ Accepted</span>}
               <span className="ml-auto text-xs opacity-60">{formatDate(answer.createdAt)}</span>
             </div>

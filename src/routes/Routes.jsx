@@ -48,6 +48,8 @@ const PublicProfile = lazy(() => import("../Pages/PublicProfile/PublicProfile"))
 const AskQuestion = lazy(() => import("../Pages/QA/AskQuestion"));
 const QuestionDetail = lazy(() => import("../Pages/QA/QuestionDetail"));
 const BrowseQuestions = lazy(() => import("../Pages/QA/BrowseQuestions"));
+const VerifyRequest = lazy(() => import("../Pages/QA/VerifyRequest"));
+const VerifyApprovals = lazy(() => import("../Pages/AdminPages/VerifyApprovals"));
 
 // helper to wrap lazy in Suspense
 const susp = (el) => <Suspense fallback={<RouteFallback />}>{el}</Suspense>;
@@ -78,6 +80,7 @@ const router = createBrowserRouter(
         { path: "questions/ask", element: <PrivateRoute>{susp(<AskQuestion />)}</PrivateRoute> },
         { path: "questions/:id", element: susp(<QuestionDetail />) },
         { path: "questions", element: susp(<BrowseQuestions />) },
+        { path: "verify", element: <PrivateRoute>{susp(<VerifyRequest />)}</PrivateRoute> },
       ],
     },
     {
@@ -117,6 +120,7 @@ const router = createBrowserRouter(
         { path: "institutionApprovals", element: <SuperAdminRoute>{susp(<InstitutionApprovals />)}</SuperAdminRoute> },
         { path: "manageReviews", element: susp(<ManageReview />) },
         { path: "manageReviews/history", element: susp(<ReviewHistory />) },
+        { path: "verifyRequests", element: <SuperAdminRoute>{susp(<VerifyApprovals />)}</SuperAdminRoute> },
       ],
     },
     {
