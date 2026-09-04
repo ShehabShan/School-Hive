@@ -1,10 +1,14 @@
-import { useQuery } from "@tanstack/react-query";
-import { Trash2, Crown, Lock, ShieldCheck, User, Users } from "lucide-react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery, keepPreviousData } from "@tanstack/react-query";
+import { Trash2, Crown, Lock, ShieldCheck, User, Users, Search, Download, ChevronLeft, ChevronRight } from "lucide-react";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import PageHeader from "../../../Component/ui/PageHeader";
 import EmptyState from "../../../Component/ui/EmptyState";
 import { roleMeta } from "../../../Component/profile/RoleBadge";
+
+const PAGE_LIMIT = 12;
+const ROLE_OPTIONS = ["", "user", "modaretor", "admin", "superadmin", "institution"];
 
 const showError = (error) => {
   Swal.fire({
@@ -30,14 +34,41 @@ const statusBadge = (status) => {
 
 const ManageUsers = () => {
   const axiosSecure = useAxiosSecure();
+  const [search, setSearch] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [role, setRole] = useState("");
+  const [page, setPage] = useState(1);
+  const [exporting, setExporting] = useState(false);
 
-  const { refetch, data: users = [] } = useQuery({
-    queryKey: ["users"],
+  useEffect(() => {
+    const t = setTimeout(() => {
+      setDebouncedSearch(search.trim());
+      setPage(1);
+    }, 350);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [role]);
+
+  const params = useMemo(
+    () => ({ q: debouncedSearch || undefined, role: role || undefined, page, limit: PAGE_LIMIT, sort: "newest" }),
+    [debouncedSearch, role, page]
+  );
+
+  const { refetch, data: resp, isLoading, isFetching } = useQuery({
+    queryKey: ["users", params],
+    placeholderData: keepPreviousData,
     queryFn: async () => {
-      const { data } = await axiosSecure.get("/users");
-      return data.data;
+      const { data } = await axiosSecure.get("/users", { params });
+      return data;
     },
   });
+
+  const users = resp?.data || [];
+  const total = resp?.total ?? 0;
+  const totalPages = resp?.totalPages ?? 1;
 
   const askConfirm = (title, text, confirmText) =>
     Swal.fire({
@@ -81,20 +112,88 @@ const ManageUsers = () => {
     }
   };
 
+  const handleExport = async () => {
+    setExporting(true);
+    try {
+      const res = await axiosSecure.get("/users/export", {
+        params: { q: debouncedSearch || undefined, role: role || undefined },
+        responseType: "blob",
+      });
+      const url = URL.createObjectURL(res.data);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `users-${new Date().toISOString().slice(0, 10)}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    } catch (error) {
+      showError(error);
+    } finally {
+      setExporting(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <PageHeader
         icon={Users}
         title="Manage Users"
-        subtitle={`${users.length} registered user${users.length === 1 ? "" : "s"} — assign roles or remove accounts`}
+        subtitle={`${total} registered user${total === 1 ? "" : "s"} — assign roles or remove accounts`}
+        actions={
+          <button
+            onClick={handleExport}
+            disabled={exporting}
+            className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 transition hover:bg-slate-50 disabled:opacity-50"
+          >
+            <Download className="h-4 w-4" />
+            {exporting ? "Exporting…" : "Export CSV"}
+          </button>
+        }
       />
 
-      {users.length === 0 ? (
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+        <div className="relative flex-1">
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Search by name, email, organization or city…"
+            className="w-full rounded-xl border border-slate-200 bg-white py-2.5 pl-9 pr-4 text-sm text-slate-700 shadow-soft focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+          />
+        </div>
+        <select
+          value={role}
+          onChange={(e) => setRole(e.target.value)}
+          className="rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-semibold text-slate-700 shadow-soft focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100"
+        >
+          {ROLE_OPTIONS.map((r) => (
+            <option key={r} value={r}>
+              {r ? r.charAt(0).toUpperCase() + r.slice(1) : "All roles"}
+            </option>
+          ))}
+        </select>
+      </div>
+
+      {isLoading ? (
+        <div className="overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-100">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="flex items-center gap-4 border-b border-slate-100 px-4 py-4 last:border-0">
+              <div className="h-9 w-9 animate-pulse rounded-full bg-slate-100" />
+              <div className="flex-1 space-y-2">
+                <div className="h-3.5 w-40 animate-pulse rounded bg-slate-100" />
+                <div className="h-3 w-56 animate-pulse rounded bg-slate-100" />
+              </div>
+              <div className="h-6 w-20 animate-pulse rounded-full bg-slate-100" />
+            </div>
+          ))}
+        </div>
+      ) : users.length === 0 ? (
         <div className="rounded-2xl bg-white p-8 shadow-soft ring-1 ring-slate-100">
-          <EmptyState title="No users found" message="User accounts will appear here once someone signs up." />
+          <EmptyState title="No users found" message={debouncedSearch || role ? "No users match the current search/filters — try clearing them." : "User accounts will appear here once someone signs up."} />
         </div>
       ) : (
-        <div className="overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-100">
+        <div className={`overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-100 transition-opacity ${isFetching ? "opacity-60" : ""}`}>
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead className="bg-slate-50 text-xs font-bold uppercase tracking-widest text-slate-500">
@@ -112,7 +211,7 @@ const ManageUsers = () => {
                   const isOwner = u?.role === "superadmin";
                   return (
                     <tr key={u?._id} className="text-sm text-slate-700 hover:bg-slate-50/70">
-                      <td className="px-4 py-3.5 font-semibold text-slate-500">{index + 1}</td>
+                      <td className="px-4 py-3.5 font-semibold text-slate-500">{(page - 1) * PAGE_LIMIT + index + 1}</td>
                       <td className="px-4 py-3.5">
                         <div className="flex items-center gap-3">
                           <div className="flex h-9 w-9 items-center justify-center rounded-full bg-gradient-to-br from-brand-500 to-brand-700 text-xs font-bold text-white">
@@ -180,6 +279,27 @@ const ManageUsers = () => {
                 })}
               </tbody>
             </table>
+          </div>
+          <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 px-4 py-3">
+            <span className="text-xs font-semibold text-slate-500">
+              Page {page} of {totalPages} · {total} user{total === 1 ? "" : "s"}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page <= 1}
+                className="inline-flex items-center gap-1 rounded-xl bg-white px-3 py-1.5 text-xs font-bold text-slate-600 ring-1 ring-slate-200 transition hover:bg-slate-50 disabled:opacity-40"
+              >
+                <ChevronLeft className="h-3.5 w-3.5" /> Prev
+              </button>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page >= totalPages}
+                className="inline-flex items-center gap-1 rounded-xl bg-white px-3 py-1.5 text-xs font-bold text-slate-600 ring-1 ring-slate-200 transition hover:bg-slate-50 disabled:opacity-40"
+              >
+                Next <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
           </div>
         </div>
       )}
