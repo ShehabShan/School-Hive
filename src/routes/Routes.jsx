@@ -2,8 +2,8 @@ import { createBrowserRouter } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
 import MainLayout from "../Layout/MainLayout";
-import Home from "../Layout/Home";
 import AdminDashboard from "../Layout/AdminDashboard";
+const Home = lazy(() => import("../Layout/Home"));
 import NotFound from "../Component/ErrorPage/NotFound";
 import RouteFallback from "../Component/ui/RouteFallback";
 import PrivateRoute from "./PrivetRouter";
@@ -61,7 +61,7 @@ const router = createBrowserRouter(
       element: <MainLayout />,
       errorElement: <NotFound />,
       children: [
-        { index: true, element: <Home /> },
+        { index: true, element: susp(<Home />) },
         { path: "allScholership", element: susp(<AllScholership />) },
         { path: "allScholership/:id", element: susp(<ScholarshipDetails />) },
         { path: "apply/:id", element: <PrivateRoute>{susp(<Apply />)}</PrivateRoute> },

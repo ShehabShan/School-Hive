@@ -1,10 +1,17 @@
 import { motion } from "framer-motion";
-import AboutUs from "../Component/AboutUs/AboutUs";
-import ScholarshipHighlights from "../Component/ExtraFeature/ScholarshipHighlights";
-import ScholershipStatic from "../Component/ExtraFeature/ScholershipStatic";
+import { lazy, Suspense } from "react";
 import HeroCarousel from "../Component/HeroCoursor/HeroCarousel";
-import ContactPage from "../Pages/Contact/ContactPage";
-import TopScholarship from "../Pages/TopScholarship/TopScholarship";
+import RouteFallback from "../Component/ui/RouteFallback";
+
+const AboutUs = lazy(() => import("../Component/AboutUs/AboutUs"));
+const TopScholarship = lazy(() => import("../Pages/TopScholarship/TopScholarship"));
+const ScholarshipHighlights = lazy(() => import("../Component/ExtraFeature/ScholarshipHighlights"));
+const ScholershipStatic = lazy(() => import("../Component/ExtraFeature/ScholershipStatic"));
+const ContactPage = lazy(() => import("../Pages/Contact/ContactPage"));
+
+const SectionSuspense = ({ children }) => (
+  <Suspense fallback={<RouteFallback />}>{children}</Suspense>
+);
 
 const Home = () => {
   return (
@@ -14,13 +21,12 @@ const Home = () => {
       transition={{ duration: 0.3 }}
       className="flex flex-col overflow-x-clip"
     >
-      {/* <Banner></Banner> */}
       <HeroCarousel />
-      <AboutUs />
-      <TopScholarship />
-      <ScholarshipHighlights />
-      <ScholershipStatic />
-      <ContactPage />
+      <SectionSuspense><AboutUs /></SectionSuspense>
+      <SectionSuspense><TopScholarship /></SectionSuspense>
+      <SectionSuspense><ScholarshipHighlights /></SectionSuspense>
+      <SectionSuspense><ScholershipStatic /></SectionSuspense>
+      <SectionSuspense><ContactPage /></SectionSuspense>
     </motion.div>
   );
 };
