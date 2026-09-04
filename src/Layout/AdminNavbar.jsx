@@ -1,6 +1,5 @@
 import { useState, useRef, useEffect } from "react";
 import {
-  Bell,
   ChevronDown,
   Github,
   LogOut,
@@ -14,6 +13,7 @@ import {
 import useAuth from "../Hooks/useAuth";
 import useRole from "../Hooks/useRole";
 import { Link, useNavigate } from "react-router-dom";
+import NotificationBell from "../Component/QA/NotificationBell";
 
 export function AdminNavbar({ setMobileSidebarOpen }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
@@ -116,12 +116,7 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
             {isDarkMode ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
           </button>
 
-          <button className="relative text-slate-700 hover:bg-slate-100 p-2 rounded-xl" aria-label="Notifications">
-            <Bell className="h-5 w-5" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-brand-600 text-[10px] font-medium text-white flex items-center justify-center">
-              0
-            </span>
-          </button>
+          <NotificationBell />
 
           {/* Profile Dropdown */}
           <div className="relative" ref={profileDropdownRef}>
