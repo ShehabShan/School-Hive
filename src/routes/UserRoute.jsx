@@ -1,19 +1,14 @@
 import { Navigate, useLocation } from "react-router-dom";
 import useAuth from "../Hooks/useAuth";
-import useUser from "../Hooks/useUser";
 import useRole from "../Hooks/useRole";
 import RouteFallback from "../Component/ui/RouteFallback";
 
-// import useAdmin from "../Hooks/useAdmin";
-
 const UserRoute = ({ children }) => {
   const { user, loading } = useAuth();
-  const [isUser, isUserLoading] = useUser();
-  const { isPending, loading: roleLoading } = useRole();
+  const { isUser, isPending, loading: roleLoading } = useRole();
   const location = useLocation();
-  // console.log(isAdmin);
 
-  if (loading || isUserLoading || roleLoading) {
+  if (loading || roleLoading) {
     return <RouteFallback />;
   }
 

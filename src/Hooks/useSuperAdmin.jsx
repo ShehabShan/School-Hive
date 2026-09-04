@@ -1,21 +1,8 @@
-import { useQuery } from "@tanstack/react-query";
-import useAuth from "./useAuth";
-import useAxiosSecure from "./useAxiosSecure";
+import useRole from "./useRole";
 
 const useSuperAdmin = () => {
-  const { user, tokenLoaded } = useAuth();
-  const axiosSecure = useAxiosSecure();
-
-  const { data: isSuperAdmin, isPending: isSuperAdminLoading } = useQuery({
-    queryKey: [user?.email, "isSuperAdmin"],
-    enabled: !!user && tokenLoaded,
-    queryFn: async () => {
-      const res = await axiosSecure.get(`/users/superAdmin/${user.email}`);
-      return res.data?.isSuperAdmin;
-    },
-  });
-
-  return [isSuperAdmin, isSuperAdminLoading];
+  const { isSuperAdmin, loading } = useRole();
+  return [isSuperAdmin, loading];
 };
 
 export default useSuperAdmin;
