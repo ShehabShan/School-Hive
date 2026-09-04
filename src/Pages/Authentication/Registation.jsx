@@ -19,19 +19,27 @@ import {
   MapPin,
   Link2,
   FileText,
+  Upload,
+  Check,
+  X,
 } from "lucide-react";
-import bgImg from "../../assist/image/register.jpg";
+import bgImg from "../../assist/image/register.webp";
+import bgImgFallback from "../../assist/image/register.jpg";
 import toast from "react-hot-toast";
 import useAuth from "../../Hooks/useAuth";
 import useAxiosPublic from "../../Hooks/useAxiosPublic";
 import Swal from "sweetalert2";
 import SocialLogin from "./SocialLogin";
 import { friendlyAuthError } from "../../lib/friendlyAuthError";
+import { optimizeImage, formatBytes } from "../../lib/optimizeImage";
 
 const roleTabs = [
   { id: "student", label: "Student", icon: GraduationCap, desc: "Apply to scholarships & save your favorites" },
   { id: "institution", label: "Institution", icon: Building2, desc: "Universities, colleges & schools post scholarships" },
 ];
+
+const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
+const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
 const Registration = () => {
   const navigate = useNavigate();
@@ -39,12 +47,79 @@ const Registration = () => {
   const [accountType, setAccountType] = useState("student");
   const [busy, setBusy] = useState(false);
   const [showPass, setShowPass] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [studentPhotoPreview, setStudentPhotoPreview] = useState(null);
+  const [studentPhotoUrl, setStudentPhotoUrl] = useState("");
+  const [instLogoPreview, setInstLogoPreview] = useState(null);
+  const [instLogoUrl, setInstLogoUrl] = useState("");
   const { createUser, updateUserProfile, setUser } = useAuth();
   const axiosPublic = useAxiosPublic();
-  const from = location?.state || "/";
+  const from = location?.state?.from?.pathname || location?.state || "/";
+
+  const handleImageSelect = async (e, target) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Only image files are allowed");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Image must be under 5MB");
+      return;
+    }
+    if (!image_hosting_key) {
+      toast.error("Image hosting not configured (VITE_IMAGE_HOSTING_KEY missing)");
+      return;
+    }
+    const previewUrl = URL.createObjectURL(file);
+    if (target === "institution") setInstLogoPreview(previewUrl);
+    else setStudentPhotoPreview(previewUrl);
+
+    setUploading(true);
+    try {
+      toast.loading("Optimizing image…", { id: "reg-upload" });
+      const optimized = await optimizeImage(file, { maxSizeMB: 0.5, maxWidthOrHeight: 1024, quality: 0.82 });
+      if (optimized.size < file.size) toast.loading(`Uploading ${formatBytes(optimized.size)} (was ${formatBytes(file.size)})…`, { id: "reg-upload" });
+      else toast.loading("Uploading image…", { id: "reg-upload" });
+      const fd = new FormData();
+      fd.append("image", optimized);
+      const res = await axiosPublic.post(image_hosting_api, fd, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+      const url = res.data?.data?.display_url || res.data?.data?.url;
+      if (!url) throw new Error(res.data?.error?.message || "Upload failed");
+      if (target === "institution") setInstLogoUrl(url);
+      else setStudentPhotoUrl(url);
+      toast.success("Image uploaded", { id: "reg-upload" });
+    } catch (err) {
+      toast.error(err?.response?.data?.error?.message || err.message || "Upload failed", { id: "reg-upload" });
+      if (target === "institution") {
+        setInstLogoPreview(null);
+        setInstLogoUrl("");
+      } else {
+        setStudentPhotoPreview(null);
+        setStudentPhotoUrl("");
+      }
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const clearStudentPhoto = () => {
+    setStudentPhotoPreview(null);
+    setStudentPhotoUrl("");
+  };
+  const clearInstLogo = () => {
+    setInstLogoPreview(null);
+    setInstLogoUrl("");
+  };
 
   const handleSignUp = async (e) => {
     e.preventDefault();
+    if (uploading) {
+      toast.error("Please wait for image upload to finish");
+      return;
+    }
     const form = e.target;
     const email = form.email.value;
     const pass = form.password.value;
@@ -56,8 +131,9 @@ const Registration = () => {
 
       if (isInstitution) {
         const orgName = form.orgName.value;
-        await updateUserProfile(orgName, null);
-        setUser({ ...user, displayName: orgName });
+        const logoUrl = instLogoUrl || null;
+        await updateUserProfile(orgName, logoUrl);
+        setUser({ ...user, displayName: orgName, photoURL: logoUrl });
 
         const userInfo = {
           name: orgName,
@@ -68,7 +144,7 @@ const Registration = () => {
           orgCountry: form.orgCountry.value,
           orgWebsite: form.orgWebsite.value || null,
           orgDescription: form.orgDescription.value || null,
-          photoURL: null,
+          photoURL: logoUrl,
         };
 
         try {
@@ -78,6 +154,10 @@ const Registration = () => {
         }
 
         e.target.reset();
+        setInstLogoPreview(null);
+        setInstLogoUrl("");
+        setStudentPhotoPreview(null);
+        setStudentPhotoUrl("");
         toast.success("Registration submitted for review");
         Swal.fire({
           position: "top-end",
@@ -90,7 +170,7 @@ const Registration = () => {
         navigate("/pendingApproval", { replace: true });
       } else {
         const name = form.name.value;
-        const photo = form.photo.value;
+        const photo = studentPhotoUrl || null;
         await updateUserProfile(name, photo);
         setUser({ ...user, photoURL: photo, displayName: name });
 
@@ -98,7 +178,7 @@ const Registration = () => {
           name,
           email: user.email,
           accountType: "student",
-          photoURL: photo || null,
+          photoURL: photo,
         };
 
         try {
@@ -110,6 +190,10 @@ const Registration = () => {
           toast.error("Account created, but failed to save your profile.");
         }
 
+        setStudentPhotoPreview(null);
+        setStudentPhotoUrl("");
+        setInstLogoPreview(null);
+        setInstLogoUrl("");
         toast.success("Signup Successful");
         navigate(from === "/pendingApproval" ? "/" : from, { replace: true });
       }
@@ -335,6 +419,38 @@ const Registration = () => {
                     />
                   </div>
                 </div>
+                <div>
+                  <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                    Institution Logo <span className="font-normal text-slate-400">(optional)</span>
+                  </label>
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200">
+                      {instLogoPreview ? (
+                        <img src={instLogoPreview} alt="Logo preview" className="h-full w-full object-cover" />
+                      ) : (
+                        <Building2 className="h-6 w-6 text-slate-400" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <label className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition ${uploading ? "bg-slate-200 text-slate-500 cursor-not-allowed" : "bg-slate-900 text-white hover:bg-black"}`}>
+                        <Upload className="h-3.5 w-3.5" />
+                        {uploading ? "Uploading…" : instLogoUrl ? "Change logo" : "Upload logo"}
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageSelect(e, "institution")} disabled={uploading} />
+                      </label>
+                      <p className="mt-1 text-[11px] text-slate-400">JPG, PNG · max 5MB · uploaded via imgbb</p>
+                    </div>
+                    {instLogoPreview && (
+                      <button type="button" onClick={clearInstLogo} className="rounded-full bg-slate-100 p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-600" aria-label="Remove logo">
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                  {instLogoUrl && (
+                    <p className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
+                      <Check className="h-3.5 w-3.5" /> Logo ready
+                    </p>
+                  )}
+                </div>
               </>
             ) : (
               <>
@@ -359,23 +475,36 @@ const Registration = () => {
                   </div>
                 </div>
                 <div>
-                  <label
-                    className="mb-1.5 block text-sm font-semibold text-slate-700"
-                    htmlFor="photo"
-                  >
-                    Photo URL
+                  <label className="mb-1.5 block text-sm font-semibold text-slate-700">
+                    Profile Photo <span className="font-normal text-slate-400">(optional)</span>
                   </label>
-                  <div className="relative">
-                    <ImageIcon className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-                    <input
-                      id="photo"
-                      autoComplete="photo"
-                      name="photo"
-                      className={inputClass}
-                      type="text"
-                      placeholder="https://..."
-                    />
+                  <div className="flex items-center gap-3">
+                    <div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200">
+                      {studentPhotoPreview ? (
+                        <img src={studentPhotoPreview} alt="Preview" className="h-full w-full object-cover" />
+                      ) : (
+                        <ImageIcon className="h-6 w-6 text-slate-400" />
+                      )}
+                    </div>
+                    <div className="flex-1">
+                      <label className={`inline-flex cursor-pointer items-center gap-1.5 rounded-xl px-4 py-2.5 text-xs font-bold transition ${uploading ? "bg-slate-200 text-slate-500 cursor-not-allowed" : "bg-slate-900 text-white hover:bg-black"}`}>
+                        <Upload className="h-3.5 w-3.5" />
+                        {uploading ? "Uploading…" : studentPhotoUrl ? "Change photo" : "Upload photo"}
+                        <input type="file" accept="image/*" className="hidden" onChange={(e) => handleImageSelect(e, "student")} disabled={uploading} />
+                      </label>
+                      <p className="mt-1 text-[11px] text-slate-400">JPG, PNG · max 5MB · uploaded via imgbb</p>
+                    </div>
+                    {studentPhotoPreview && (
+                      <button type="button" onClick={clearStudentPhoto} className="rounded-full bg-slate-100 p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-600" aria-label="Remove photo">
+                        <X className="h-4 w-4" />
+                      </button>
+                    )}
                   </div>
+                  {studentPhotoUrl && (
+                    <p className="mt-1.5 inline-flex items-center gap-1 text-xs font-medium text-emerald-600">
+                      <Check className="h-3.5 w-3.5" /> Image ready
+                    </p>
+                  )}
                 </div>
               </>
             )}
@@ -435,10 +564,10 @@ const Registration = () => {
 
             <button
               type="submit"
-              disabled={busy}
+              disabled={busy || uploading}
               className="group inline-flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-sm font-bold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift disabled:opacity-60 disabled:hover:translate-y-0"
             >
-              {busy ? (
+              {busy || uploading ? (
                 <Loader2 className="h-4 w-4 animate-spin" />
               ) : (
                 <>
@@ -462,11 +591,16 @@ const Registration = () => {
 
         {/* Visual panel */}
         <div className="relative hidden lg:block">
-          <img
-            src={bgImg}
-            alt="Students celebrating scholarship success"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          <picture>
+            <source srcSet={bgImg} type="image/webp" />
+            <img
+              src={bgImgFallback}
+              alt="Students celebrating scholarship success"
+              className="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-t from-brand-950/95 via-brand-900/60 to-brand-700/20" />
           <div className="relative flex h-full flex-col justify-end p-10">
             <div className="inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-300 ring-1 ring-white/25 backdrop-blur">

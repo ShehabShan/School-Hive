@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ArrowUp } from "lucide-react";
 import Navbar from "../Pages/Sheard/Nabvar";
 import Footer from "../Component/Footer";
+import AuthInterceptor from "../Component/AuthInterceptor";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -44,6 +45,7 @@ const BackToTop = () => {
 const MainLayout = () => {
   return (
     <div className="relative flex min-h-screen flex-col overflow-x-clip bg-gradient-to-b from-slate-50 via-base-100 to-base-100">
+      <AuthInterceptor />
       <ScrollToTop />
       <div
         aria-hidden

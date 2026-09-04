@@ -17,7 +17,8 @@ import {
   AlertTriangle,
   Clock3,
 } from "lucide-react";
-import bgImg from "../../assist/image/login.jpg";
+import bgImg from "../../assist/image/login.webp";
+import bgImgFallback from "../../assist/image/login.jpg";
 import toast from "react-hot-toast";
 import useAuth from "../../Hooks/useAuth";
 import useAxiosPublic from "../../Hooks/useAxiosPublic";
@@ -154,11 +155,16 @@ const Login = () => {
       >
         {/* Visual panel */}
         <div className="relative hidden lg:block">
-          <img
-            src={bgImg}
-            alt="Students celebrating scholarship success"
-            className="absolute inset-0 h-full w-full object-cover"
-          />
+          <picture>
+            <source srcSet={bgImg} type="image/webp" />
+            <img
+              src={bgImgFallback}
+              alt="Students celebrating scholarship success"
+              className="absolute inset-0 h-full w-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
+          </picture>
           <div className="absolute inset-0 bg-gradient-to-t from-brand-950/95 via-brand-900/60 to-brand-700/20" />
           <div className="relative flex h-full flex-col justify-end p-10">
             <div className="inline-flex w-fit items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-amber-300 ring-1 ring-white/25 backdrop-blur">

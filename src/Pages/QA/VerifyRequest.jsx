@@ -1,6 +1,7 @@
 import { useState } from "react";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import toast from "react-hot-toast";
+import { optimizeImage, formatBytes } from "../../lib/optimizeImage";
 
 export default function VerifyRequest(){
   const axiosSecure = useAxiosSecure();
@@ -17,12 +18,16 @@ export default function VerifyRequest(){
     try{
       const key=import.meta.env.VITE_IMAGE_HOSTING_KEY;
       if(!key){ toast.error("Upload key missing, paste URL manually"); return; }
-      const fd=new FormData(); fd.append("image", file);
+      toast.loading("Optimizing image…", { id: "verify-opt" });
+      const optimized = await optimizeImage(file, { maxSizeMB: 0.9, maxWidthOrHeight: 1600, quality: 0.82 });
+      if (optimized.size < file.size) toast.loading(`Uploading ${formatBytes(optimized.size)} (was ${formatBytes(file.size)})…`, { id: "verify-opt" });
+      const fd=new FormData(); fd.append("image", optimized);
       const res= await fetch(`https://api.imgbb.com/1/upload?key=${key}`, { method:"POST", body:fd });
       const j= await res.json();
-      const url=j?.data?.url;
-      if(url){ setCredentialUrl(url); toast.success("Uploaded"); }
-    } catch{ toast.error("Upload failed"); }
+      const url=j?.data?.url || j?.data?.display_url;
+      if(url){ setCredentialUrl(url); toast.success("Uploaded", { id: "verify-opt" }); }
+      else toast.dismiss({ id: "verify-opt" });
+    } catch{ toast.error("Upload failed", { id: "verify-opt" }); }
     finally{ setUploading(false); e.target.value=""; }
   };
 

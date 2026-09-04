@@ -16,6 +16,8 @@ import { useNavigate, useParams } from "react-router-dom";
 import useSingleScholership from "../../../Hooks/useSingleScholership";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import FormField from "../../../Component/ui/FormField";
+import { optimizeImage, formatBytes } from "../../../lib/optimizeImage";
+import toast from "react-hot-toast";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
@@ -127,17 +129,22 @@ export default function Apply() {
 
     const universityImage = formData.get("universityImage");
 
-    if (universityImage.name) {
-      const imageFile = { image: universityImage };
+    if (universityImage && universityImage.name) {
       try {
-        const res = await axiosPublic.post(image_hosting_api, imageFile, {
-          headers: {
-            "Content-Type": "multipart/form-data",
-          },
+        toast.loading("Optimizing image…", { id: "apply-opt" });
+        const optimized = await optimizeImage(universityImage, { maxSizeMB: 0.9, maxWidthOrHeight: 1600, quality: 0.82 });
+        if (optimized.size < universityImage.size) toast.loading(`Uploading ${formatBytes(optimized.size)} (was ${formatBytes(universityImage.size)})…`, { id: "apply-opt" });
+        const fd = new FormData();
+        fd.append("image", optimized);
+        const res = await axiosPublic.post(image_hosting_api, fd, {
+          headers: { "Content-Type": "multipart/form-data" },
         });
-        initialData.universityImage = res.data.data.url;
+        initialData.universityImage = res.data.data.display_url || res.data.data.url;
+        toast.success("Image uploaded", { id: "apply-opt" });
       } catch (error) {
+        toast.error("Image upload failed", { id: "apply-opt" });
         console.error(error);
+        return;
       }
     }
 

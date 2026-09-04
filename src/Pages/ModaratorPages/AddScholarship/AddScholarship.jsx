@@ -6,6 +6,7 @@ import useAxiosPublic from "../../../Hooks/useAxiosPublic";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import useAuth from "../../../Hooks/useAuth";
 import useRole from "../../../Hooks/useRole";
+import { optimizeImage, formatBytes } from "../../../lib/optimizeImage";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
@@ -24,30 +25,35 @@ export default function AddScholarship() {
     const formData = new FormData(formEl);
     const payload = { ...data };
 
-    // cover image — fixed FormData for imgbb
+    // cover image — optimized before imgbb
     const coverFile = formData.get("universityImage");
     if (coverFile && coverFile.name) {
       try {
+        toast.loading("Optimizing cover…", { id: "scholarship-cover" });
+        const optimized = await optimizeImage(coverFile, { maxSizeMB: 0.9, maxWidthOrHeight: 1600, quality: 0.82 });
+        if (optimized.size < coverFile.size) toast.loading(`Uploading ${formatBytes(optimized.size)} (was ${formatBytes(coverFile.size)})…`, { id: "scholarship-cover" });
         const fd = new FormData();
-        fd.append("image", coverFile);
+        fd.append("image", optimized);
         const res = await axiosPublic.post(image_hosting_api, fd);
         payload.universityImage = res.data.data.display_url || res.data.data.url;
+        toast.success("Cover optimized & uploaded", { id: "scholarship-cover" });
       } catch (err) {
-        toast.error(`Cover upload failed: ${err?.response?.data?.error?.message || err.message}`);
+        toast.error(`Cover upload failed: ${err?.response?.data?.error?.message || err.message}`, { id: "scholarship-cover" });
         return;
       }
     } else {
       payload.universityImage = "https://placehold.co/600x400?text=Scholarship";
     }
 
-    // gallery — fixed FormData
+    // gallery — optimized
     const galleryFiles = formData.getAll("galleryFiles");
     const galleryUrls = [];
     for (const f of galleryFiles) {
       if (f && f.name && f.size > 0) {
         try {
+          const optimized = await optimizeImage(f, { maxSizeMB: 0.8, maxWidthOrHeight: 1280, quality: 0.82 });
           const fd = new FormData();
-          fd.append("image", f);
+          fd.append("image", optimized);
           const res = await axiosPublic.post(image_hosting_api, fd);
           galleryUrls.push(res.data.data.display_url || res.data.data.url);
         } catch (err) {

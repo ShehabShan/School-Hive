@@ -2,6 +2,7 @@ import { useRef, useState } from "react";
 import { Bold, Italic, Link2, List, Code2, Image as ImageIcon, Eye, PenLine, X, Upload } from "lucide-react";
 import MarkdownBody from "../MarkdownBody";
 import toast from "react-hot-toast";
+import { optimizeImage, formatBytes } from "../../../lib/optimizeImage";
 
 function insertAtCursor(textarea, before, after = "", placeholder = "") {
   const start = textarea.selectionStart;
@@ -42,17 +43,20 @@ export default function RichTextEditor({ value, onChange, images = [], onImagesC
     }
     setUploading(true);
     try {
+      toast.loading("Optimizing image…", { id: "rich-optimize" });
+      const optimized = await optimizeImage(file, { maxSizeMB: 0.8, maxWidthOrHeight: 1280, quality: 0.82 });
+      if (optimized.size < file.size) toast.loading(`Uploading ${formatBytes(optimized.size)} (was ${formatBytes(file.size)})…`, { id: "rich-optimize" });
       const fd = new FormData();
-      fd.append("image", file);
+      fd.append("image", optimized);
       const res = await fetch(`https://api.imgbb.com/1/upload?key=${key}`, { method: "POST", body: fd });
       const j = await res.json();
-      const url = j?.data?.url;
+      const url = j?.data?.url || j?.data?.display_url;
       if (!url) throw new Error(j?.error?.message || "Upload failed");
       const nextImages = [...(images || []), { id: `${Date.now()}-${file.name}`, name: file.name, url }];
       onImagesChange?.(nextImages);
-      toast.success("Image added");
+      toast.success("Image added", { id: "rich-optimize" });
     } catch (e) {
-      toast.error(e?.message || "Upload failed");
+      toast.error(e?.message || "Upload failed", { id: "rich-optimize" });
     } finally {
       setUploading(false);
     }

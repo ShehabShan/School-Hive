@@ -23,6 +23,7 @@ import { EducationTimeline, ExperienceTimeline, CertificationsSection, Achieveme
 import PreferencesPanel from "../../../Component/profile/PreferencesPanel";
 import InstitutionStudentPortal from "../../../Component/profile/InstitutionStudentPortal";
 import { hasValue } from "../../../utils/hasValue";
+import { optimizeImage, formatBytes } from "../../../lib/optimizeImage";
 
 const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
 const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
@@ -199,11 +200,18 @@ export default function ProfilePage() {
     const file = e.target.files?.[0];
     if (!file) return;
     if (!image_hosting_key) { toast.error("Image hosting key missing"); return; }
-    const fd = new FormData(); fd.append("image", file);
     try {
-      toast.loading("Uploading image...", { id: "upload" });
+      toast.loading("Optimizing image...", { id: "upload" });
+      const optimized = await optimizeImage(file, {
+        maxSizeMB: field === "photoURL" ? 0.5 : field === "coverPhoto" ? 0.9 : 0.8,
+        maxWidthOrHeight: field === "photoURL" ? 1024 : field === "coverPhoto" ? 1600 : 1280,
+        quality: 0.82,
+      });
+      if (optimized.size < file.size) toast.loading(`Uploading ${formatBytes(optimized.size)} (was ${formatBytes(file.size)})…`, { id: "upload" });
+      else toast.loading("Uploading image...", { id: "upload" });
+      const fd = new FormData(); fd.append("image", optimized);
       const res = await axiosPublic.post(image_hosting_api, fd, { headers: { "Content-Type": "multipart/form-data" } });
-      const url = res.data?.data?.url;
+      const url = res.data?.data?.url || res.data?.data?.display_url;
       if (url) { setForm((f) => ({ ...f, [field]: url })); toast.success("Image uploaded", { id: "upload" }); }
     } catch { toast.error("Upload failed", { id: "upload" }); }
   };
