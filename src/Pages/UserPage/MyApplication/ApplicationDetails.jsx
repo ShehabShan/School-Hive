@@ -1,9 +1,15 @@
 import { Mail, Calendar, User, BookOpen, Printer } from "lucide-react";
 import StatusBadge from "../../../Component/ui/StatusBadge";
 
+const STATUS_DOT = { pending: "bg-amber-400", accepted: "bg-emerald-500", rejected: "bg-rose-500" };
+
 export default function ApplicationDetails({ data }) {
   if (!data) return null;
   const totalFees = Number(data?.applicationFees) + Number(data?.serviceCharge);
+  const history =
+    Array.isArray(data?.statusHistory) && data.statusHistory.length
+      ? data.statusHistory
+      : [{ status: data?.applicationStatus || "pending", at: data?.postDate, by: null }];
   const infoRows = [
     { icon: Mail, label: "Email", value: data?.email },
     { icon: Calendar, label: "Posted", value: data?.postDate },
@@ -68,6 +74,24 @@ export default function ApplicationDetails({ data }) {
             <p className="mt-2 flex items-center gap-2 text-sm text-slate-600">Status: <StatusBadge status={data?.applicationStatus} /></p>
           </div>
         </div>
+      </div>
+
+      <div className="mt-6 rounded-2xl border border-slate-100 bg-white p-5 shadow-soft">
+        <h4 className="mb-4 text-sm font-bold uppercase tracking-wide text-slate-500">Status Timeline</h4>
+        <ol className="relative space-y-5 border-l border-slate-200 pl-5">
+          {history.map((ev, i) => (
+            <li key={i} className="relative">
+              <span className={`absolute -left-[27px] top-1.5 h-3 w-3 rounded-full ring-4 ring-white ${STATUS_DOT[ev.status] || "bg-slate-300"}`} />
+              <div className="flex flex-wrap items-center gap-2">
+                <StatusBadge status={ev.status} />
+                <span className="text-xs text-slate-400">
+                  {ev.at ? (Number.isNaN(new Date(ev.at)) ? ev.at : new Date(ev.at).toLocaleString()) : ""}
+                </span>
+              </div>
+              {ev.by && <p className="mt-0.5 text-xs text-slate-400">by {ev.by}</p>}
+            </li>
+          ))}
+        </ol>
       </div>
 
       {data?.Feedback && (
