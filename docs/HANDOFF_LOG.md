@@ -8,6 +8,20 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-04 — DEPLOY perf/optimization to production (user approved)
+
+### DONE
+- Merged all client `perf/*` (8 branches: pagination→images→home-lazy→icons-lazy→font-loading→rerenders→role-consolidate→cache-headers) into single `perf/optimization` (`12f8c0b` tip). Merged all server `perf/*` (7 branches: pagination→compression→db-indexes→parallel-stats→bulk-aggregate→jwt-middleware→lru-cache) into `perf/optimization` (`8f01762` tip). Both pushed to origin.
+- Deployed `perf/optimization` to production via `DEPLOY_APPROVED=yes ./scripts/deploy.sh` (user said "deploy the perf/optimization branch to firebase and vercer" → treated as deploy approved, confirmed via question tool "Deploy approved"):
+  - Server: `npx vercel --prod` → `https://server-six-vert.vercel.app` (Vercel `15s` build, 62 files, `Build Completed [3s]`, `Aliased server-six-vert.vercel.app`, health `Server OK`).
+  - Client: `VITE_server_url=https://server-six-vert.vercel.app npm run build` + `npx firebase deploy` → `https://scholarhive-913e4.web.app` (99 files, `hosting[scholarhive-913e4]: release complete`, guard `0 local refs`, `Client OK`).
+- Verification: `npm run build` + `node scripts/check-dist-server-url.mjs` OK (79 files), server `node --check` OK, `curl -I https://scholarhive-913e4.web.app` 200, `curl https://server-six-vert.vercel.app/users/public/mdleonkhan625@gmail.com` 200.
+
+### DECISIONS
+- `perf/optimization` is cumulative superset — no manual merge conflicts (each perf branch was sequential). Future `main` promotion should `git checkout main && git merge perf/optimization` per repo.
+
+---
+
 ## 2026-09-04 — MERN Performance Audit & Optimization (Phases 1-5)
 
 ### DONE (client 7 branches, server 6 branches — all perf/*, NOT main, no deploy)
