@@ -50,3 +50,25 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - No Mongoose, no new upload lib, no mock/hardcoded profile data, no new required schema fields, no existing route breaks.
 
+---
+
+## DONE — Performance Optimization (2026-09-04, 14 ranks, 13 branches)
+
+- [x] **R1 pagination** `scholarship/review/apply/saved/question` `limit 20 max 50` + callers fix
+- [x] **R2 compression** `compression 1.8.1` gzip
+- [x] **R3+R8 images + Home lazy** `WebP 60%` src 26→12M, `Home` 110→68KB
+- [x] **R4 icons** `lucide` only, `firebase/auth` lazy
+- [x] **R5 fonts** 6→3 weights + preconnect API
+- [x] **R6 rerenders** `useMemo/useCallback/memo` + singleton axios
+- [x] **R7 roles** single `useRole`
+- [x] **R9 cache** firebase `Cache-Control` + server LRU 30s
+- [x] **R10 indexes** 9 new
+- [x] **R11 parallel** `Promise.all` stats
+- [x] **R12 bulk** `aggregate` rating + `bulkWrite`
+- [x] **R13 jwt async** + HSTS + global 100/min
+- Deferred per prompt: sweetalert vs toast, self-host fonts, dual-write tx, string→Date migration
+- Report: `docs/PERFORMANCE_REPORT.md`, log: `docs/HANDOFF_LOG.md 2026-09-04`
+
+## TODO — Next
+- Merge `perf/*` branches into main in rank order + live `explain()` + Lighthouse + deploy (needs owner "deploy approved").
+

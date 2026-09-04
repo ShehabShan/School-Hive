@@ -8,6 +8,29 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-04 — MERN Performance Audit & Optimization (Phases 1-5)
+
+### DONE (client 7 branches, server 6 branches — all perf/*, NOT main, no deploy)
+- **Rank 1 pagination** — server `scholarship.controller.js:23` `if(!hasPaging) toArray()` → `parsePagination 20/50`, `review.apply.saved.question` bounded, client `MyProfile.jsx:141` `limit:50` fix. Prevents OOM. Commits `9221fc8`/`044e302`.
+- **Rank 2 compression** — server `compression 1.8.1` `app.js:46` threshold 1024 level6, 3-5x JSON. `e5017ff`.
+- **Rank 3+8 images + Home lazy** — `sharp q75` `bg1 570→223 (61%)`, `bg3 790→396 (50%)`, `profileBg 1229→148 (88%)`, `student4 1361→53 (96%)`, src 26M→12M, delete `freepik 9M` + `lottie 6.2M`, `HeroCarousel` `picture` WebP+JPEG `fetchPriority high` + `document.hidden` pause, `AboutUs` WebP+`loading lazy`, `Banner` placeholder, `Home` `lazy` 7.3KB main 110→68KB. `825568e`/`1a503ad`.
+- **Rank 4 icons** — `vite ui` remove `react-icons`, 14 files `Fa*→lucide`, `AuthProvider` dynamic `firebase/auth` Google, remove `react-icons`/`lottie-react` deps. `c8678b4`.
+- **Rank 5 fonts** — `index.html:14` 6→3 weights Sora + `preconnect` API. `5b8a951`.
+- **Rank 6 rerenders** — `AuthProvider` `useCallback`+`useMemo`, `useAxiosSecure` singleton `registerInterceptors` once, `memo(ScholarshipCard)`. `54f3bea`.
+- **Rank 7 roles** — `useAdmin/Modaretor/SuperAdmin/User` wrappers around `useRole`, `AdminRoute/Modaretor/User` single `useRole` (was 2 fetches). `23d4ab2`.
+- **Rank 9 cache** — `firebase.json` `Cache-Control 31536000 immutable` js/css/webp + `604800` images, server `src/utils/cache.js` 30s LRU `X-Cache`. `1d6cfd9`/`7d6d601`.
+- Server R10 indexes `city/tags/postDate/status+rating/reviewer_email` 9 indexes `cdbeead`, R11 `Promise.all` stats `ad0a932`, R12 `aggregate` rating + `bulkWrite` answerCount `d75c409`, R13 async `jwt.sign` + HSTS + global 100/min `8c59a3f`.
+- Report `docs/PERFORMANCE_REPORT.md` with before/after + deferred list (sweetalert vs toast, self-host fonts, dual-write, string→Date).
+
+### VERIFICATION
+- Each commit `npm run lint` PASS, `npm run build` guard PASS (78 files), server `node --check` PASS, manual smoke (login/search/detail/apply/review/Q&A/admin) PASS. No deploy (perf/* branches, needs merge + owner "deploy approved").
+
+### LEFT / NEXT
+- Merge perf/* branches into main in rank order then `npm run build` + Lighthouse + `mongosh explain` on live cluster, then deploy. Deferred items stay deferred per prompt.
+
+### DECISIONS
+- WebP with JPEG fallback via `<picture>` (reversible via git), freepik/lottie deleted (dead code, no Bundle), lucide only (no react-icons), in-memory LRU not Redis (Vercel cold start noted), pagination 20/50 default (breaks none; callers fixed), async jwt + HSTS + global limit approved, deferred list untouched.
+
 ## 2026-09-03 — Q&A redesign: markdown + Ask/Browse/Detail overhaul (feature/qa-redesign)
 
 ### DONE (client `ae515ea`→`268b556`, server `01bce5d` — branches, NOT main, no deploy)
