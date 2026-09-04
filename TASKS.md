@@ -13,7 +13,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## IN PROGRESS
 
-- **Sub-feature waves queued (2026-09-04)** — Wave 1 quick wins (W1–W8) + Wave 2 notification spine (W9–W10) in TODO below; 18 deferred sub-features in BACKLOG (B1–B18). Source `docs/img/monkeycode-research-sub-feature.md`, triaged against code — 5 false positives rejected (see Wave 1 header). One task at a time, stop for review after each commit.
+- None — Sub-feature waves W1–W10 DONE (see DONE stub below). B1–B18 backlog remains. Deploys need owner approval.
 
 ---
 
@@ -33,34 +33,22 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ---
 
-## TODO — Sub-feature Wave 1: Quick wins (2026-09-04)
+## DONE — Sub-feature Waves 1–2 (2026-09-04, W1–W10; client `3e1f8af..ca2d785`, server `feature/subfeatures`)
 
-> Source: `docs/img/monkeycode-research-sub-feature.md` (AI-generated, triaged against code 2026-09-04). Full-stack entries — server work included per task; `npm run lint`/`npm run build` (client) + `node --check` (server) before each small commit.
-> **Rejected as false positives (do NOT re-file):** FEAT-402 profile photo upload (exists — `MyProfile.jsx:427` imgbb "Upload photo"); FEAT-401 share button (exists — `ProfileHeaderQuora.jsx:129-136`; OG-tags remainder merged into B5); FEAT-403 forgot-password (exists — `AuthProvider.jsx:51` `sendResetPassword` + `Login.jsx:117`; email-verify remainder kept as B6); FEAT-108 ranked search (premise wrong — server-side search + `sort=relevance` + text index already exist: `question.service.js:31-56`, `db.js:115-118`); FEAT-703 as written (shared `EmptyState`/`StatusBadge` already adopted — only loading gaps kept as B17).
+> Triage + rejected false positives: see Wave header note preserved below. Server-dependent parts (W2 history, W3 votes, W8 CSV, W9 notifications, W10 follow) live only after `feature/subfeatures` is merged to server main + deployed (needs owner "deploy approved" — server main auto-deploys).
 
-- [x] **W1. [S] Print/export Compare + application summary (FEAT-206)** — `Compare.jsx` has clipboard Share (`:68-71,114`) but no export: print stylesheet + `window.print()` button on `Compare.jsx` and application detail; print shows only the comparison/summary card (hide navbar/footer). No new dependency. Verify: print preview shows only the comparison/summary card, not navbar/footer; lint/build.
+- [x] **W1** Print/PDF export — Compare + application details (`window.print()` + global print CSS hiding chrome) — FEAT-206
+- [x] **W2** Application `statusHistory` + user timeline (server `$push` on create/accept/cancel; fallback for old docs) — FEAT-203
+- [x] **W3** Review helpful votes (toggle, own-excluded, PII-safe `helpfulCount`/`helpfulVoted`) + Most-helpful sort — FEAT-301
+- [x] **W4** Rating filter chips — histogram already existed (`ScholarshipDetails.jsx:105`), trimmed to filter only — FEAT-303
+- [x] **W5** Home "Closing soon" strip (server `sort=deadline&deadlineAfter=today`, draft/scheduled hidden) — FEAT-204
+- [x] **W6** Apply draft autosave `apply:draft:<id>` (AnswerForm pattern, file input excluded, clear + restore) — FEAT-201
+- [x] **W7** Privilege ladder card + next-unlock progress on PublicProfile (downvote tooltip already existed) — FEAT-106
+- [x] **W8** ManageUsers: wired existing server q/role/page params + new `GET /users/export` CSV + loading skeleton — FEAT-504
+- [x] **W9** Notifications: `notifications` collection + `/notifications/me|read/:id|read-all`, emit on answer/accept/comment/reply, real bell dropdown in AdminNavbar (all dashboards) — FEAT-101
+- [x] **W10** Follow-question toggle in QuestionDetail right rail + asker notification — FEAT-102
 
-- [x] **W2. [S] Application statusHistory + user timeline (FEAT-203)** — server: accept (`PATCH /allapply/accepted/:id` → `"accepted"`, `apply.controller.js:87`) and cancel-as-reject (`PATCH /allapply/cancel/:id` → `"rejected"`, `:75`) append `{status, at, by}` to `statusHistory[]`. Client: timeline in `ApplicationCardForUser.jsx` (currently only a StatusBadge pill `:36` + Feedback box). Verify: accept/cancel appends a dated event; user card renders timeline; old docs without history render fine; lint/build + node --check.
-
-- [x] **W3. [S] "Helpful" votes on reviews (FEAT-301)** — server: `helpfulEmails[]` on review + `POST /reviews/:id/helpful` toggle (own review excluded) + `helpfulCount` in review responses. Client: helpful button on scholarship-detail review cards (list at `ScholarshipDetails.jsx:216`, card `Pages/ScholarshipDetails/AllReviews.jsx`) + sort-by-helpful. Verify: toggle once per user, own review excluded, count updates; lint/build + node --check.
-
-- [x] **W4. [S] Star distribution + rating filter on detail page (FEAT-303)** — rating buckets via server aggregate summary (pattern from perf R12) or client-side from reviews already fetched on detail; CSS-only histogram + rating filter chips above the review grid in `ScholarshipDetails.jsx`. Verify: buckets sum to review count; filter works; lint/build.
-
-- [x] **W5. [S] "Closing soon" deadline strip (FEAT-204)** — Home strip reusing `CountdownBadge` (`Component/scholarship/CountdownBadge.jsx:26`) + `useScholership`, sorted by upcoming `applicationDeadline` ascending; past deadlines excluded. Home has no deadline strip today (`Home.jsx:24-29`). Verify: strip shows only future deadlines ascending; stale scholarships excluded; lint/build.
-
-- [x] **W6. [S] Apply form draft autosave (FEAT-201)** — `Apply.jsx` is an uncontrolled FormData form (`:56-57`) with a required file input (`:253-258` — file cannot be restored, exclude from draft). Debounced save to `localStorage apply:draft:<scholarshipId>` mirroring the per-entity inline pattern `AnswerForm.jsx:10` (`answers:draft:${questionId}`) — NOT `useQADraft` (single global key `qa-draft-v1`); restore on mount, "Clear draft", saved indicator. Verify: reload mid-form restores text/select fields; clear works; existing submit flow unchanged; lint/build.
-
-- [x] **W7. [S] Reputation privilege ladder UI (FEAT-106)** — server: none (rep stored/awarded already). Client: privileges card/route from `docs/Q&A_system.md` §2.2 ladder (1/15/75/125/300/750/1500) + "X rep to unlock Y" progress on profile (`StatsRow`/sidebar); tooltip "requires N rep" on gated actions — downvote@125 gate already exists (`AnswerCard.jsx:27,64-67`), badges@3/10 in `BadgeRow.jsx:20-22`; don't duplicate gates. Verify: ladder matches spec table; own rep-to-next visible; gated action tooltip; lint/build.
-
-- [x] **W8. [S/M] ManageUsers search/pagination/export (FEAT-504, corrected)** — server `GET /users` ALREADY supports q-search/role/status/orgType filters/sort/page-limit max 50 (`user.controller.js:184-213`); client `ManageUsers.jsx:34-40` fetches all with no search/pager/loading. Wire search box + filters + pager + row count to the existing params; add `GET /users/export` CSV (staff-only, new) ; add shared loading skeleton (currently none). Verify: search + paging are server-side correct; CSV downloads with headers; lint/build + node --check.
-
----
-
-## TODO — Sub-feature Wave 2: Notification spine (2026-09-04)
-
-- [x] **W9. [M] Real notifications for Q&A events (FEAT-101)** — server: `notifications` collection (recipientEmail, type, actorEmail, payload, read, createdAt) + `db.js` indexes (recipientEmail+createdAt, recipientEmail+read) + `notification.routes.js`: `GET /notifications/me`, `PATCH /notifications/read/:id`, `PATCH /notifications/read-all`, unread count; emit on answer created / answer accepted (`answer.controller.js:129-137`) / question comment (`question.controller.js:173-206`) / follow (W10); daily-cap fan-out (one per actor per question per type). Client: replace the hardcoded-`0` bell `AdminNavbar.jsx:119-124` with a real dropdown (list, unread dot, mark-read, link to `/questions/:id`), refetch-on-focus via TanStack Query. v1 = Q&A events only, no email. Verify: answering creates a notification for the asker; bell shows unread count; click marks read + navigates; server returns 401 for other users' notifications; lint/build + node --check.
-
-- [x] **W10. [S] Follow a question / watchlist (FEAT-102)** — server: reuse the `follows` pattern (`user.controller.js:551-594`, indexes `db.js:98-100`) — `POST/GET/DELETE /questions/:id/follow` + follower count on question detail. Client: follow toggle in `QuestionDetail.jsx` right rail (AuthorBlock-style count); feeds W9 notifications. Verify: toggle persists; count updates; lint/build + node --check.
+> **Triage note (preserved from Wave 1 header):** rejected as false positives — FEAT-402 photo upload (exists `MyProfile.jsx:427`), FEAT-401 share (exists; OG part → B5), FEAT-403 forgot-password (exists; email-verify → B6), FEAT-108 ranked search (server search + `sort=relevance` + text index already exist), FEAT-703 as written (shared components already adopted; loading gaps → B17).
 
 ---
 

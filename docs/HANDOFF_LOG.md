@@ -8,6 +8,33 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-04 — Sub-feature waves W1–W10 (triaged monkeycode research → shipped)
+
+### DONE
+- Triaged `docs/img/monkeycode-research-sub-feature.md` (30 AI proposals) against code: 5 false positives rejected (photo upload / profile share / forgot-password / ranked search / empty-state sweep — all already exist), 7 scope-corrected, rest validated → TASKS.md waves + B1–B18 backlog.
+- **W1** print/PDF export (Compare + application details; global `@media print` hides `header/footer/nav/aside` + `.no-print`).
+- **W2** application `statusHistory` (server) + Status Timeline UI (user detail; old-doc fallback).
+- **W3** helpful votes on reviews (server toggle + PII-safe shaping) + Most-helpful sort.
+- **W4** rating filter chips — **trimmed: histogram already existed** (`ScholarshipDetails.jsx:105`).
+- **W5** Home "Closing soon" strip (server `sort=deadline&deadlineAfter`, `DeadlineStrip.jsx`).
+- **W6** Apply draft autosave `apply:draft:<id>` (debounced onChange, restore, clear; file input excluded).
+- **W7** `PrivilegeLadder` card on PublicProfile (spec §2.2 thresholds; next-unlock progress). Downvote tooltip already existed.
+- **W8** ManageUsers search/role-filter/pagination wired to existing server params + new `/users/export` CSV + loading skeleton.
+- **W9** notifications: `notifications` collection + routes + emits (answer/accept/comment/reply) + real bell dropdown (`NotificationBell.jsx` replaces hardcoded-0 bell).
+- **W10** follow-question (`followerEmails` on question, `GET/POST/DELETE /questions/:id/follow`) + right-rail toggle + asker notification.
+- Every unit: `npm run lint` + `npm run build` (client) / `node --check` (server) PASS, small commit, pushed. Client main `3e1f8af..ca2d785`.
+
+### DECISIONS & CONTEXT
+- **Server work lives on `feature/subfeatures` (pushed, NOT merged to main — main auto-deploys; DEPLOY BLOCK).** W2/W3/W8/W9/W10 need that merge + deploy to function; their client UIs are shipped and will 404 against production until then. W1/W4/W5/W6/W7 (+W8 search/pager vs old server) work on current prod.
+- Client pushed to main directly (M-batch precedent; client main does not auto-deploy — Firebase deploys are manual/guarded).
+- W4/W7 trimmed after finding existing histogram/tooltip — recorded in TASKS DONE stub.
+
+### LEFT
+- B1–B18 backlog in TASKS.md (103a edits, 109 threaded comments, 104+502 flags/queue, 601 inquiries, 701 SEO, 403 email-verify, 501 admin dashboard, 105 freshness, …).
+- Deploy ask: server `feature/subfeatures` → main (Vercel) + client main → Firebase, both need owner "deploy approved".
+
+---
+
 ## 2026-09-04 — DEPLOY perf/optimization to production (user approved)
 
 ### DONE
