@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import axios from "axios";
-import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Plus, FilterX, Inbox } from "lucide-react";
+import { Search, SlidersHorizontal, X, Plus, FilterX, Inbox, Loader2 } from "lucide-react";
 import FilterChip from "../../Component/scholarship/FilterChip";
 import { QUESTION_CATEGORIES, STUDY_LEVELS, COUNTRIES } from "../../constants/qa";
 import { QuestionListItem } from "../../Component/QA/QuestionCard";
@@ -79,14 +79,20 @@ export default function BrowseQuestions(){
   const homeCountry = searchParams.get("homeCountry") || "";
   const studyLevel = searchParams.get("studyLevel") || "";
   const sort = searchParams.get("sort") || "newest";
-  const page = Math.max(1, parseInt(searchParams.get("page")||"1",10)||1);
 
   const [localQ,setLocalQ]=useState(q);
   const debouncedQ = useDebounced(localQ,400);
   const [drawerOpen,setDrawerOpen]=useState(false);
+  const sentinelRef = useRef(null);
 
-  // clean deprecated view param from URL for fast single-column post style
-  useEffect(()=> { if (searchParams.get("view")) { const n=new URLSearchParams(searchParams); n.delete("view"); setSearchParams(n,{replace:true}); } }, [searchParams, setSearchParams]);
+  // clean deprecated view/page params for fast single-column post style
+  useEffect(()=> {
+    if (searchParams.get("view") || searchParams.get("page")) {
+      const n=new URLSearchParams(searchParams);
+      n.delete("view"); n.delete("page");
+      setSearchParams(n,{replace:true});
+    }
+  }, [searchParams, setSearchParams]);
   useEffect(()=> setLocalQ(q),[q]);
 
   const updateParams=(patch)=>{
@@ -94,16 +100,14 @@ export default function BrowseQuestions(){
     Object.entries(patch).forEach(([k,v])=>{
       if(v===""||v==null) next.delete(k); else next.set(k,String(v));
     });
-    if(["q","category","tag","destinationCountry","homeCountry","studyLevel","sort"].some(k=>patch[k]!==undefined)){
-      if(patch.page===undefined) next.set("page","1");
-    }
     setSearchParams(next,{replace:true});
   };
-  useEffect(()=>{ if(debouncedQ!==q) updateParams({ q: debouncedQ }); },[debouncedQ]);
+  useEffect(()=>{ if(debouncedQ!==q) updateParams({ q: debouncedQ }); },[debouncedQ, q]);
 
-  const { data: resp, isLoading } = useQuery({
-    queryKey: ["questions-browse", { q: debouncedQ, category, tag, destinationCountry, homeCountry, studyLevel, sort, page }],
-    queryFn: async ()=>{
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isError } = useInfiniteQuery({
+    queryKey: ["questions-browse", { q: debouncedQ, category, tag, destinationCountry, homeCountry, studyLevel, sort }],
+    initialPageParam: 1,
+    queryFn: async ({ pageParam })=>{
       const params={};
       if(debouncedQ) params.q=debouncedQ;
       if(category) params.category=category;
@@ -112,17 +116,21 @@ export default function BrowseQuestions(){
       if(homeCountry) params.homeCountry=homeCountry;
       if(studyLevel) params.studyLevel=studyLevel;
       if(sort) params.sort=sort;
-      params.page=page;
+      params.page=pageParam;
       params.limit=12;
       const res= await axios.get(`${baseURL}/questions`, { params });
       return res.data;
-    }
+    },
+    getNextPageParam: (lastPage)=> {
+      const cur = lastPage?.page ?? 1;
+      const totalPages = lastPage?.totalPages ?? 1;
+      return cur < totalPages ? cur + 1 : undefined;
+    },
   });
 
-  const list = resp?.data || [];
-  const total = resp?.total ?? list.length;
-  const totalPages = resp?.totalPages || Math.max(1, Math.ceil(total / 12));
-
+  const pages = data?.pages || [];
+  const list = pages.flatMap(p=> p.data || []);
+  const total = pages[0]?.total ?? list.length;
   const activeFilters=[];
   if(q) activeFilters.push({k:"q", label:`"${q}"`});
   if(tag) activeFilters.push({k:"tag", label:`#${tag}`});
@@ -137,6 +145,23 @@ export default function BrowseQuestions(){
 
   const activeCategoryLabel = QUESTION_CATEGORIES.find(c=>c.value===category)?.label;
   const isFiltered = activeFilters.length>0 || Boolean(category) || Boolean(debouncedQ);
+
+  // reset scroll on filter/sort/search change
+  useEffect(()=>{ window.scrollTo({ top: 0, behavior: "smooth" }); }, [debouncedQ, category, tag, destinationCountry, homeCountry, studyLevel, sort]);
+
+  // IntersectionObserver sentinel for infinite scroll
+  useEffect(()=>{
+    if(!sentinelRef.current) return;
+    if(!hasNextPage || isFetchingNextPage) return;
+    const el = sentinelRef.current;
+    const obs = new IntersectionObserver((entries)=>{
+      if(entries[0].isIntersecting && hasNextPage && !isFetchingNextPage){
+        fetchNextPage();
+      }
+    }, { rootMargin: "200px", threshold: 0.1 });
+    obs.observe(el);
+    return ()=> obs.disconnect();
+  }, [hasNextPage, isFetchingNextPage, fetchNextPage, list.length]);
 
   return (
     <div className="min-h-screen bg-slate-50 pb-16">
@@ -207,11 +232,13 @@ export default function BrowseQuestions(){
           {/* Results */}
           <div className="min-w-0">
             <div className="mb-3 flex items-center justify-between text-sm text-slate-500">
-              <span>Page <b className="text-slate-900">{page}</b> of <b className="text-slate-900">{totalPages}</b></span>
               <span className="hidden sm:block">Showing {list.length} of {total}</span>
+              <span className="sm:hidden">{list.length} of {total}</span>
             </div>
 
-            {isLoading ? <BrowseSkeleton /> : list.length===0 ? (
+            {isLoading ? <BrowseSkeleton /> : isError ? (
+              <div className="rounded-2xl border border-rose-200 bg-rose-50 p-6 text-center text-sm font-medium text-rose-700">Failed to load questions.</div>
+            ) : list.length===0 ? (
               <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center">
                 <Inbox className="mx-auto h-10 w-10 text-slate-300" />
                 <p className="mt-3 font-extrabold text-slate-800">{isFiltered ? "No matching questions" : "No questions yet"}</p>
@@ -225,16 +252,18 @@ export default function BrowseQuestions(){
               <div className="space-y-4">{list.map(q=> <QuestionListItem key={q._id} q={q} />)}</div>
             )}
 
-            {totalPages>1 && (
-              <div className="mt-8 flex items-center justify-center gap-1.5">
-                <button disabled={page<=1} onClick={()=>updateParams({page: page-1})} className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm disabled:opacity-40" aria-label="Previous page"><ChevronLeft className="h-4 w-4" /></button>
-                {Array.from({length: Math.min(5,totalPages)},(_,i)=>{
-                  let p; if(totalPages<=5) p=i+1; else if(page<=3) p=i+1; else if(page>=totalPages-2) p=totalPages-4+i; else p=page-2+i;
-                  return <button key={p} onClick={()=>updateParams({page:p})} className={`h-10 min-w-10 rounded-xl px-3 text-sm font-bold shadow-sm transition-colors ${p===page?"bg-slate-900 text-white":"border border-slate-200 bg-white text-slate-600 hover:bg-slate-50"}`}>{p}</button>;
-                })}
-                <button disabled={page>=totalPages} onClick={()=>updateParams({page: page+1})} className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-slate-600 shadow-sm disabled:opacity-40" aria-label="Next page"><ChevronRight className="h-4 w-4" /></button>
+            {/* Infinite sentinel + Load more fallback + end */}
+            {list.length > 0 && hasNextPage && (
+              <div ref={sentinelRef} className="mt-6 flex justify-center py-4">
+                {isFetchingNextPage ? (
+                  <span className="inline-flex items-center gap-2 text-sm text-slate-500"><Loader2 className="h-4 w-4 animate-spin" /> Loading more…</span>
+                ) : (
+                  <button onClick={()=>fetchNextPage()} className="rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50">Load more</button>
+                )}
               </div>
             )}
+            {list.length > 0 && !hasNextPage && <p className="mt-6 text-center text-xs text-slate-400">You’ve reached the end · {total} questions</p>}
+            {isFetchingNextPage && list.length > 0 && <div className="mt-3"><BrowseSkeleton /></div>}
           </div>
         </div>
       </div>
