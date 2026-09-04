@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { Award, ShieldCheck, Sparkles } from "lucide-react";
-import img1 from "../../assist/image/AboutUs/student1.jpg";
-import img2 from "../../assist/image/AboutUs/student2.jpg";
-import img3 from "../../assist/image/AboutUs/student4.png";
+import img1 from "../../assist/image/AboutUs/student1.webp";
+import img2 from "../../assist/image/AboutUs/student2.webp";
+import img3 from "../../assist/image/AboutUs/student4.webp";
 import signature from "../../assist/image/AboutUs/signature.png";
 
 const highlights = [
@@ -72,6 +72,8 @@ export default function AboutUs() {
                     width={64}
                     height={64}
                     className="h-full w-full object-cover"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <div>
@@ -103,6 +105,8 @@ export default function AboutUs() {
                   src={img3}
                   alt="Students studying together"
                   className="h-[380px] w-full object-cover transition-transform duration-500 hover:scale-105 lg:h-[460px]"
+                  loading="lazy"
+                  decoding="async"
                 />
               </div>
               <div className="col-span-2 flex flex-col gap-4">
@@ -111,6 +115,8 @@ export default function AboutUs() {
                     src={img2}
                     alt="Teacher in library"
                     className="h-[180px] w-full object-cover transition-transform duration-500 hover:scale-105 lg:h-[220px]"
+                    loading="lazy"
+                    decoding="async"
                   />
                 </div>
                 <motion.div

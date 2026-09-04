@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import RoleBadge from "./RoleBadge";
 import BadgeRow from "../QA/BadgeRow";
-import bg from "../../assist/bgImg/profileBg.jpg";
+import bg from "../../assist/bgImg/profileBg.webp";
 
 export default function ProfileHeader({ user, isOwnProfile, onEdit, stats }) {
   const name = user?.name || "Anonymous";

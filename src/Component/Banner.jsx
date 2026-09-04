@@ -2,20 +2,13 @@ import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { motion } from "framer-motion";
 
-import freepik1 from "../assist/image/freepeak/freepik1.png";
-import freepik2 from "../assist/image/freepeak/freepik2.png";
-import freepik3 from "../assist/image/freepeak/freepik3.png";
-import freepik4 from "../assist/image/freepeak/freepik4.png";
-import freepik5 from "../assist/image/freepeak/freepik5.png";
-import freepik6 from "../assist/image/freepeak/freepik1.png";
-
 const slides = [
-  { image: freepik1, title: "Campus Highlights" },
-  { image: freepik2, title: "Study Abroad" },
-  { image: freepik3, title: "Scholarship Fairs" },
-  { image: freepik4, title: "Alumni Success" },
-  { image: freepik5, title: "Research Labs" },
-  { image: freepik6, title: "Campus Life" },
+  { image: "https://picsum.photos/seed/campus1/1200/600", title: "Campus Highlights" },
+  { image: "https://picsum.photos/seed/campus2/1200/600", title: "Study Abroad" },
+  { image: "https://picsum.photos/seed/campus3/1200/600", title: "Scholarship Fairs" },
+  { image: "https://picsum.photos/seed/campus4/1200/600", title: "Alumni Success" },
+  { image: "https://picsum.photos/seed/campus5/1200/600", title: "Research Labs" },
+  { image: "https://picsum.photos/seed/campus6/1200/600", title: "Campus Life" },
 ];
 
 const Banner = () => {

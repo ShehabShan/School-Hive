@@ -1,6 +1,7 @@
 import { MapPin, CalendarDays, Edit3, BadgeCheck, Building2, Share2, UserPlus, UserCheck } from "lucide-react";
 import RoleBadge from "./RoleBadge";
-import bg from "../../assist/bgImg/profileBg.jpg";
+import bg from "../../assist/bgImg/profileBg.webp";
+import bgFallback from "../../assist/bgImg/profileBg.jpg";
 import CompletenessMeter from "./CompletenessMeter";
 import { hasValue, joinFiltered } from "../../utils/hasValue";
 
@@ -20,7 +21,7 @@ export default function ProfileLayout({ user, isOwnProfile, onEdit, stats, compl
   return (
     <div className="overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-100">
       <div className="relative h-44 overflow-hidden sm:h-52 md:h-56">
-        <img src={cover} alt="Cover" className="h-full w-full object-cover" loading="lazy" onError={(e) => (e.currentTarget.src = bg)} />
+        <img src={cover} alt="Cover" className="h-full w-full object-cover" loading="lazy" decoding="async" onError={(e) => (e.currentTarget.src = bgFallback)} />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900/70 via-slate-900/20 to-transparent" />
         <div className="absolute bottom-3 right-3 flex items-center gap-2">
           {verified && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 text-xs font-bold text-white shadow"><BadgeCheck className="h-3.5 w-3.5" /> Verified</span>}

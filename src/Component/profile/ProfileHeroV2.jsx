@@ -2,7 +2,7 @@ import { MapPin, CalendarDays, Edit3, BadgeCheck, Building2, Share2, UserPlus, U
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import RoleBadge from "./RoleBadge";
-import bg from "../../assist/bgImg/profileBg.jpg";
+import bg from "../../assist/bgImg/profileBg.webp";
 import CompletenessMeter from "./CompletenessMeter";
 import SocialLinks from "./SocialLinks";
 

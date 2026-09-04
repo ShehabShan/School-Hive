@@ -12,10 +12,14 @@ import {
   Trophy,
   Globe2,
 } from "lucide-react";
-import bg1 from "../../assist/bgImg/bg1.jpg";
-import bg2 from "../../assist/bgImg/bg2.jpg";
-import bg3 from "../../assist/bgImg/bg3.jpg";
-import bg5 from "../../assist/bgImg/bg5.jpg";
+import bg1Jpg from "../../assist/bgImg/bg1.jpg";
+import bg2Jpg from "../../assist/bgImg/bg2.jpg";
+import bg3Jpg from "../../assist/bgImg/bg3.jpg";
+import bg5Jpg from "../../assist/bgImg/bg5.jpg";
+import bg1Webp from "../../assist/bgImg/bg1.webp";
+import bg2Webp from "../../assist/bgImg/bg2.webp";
+import bg3Webp from "../../assist/bgImg/bg3.webp";
+import bg5Webp from "../../assist/bgImg/bg5.webp";
 import { cn } from "../../lib/cn";
 
 const sections = [
@@ -23,7 +27,8 @@ const sections = [
     id: 1,
     title: "Undergraduate Studies",
     icon: Library,
-    bgImage: bg1,
+    bgImage: bg1Webp,
+    bgFallback: bg1Jpg,
     accent: "hover:bg-brand-600",
     active: "bg-brand-600",
     inactive: "bg-slate-950/50",
@@ -33,7 +38,8 @@ const sections = [
     id: 2,
     title: "Lifelong Learning",
     icon: Atom,
-    bgImage: bg2,
+    bgImage: bg2Webp,
+    bgFallback: bg2Jpg,
     accent: "hover:bg-indigo-600",
     active: "bg-indigo-600",
     inactive: "bg-slate-950/50",
@@ -43,7 +49,8 @@ const sections = [
     id: 3,
     title: "Feldman Lab",
     icon: GraduationCap,
-    bgImage: bg3,
+    bgImage: bg3Webp,
+    bgFallback: bg3Jpg,
     accent: "hover:bg-violet-600",
     active: "bg-violet-600",
     inactive: "bg-slate-950/50",
@@ -53,7 +60,8 @@ const sections = [
     id: 4,
     title: "Graduate Studies",
     icon: ScrollText,
-    bgImage: bg5,
+    bgImage: bg5Webp,
+    bgFallback: bg5Jpg,
     accent: "hover:bg-amber-500",
     active: "bg-amber-500",
     inactive: "bg-slate-950/50",
@@ -71,26 +79,42 @@ export default function HeroCarousel() {
   const [currentSection, setCurrentSection] = useState(0);
 
   useEffect(() => {
-    const timer = setInterval(() => {
+    const tick = () => {
+      if (document.hidden) return;
       setCurrentSection((prev) => (prev + 1) % sections.length);
-    }, 7000);
-    return () => clearInterval(timer);
+    };
+    const timer = setInterval(tick, 7000);
+    const onVis = () => {};
+    document.addEventListener("visibilitychange", onVis);
+    return () => {
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", onVis);
+    };
   }, []);
 
   return (
     <section className="relative h-[88vh] min-h-[600px] w-full overflow-hidden bg-slate-950">
       {/* Background */}
       <AnimatePresence>
-        <motion.img
+        <motion.picture
           key={currentSection}
-          src={sections[currentSection].bgImage}
-          alt="University campus"
-          className="absolute inset-0 h-full w-full object-cover"
           initial={{ opacity: 0, scale: 1.08 }}
           animate={{ opacity: 1, scale: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 1.1, ease: "easeOut" }}
-        />
+          className="absolute inset-0 h-full w-full"
+          style={{ willChange: "transform, opacity" }}
+        >
+          <source srcSet={sections[currentSection].bgImage} type="image/webp" />
+          <img
+            src={sections[currentSection].bgFallback}
+            alt="University campus"
+            className="h-full w-full object-cover"
+            loading={currentSection === 0 ? "eager" : "lazy"}
+            fetchPriority={currentSection === 0 ? "high" : "low"}
+            decoding="async"
+          />
+        </motion.picture>
       </AnimatePresence>
       <div className="absolute inset-0 bg-gradient-to-r from-slate-950/95 via-slate-950/70 to-slate-900/20" />
       <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-slate-950 to-transparent" />
