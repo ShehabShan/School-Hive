@@ -145,7 +145,7 @@ export default function ProfilePage() {
     queryFn: async () => { try { const { data } = await axiosSecure.get("/reviews/stats"); return data; } catch { return null; } },
   });
   const { data: allUsers = [] } = useQuery({
-    queryKey: ["profile-allUsers"], enabled: !!isAdmin,
+    queryKey: ["profile-allUsers"], enabled: !!isAdminOrMod,
     queryFn: async () => { try { const { data } = await axiosSecure.get("/users"); return data.data; } catch { return []; } },
   });
 
@@ -300,17 +300,17 @@ export default function ProfilePage() {
     ] : []),
     ...(isInstitution ? [
       { label: "Scholarships", value: statsData?.scholarshipsCreated ?? "—", icon: BookOpen, color: "text-violet-600 bg-violet-50", to: "/institutionDashboard/manageScholarships" },
-      { label: "Students", value: statsData?.studentsCount ?? "—", icon: Users, color: "text-emerald-600 bg-emerald-50", to: "#students" },
+      { label: "Students", value: statsData?.studentsCount ?? "—", icon: Users, color: "text-emerald-600 bg-emerald-50", to: "/institutionDashboard/students" },
       { label: "Applicants", value: statsData?.applications ?? "—", icon: Users, color: "text-sky-600 bg-sky-50" },
     ] : []),
     { label: "Saved", value: statsData?.saved ?? savedDocs.length ?? 0, icon: GraduationCap, color: "text-emerald-600 bg-emerald-50", to: "/saved" },
     { label: "Followers", value: statsData?.followers ?? dbUser?.followersCount ?? 0, icon: Heart, color: "text-rose-600 bg-rose-50" },
   ];
   const adminStats = [
-    { label: "Users", value: allUsers?.length || allUsers?.total || "—", icon: Users, color: "text-brand-600 bg-brand-50" },
-    { label: "Scholarships", value: scholership.length ?? 0, icon: GraduationCap, color: "text-sky-600 bg-sky-50" },
-    { label: "Applications", value: statsData?.applications ?? myApply.length ?? 0, icon: FileText, color: "text-emerald-600 bg-emerald-50" },
-    { label: "Pending", value: reviewStats?.pending ?? "—", icon: Star, color: "text-amber-600 bg-amber-50" },
+    { label: "Users", value: allUsers?.length || allUsers?.total || "—", icon: Users, color: "text-brand-600 bg-brand-50", to: "/adminDashboard/manageUsers" },
+    { label: "Scholarships", value: scholership.length ?? 0, icon: GraduationCap, color: "text-sky-600 bg-sky-50", to: "/adminDashboard/manageScholarships" },
+    { label: "Applications", value: statsData?.applications ?? myApply.length ?? 0, icon: FileText, color: "text-emerald-600 bg-emerald-50", to: "/adminDashboard/manageAppliedApplication" },
+    { label: "Pending", value: reviewStats?.pending ?? "—", icon: Star, color: "text-amber-600 bg-amber-50", to: "/adminDashboard/manageReviews" },
   ];
 
   const visibleTabs = TABS.filter(t=> !t.institutionOnly || isInstitution);
