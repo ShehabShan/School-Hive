@@ -78,13 +78,10 @@ export default function RichTextEditor({ value, onChange, images = [], onImagesC
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <label className="text-sm font-bold text-slate-900">{label} <span className="text-rose-500">*</span></label>
-        <button
-          type="button"
-          onClick={() => setPreview((v) => !v)}
-          className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
-        >
-          {preview ? <><PenLine className="h-3.5 w-3.5" /> Edit</> : <><Eye className="h-3.5 w-3.5" /> Preview</>}
-        </button>
+        <div className="inline-flex rounded-full border border-slate-200 bg-white p-0.5 shadow-sm">
+          <button type="button" onClick={() => setPreview(false)} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${!preview ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-700"}`}><PenLine className="h-3.5 w-3.5" /> Edit</button>
+          <button type="button" onClick={() => setPreview(true)} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ${preview ? "bg-slate-900 text-white" : "text-slate-500 hover:text-slate-700"}`}><Eye className="h-3.5 w-3.5" /> Preview</button>
+        </div>
       </div>
 
       <div className="flex flex-wrap items-center gap-1 rounded-2xl border border-slate-200 bg-slate-50 p-2">

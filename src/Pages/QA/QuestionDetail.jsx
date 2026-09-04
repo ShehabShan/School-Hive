@@ -207,7 +207,7 @@ export default function QuestionDetail(){
             {/* Your answer */}
             <section id="answer">
               {me
-                ? <AnswerForm onSubmit={handleAnswer} submitting={submittingAns} />
+                ? <AnswerForm onSubmit={handleAnswer} submitting={submittingAns} questionId={id} isAsker={isAsker} me={me} context={q.context} />
                 : (
                   <div className="rounded-2xl border border-slate-200 bg-white p-6 text-center shadow-sm">
                     <p className="font-bold text-slate-900">Know the answer?</p>
