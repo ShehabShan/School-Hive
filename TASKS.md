@@ -17,10 +17,16 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ---
 
-## TODO — Q&A Forum Round — 8 Issues (2026-09-04)
+## IN PROGRESS — Card Polish Pass (2026-09-04)
+
+- **Card polish — 4 items + 1 held** — expand one-way, upvote wiring, inline comments, wrong icon. See TODO below.
+
+---
+
+## TODO — Card Polish Pass — 4 Items (2026-09-04)
 
 > Add each as own task, tagged [Bug]/[Feature], small one-sitting ending `Verify:` — same format as existing.
-> Reference screenshots: `Image 1 = current All Questions grid (2-col, title+excerpt+category/tag chips+vote/view/time)` at placeholder `docs/img/all-questions-current.png`; `Image 2 = Quora post-style single-column (avatar+author header, title, truncated body+More, footer vote/comment)` at placeholder `docs/img/quora-reference.png`.
+> Reference screenshots: `Image 1 = image-one.png current card` at placeholder `docs/img/image-one.png`; `Image 2 = image-two.png target Quora post` at placeholder `docs/img/image-two.png` (keep light, no dark theme).
 
 - [x] **1. [Bug] Gate "Show scheduled scholarships" to scholarship creators** — Hide `PreferencesPanel.jsx:27` Toggle `Show scheduled scholarships` unless `isInstitution || isSuperAdmin` (same guard as `Routes.jsx:114 SuperAdminRoute` + `132 InstitutionRoute` for `AddScholarship`/`ManageScholarships`). Keep other prefs (`showStatsOnPublic`, `emailNotifications`, `visibility`) visible to all. Verify: student/mod/admin Settings shows 2 toggles (no Show scheduled), institution/superadmin shows 3; toggle persists via `PATCH /users/me` → `GET /users/me` preferences; lint/build pass.
 
@@ -37,6 +43,22 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 - [x] **7. [Feature] Redesign All Questions cards single-column post-style + author header (ties to #5)** — Fast-loading: no extra fetch, hydrate `AuthorBlock` via cached `useAuthor` only, keep same `rounded-2xl border bg-white p-4` shell. Current 2-col grid (`BrowseQuestions.jsx:226 sm:grid-cols-2` + `QuestionCard.jsx:85 180char`) → single column `space-y-4` post: header `<AuthorBlock size="sm" time>`, title `text-[16px] font-bold`, body `stripMarkdown` truncated ~150 chars + `More` expand (`useState expanded`, `preventDefault`), footer `ArrowBigUp voteScore · MessageSquare answerCount · Eye viewCount` `border-t text-xs`. Placeholders `docs/img/all-questions-current.png` (Image 1) and `docs/img/quora-reference.png` (Image 2) for audit. Deprecate `view` toggle/limit fork. Verify: All Questions renders single column, author at top linked, More expands/collapses, footer counts correct, skeleton updated to avatar header, mobile stack, lint/build.
 
 - [x] **8. [Feature] Replace pagination with infinite scroll on All Questions (keep filter/search/URL-sync)** — Fast-loading: `useInfiniteQuery` (already `5.65.0`) + native `IntersectionObserver` (no new dep), no `react-infinite-scroll-component`. Replaced `BrowseQuestions.jsx:80 page` + `101 useQuery` + `231 pager` + `Page X of Y:211` with `useInfiniteQuery` `initialPageParam:1` `getNextPageParam`, sentinel `rootMargin 200px` + fallback `Load more`, removed pager/page param, kept filter/search/sort URL-sync, `limit 12`, `pages.flatMap`, scroll reset on filter change, placeholder image paths kept. Verify: scroll triggers next page, filter/sort resets to top page1, URL filters preserved, no pager, `totalPages` respected, `limit 12` consistent, lint/build, no `maxLimit 50` breach.
+
+---
+
+## TODO — Card Polish Pass — 4 Items (2026-09-04)
+
+> Reference screenshots: `Image 1 = image-one.png` current card, `Image 2 = image-two.png` Quora post with stacked images, `Image 3 = image-three.png` `Upvote · 1.6K ↓ | 85 | 5` pill + `single-card*.png` bottom comment section.
+
+- [x] **9. [Bug/Feature] Description expand — one-way + text clickable** — `QuestionCard.jsx:50 PostCard` `expanded` `isLong>150` `snippet` + `HandleMore`. Changed `setExpanded(!expanded)` toggle → `setExpanded(true)` one-way, hide `(less)`, keep `…` when collapsed, add `p onClick` when truncated (`cursor-pointer` when `!expanded && isLong`) to also expand. Once expanded, final. Verify: clicking `(more)` expands as now, clicking truncated text also expands, no collapse affordance, lint/build.
+
+- [x] **10. [Bug] Upvote button doesn't work on card + downvote arrow (image-three)** — `QuestionCard.jsx:104 Upvote pill` was `span` no handler; wired `useRole` `useAxiosSecure` `useQueryClient` `myEmail` `iUpvoted/hasVoted` `rep>=125` → `button onClick handleUpvote` `POST /questions/:id/upvote` + `handleDownvote` `POST /questions/:id/downvote` gated `125` (per pick Add downvote arrow), block own `400` duplicate `409`, toast, invalidate `["questions-browse"]` + `["question", id]`. Server added `question.validator downvoterIds`, `question.controller downvoteQuestion` + `routes` `POST /questions/:id/downvote`. Keep Eye views per pick. Verify: click Upvote/Downvote fires API, increments/decrements `voteScore`, toast, unauth/own/duplicate blocked, lint/build.
+
+- [x] **Held — Question-downvote scope** — implemented via image-three pick Add downvote arrow (see 10). No pending.
+
+- [x] **11. [Feature] Inline comment section on click** — Click `MessageSquare` (`QuestionCard.jsx:108`) expands input + list below card in place (not navigation) — reference `single-card-with-bottom-comment-section.png` input top `G Add a comment…` + list `avatar/name/text/reply` per comment. Reused `CommentThread.jsx:1` placeholder adapted to `questionComments` (not second parallel system) — new `question_comments` collection `db.js:33` + `comment.validator.js 1-500` + `POST/GET /questions/:id/comments` `question.controller`/`question.routes` + indexes. Distinct from `answers` (long-form votable `+10/+15` `answerCount` vs lightweight `commentCount`). Verify: click comment icon expands input+list, post via new endpoint, list lazy-fetches, reply nesting, reuse placeholder, lint/build + curl.
+
+- [x] **12. [Bug] Wrong icon for view count** — `QuestionCard.jsx:109` footer `Share2` for views should be `Eye` (`lucide-react` `Eye` already used `QuestionDetail.jsx:131` correctly). Swapped import `Share2 → Eye` (kept `MoreHorizontal`). Verify: footer shows Eye for views, Share2 remains only on detail Share button, lint/build.
 
 ---
 
