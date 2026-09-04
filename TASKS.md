@@ -44,7 +44,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - [x] **W3. [S] "Helpful" votes on reviews (FEAT-301)** — server: `helpfulEmails[]` on review + `POST /reviews/:id/helpful` toggle (own review excluded) + `helpfulCount` in review responses. Client: helpful button on scholarship-detail review cards (list at `ScholarshipDetails.jsx:216`, card `Pages/ScholarshipDetails/AllReviews.jsx`) + sort-by-helpful. Verify: toggle once per user, own review excluded, count updates; lint/build + node --check.
 
-- [ ] **W4. [S] Star distribution + rating filter on detail page (FEAT-303)** — rating buckets via server aggregate summary (pattern from perf R12) or client-side from reviews already fetched on detail; CSS-only histogram + rating filter chips above the review grid in `ScholarshipDetails.jsx`. Verify: buckets sum to review count; filter works; lint/build.
+- [x] **W4. [S] Star distribution + rating filter on detail page (FEAT-303)** — rating buckets via server aggregate summary (pattern from perf R12) or client-side from reviews already fetched on detail; CSS-only histogram + rating filter chips above the review grid in `ScholarshipDetails.jsx`. Verify: buckets sum to review count; filter works; lint/build.
 
 - [ ] **W5. [S] "Closing soon" deadline strip (FEAT-204)** — Home strip reusing `CountdownBadge` (`Component/scholarship/CountdownBadge.jsx:26`) + `useScholership`, sorted by upcoming `applicationDeadline` ascending; past deadlines excluded. Home has no deadline strip today (`Home.jsx:24-29`). Verify: strip shows only future deadlines ascending; stale scholarships excluded; lint/build.
 

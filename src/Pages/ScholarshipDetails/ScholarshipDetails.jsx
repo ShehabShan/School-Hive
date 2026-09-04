@@ -67,11 +67,16 @@ export default function ScholarshipDetails() {
   const isExpired = dl.tone === "rose" && dl.label === "Expired";
   const cur = scholarship?.currency || "USD";
   const [reviewSort, setReviewSort] = useState("recent");
+  const [ratingFilter, setRatingFilter] = useState(0);
   const activeReviews = displayReviews || review || [];
   const sortedReviews = useMemo(() => {
     if (reviewSort !== "helpful") return activeReviews;
     return [...activeReviews].sort((a, b) => (b.helpfulCount || 0) - (a.helpfulCount || 0));
   }, [activeReviews, reviewSort]);
+  const filteredReviews = useMemo(
+    () => (ratingFilter ? sortedReviews.filter((r) => Math.round(Number(r.rating)) === ratingFilter) : sortedReviews),
+    [sortedReviews, ratingFilter]
+  );
 
   const gallery = useMemo(() => {
     if (Array.isArray(scholarship?.gallery) && scholarship.gallery.length) return scholarship.gallery;
@@ -214,7 +219,7 @@ export default function ScholarshipDetails() {
                 </div>
               ))}
             </div>
-            <div className="mt-4 flex items-center justify-between gap-3">
+            <div className="mt-4 flex flex-wrap items-center justify-between gap-3">
               <div className="flex flex-wrap gap-1.5">
                 {[["recent", "Recent"], ["helpful", "Most helpful"]].map(([k, label]) => (
                   <button
@@ -226,13 +231,30 @@ export default function ScholarshipDetails() {
                   </button>
                 ))}
               </div>
-              <span className="text-xs text-slate-400">{sortedReviews.length} shown</span>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => setRatingFilter(0)}
+                  className={`rounded-full px-3 py-1 text-xs font-bold transition ${ratingFilter === 0 ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                >
+                  All
+                </button>
+                {[5, 4, 3, 2, 1].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRatingFilter(star)}
+                    className={`rounded-full px-3 py-1 text-xs font-bold transition ${ratingFilter === star ? "bg-amber-500 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                  >
+                    {star}★
+                  </button>
+                ))}
+              </div>
+              <span className="text-xs text-slate-400">{filteredReviews.length} shown</span>
             </div>
             <div className="mt-6">
-              {sortedReviews.length === 0 ? (
-                <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center"><MessagesSquare className="mx-auto h-8 w-8 text-slate-300" /><p className="mt-2 font-bold text-slate-700">No reviews yet</p><p className="text-sm text-slate-500">Verified applicants after acceptance can review. Be first after you’re accepted.</p></div>
+              {filteredReviews.length === 0 ? (
+                <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center"><MessagesSquare className="mx-auto h-8 w-8 text-slate-300" /><p className="mt-2 font-bold text-slate-700">{ratingFilter ? `No ${ratingFilter}★ reviews` : "No reviews yet"}</p><p className="text-sm text-slate-500">{ratingFilter ? "Try another rating or clear the filter." : "Verified applicants after acceptance can review. Be first after you’re accepted."}</p></div>
               ) : (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{sortedReviews.map((r, i) => <AllReviews key={r._id || i} review={r} />)}</div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{filteredReviews.map((r, i) => <AllReviews key={r._id || i} review={r} />)}</div>
               )}
             </div>
           </section>
