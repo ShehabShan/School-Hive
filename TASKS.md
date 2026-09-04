@@ -13,52 +13,39 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## IN PROGRESS
 
-- **Q&A Forum Round — 8 Issues (2026-09-04)** — see TODO below. Tasks added per prompt, tagged `[Bug]/[Feature]`, each ends `Verify:`. Implement one at a time, stop for review after each commit (no batching).
+- **MonkeyCode Report Triaged — 5 P2 active** — see TODO below. P2 verified true, one-sitting each, ends `Verify:`. P3 deferred to backlog. Implement one at a time, stop for review after each commit.
 
 ---
 
-## IN PROGRESS — Card Polish Pass (2026-09-04)
+## TODO — MonkeyCode Triaged — P2 Active (2026-09-04)
 
-- **Card polish — 4 items + 1 held** — expand one-way, upvote wiring, inline comments, wrong icon. See TODO below.
+> Source: `docs/moneycode-report.md` Passes 1-5 (AI-generated, triaged — 0 false positives on cited lines, but priority filtered). P2 = bug/correctness, small one-sitting. P3 deferred below — not filed as active TODO.
 
----
+- [x] **M1. [P2][Bug] Delete dead `MyApplicationCard.jsx`** — `src/Pages/UserPage/MyApplication/MyApplicationCard.jsx:10` 0 importers confirmed vs `ApplicationCard.jsx:11` + `ApplicationCardForUser.jsx:42` alive (`Routes.jsx:41-42,92,106`). Delete file. Verify: `grep -r MyApplicationCard src` 0 hits, `npm run lint` 0, `npm run build` 79 files guard OK, no route imports it.
 
-## TODO — Card Polish Pass — 4 Items (2026-09-04)
+- [ ] **M2. [P2][Bug] AllScholership `view` does not reset page** — `src/Pages/AllScholership/AllScholership.jsx:57` `updateParams` resets `page=1` for `q/category/subject/degree/country/maxFees/sort` but not `view` (`limit 10 vs 12` empty slice on high page). Add `view` to reset list (same as Q&A browse already fixed). Verify: grid→list on page 4 stays on valid slice, URL `?view=` change resets `page=1`, lint/build.
 
-> Add each as own task, tagged [Bug]/[Feature], small one-sitting ending `Verify:` — same format as existing.
-> Reference screenshots: `Image 1 = image-one.png current card` at placeholder `docs/img/image-one.png`; `Image 2 = image-two.png target Quora post` at placeholder `docs/img/image-two.png` (keep light, no dark theme).
+- [ ] **M3. [P2][Bug] AllScholership `SUBJECT_OPTS` hardcoded 3** — `AllScholership.jsx:15` `["","Agriculture","Engineering","Doctor"]` vs DB `CSE/MBBS` etc invisible. Derive unique `subjectName/category/degree` from `resp.data` via `useMemo` (client-side) like stats, fallback to static if empty. Verify: AllScholership filter shows subjects present in catalog (e.g. CSE), select works, lint/build.
 
-- [x] **1. [Bug] Gate "Show scheduled scholarships" to scholarship creators** — Hide `PreferencesPanel.jsx:27` Toggle `Show scheduled scholarships` unless `isInstitution || isSuperAdmin` (same guard as `Routes.jsx:114 SuperAdminRoute` + `132 InstitutionRoute` for `AddScholarship`/`ManageScholarships`). Keep other prefs (`showStatsOnPublic`, `emailNotifications`, `visibility`) visible to all. Verify: student/mod/admin Settings shows 2 toggles (no Show scheduled), institution/superadmin shows 3; toggle persists via `PATCH /users/me` → `GET /users/me` preferences; lint/build pass.
+- [ ] **M4. [P2][Feature] MyApplication status filter `?status`** — `MyApplication.jsx:63 filtered` only `?q` search, no `All/Pending/Accepted/Rejected` chips despite `applicationStatus` pill `:174`. Add chips mapping to `?status` URL param reusing `filtered` memo (existing pattern `BrowseQuestions activeFilters`). Verify: chips filter list, URL sync `?status=pending` shareable, clear, lint/build.
 
-- [x] **2. [Bug] Fix broken profile stats/tabs on every role (student/institution/admin/moderator/superadmin)** — `MyProfile.jsx:309 adminStats` labels `Users/Scholarships/Applications/Pending` render as `div` (no `to`) via `StatsRow.jsx:9` → click NOP and broken `grid-cols-3` wrapping; institution `to:"#students"` hash NOP. Add `to` for every `adminStats` entry (`Users→/adminDashboard/manageUsers`, `Scholarships→/adminDashboard/manageScholarships` + `/institutionDashboard/manageScholarships`, `Applications→/adminDashboard/manageAppliedApplication`, `Pending→/adminDashboard/manageReviews`), fix `#students` → `/institutionDashboard/students`, enable `allUsers` + `reviewStats` queries for moderator (`isAdminOrMod`). Verify: every role's profile page stats chips are clickable `Link` with hover lift, navigation works, no hash, lint/build; manual role-switch smoke.
-
-- [x] **3. [Feature] Follower-visibility single setting (covers followers+following)** — If `preferences.showFollowersOnPublic === false` anyone (visitor) sees no follower data; when on, anyone can see who is following him and who he is following. Add `users.preferences.showFollowersOnPublic` boolean default `true` (`!==false` legacy) — no new collection/index, follows reuse `db.js:33 follows + 3 indexes`. Server: `createUser:128` default, `profile.validator.js:164` `Boolean()` + `_preferencesPatch`, `patchMe:460` merge fallback `showFollowersOnPublic:true`, gate `getFollowers:571` (return empty when hidden unless owner/staff), `getPublicStats:402` + `pickPublic:286` counts `undefined` when hidden (hides `StatsRow` tile via `hasValue`). Client: one `<Toggle Show followers …>` in `PreferencesPanel.jsx:27` (`checked={p.showFollowersOnPublic !== false}`), conditional omit in `ProfileHeaderQuora.jsx:44` + `PublicProfile.jsx:101` (`headerStats` omit when hidden && !isOwner). Verify: toggle OFF → visitor `GET /users/:email/followers` empty + `GET /users/public/:email/stats` followers 0/hidden, owner still sees true via `GET /users/me/stats`; ON → visitor sees list+counts; lint/build + curl.
-
-- [x] **4. [Bug] "Answer" tab on public profile redirects to "About"** — Root cause `PublicProfile.jsx:82 useEffect([aTotal,qTotal,active])` bounce loop when `aTotal===0` re-fires on every `active` click → `setActive("about")`. Make fallback mount-only (remove `active` from deps, `hasInteracted` ref guard after first user click, `catch→undefined` not `0` premature). Keep `AnswersTab.jsx:59` empty state `No answers yet`. Verify: clicking Answer stays on Answers showing list or empty state (does not bounce), Questions/About not forced, both totals loaded correctly; lint/build.
-
-- [x] **5. [Feature] Show question author everywhere + link to public profile** — Every card on `All Questions` (`BrowseQuestions.jsx:225-228` `QuestionCard` + `QuestionListItem`) + detail page (`QuestionDetail.jsx:180`). Wrap `AuthorBlock.jsx:11-40` avatar+name in `<Link to={`/profile/${encodeURIComponent(email)}`}>` with hover/underline guard, deduped `useAuthor.js:12` cache. Restructure `QuestionCard.jsx:51,88` outer `Link` → `article/div` + interior title `Link to /questions/:id` + isolated author link (`stopPropagation`) to avoid nested anchors. Verify: every browse card header shows avatar+name+Verified+time linking to `/profile/:email`, detail page author linked, no nested `<a>` violation, lint/build.
-
-- [x] **6. [Needs scoping → Feature] "Your Answer" section — easy/reliable improvements (propose in TASKS, then implement minimal)** — Implemented A (3-bullet guidance with corridor chips, cite source, explain why) + identity row `Posting as {name}·{rep}` with profile link + isAsker amber warning + B-lite (localStorage `answers:draft:<questionId>` debounce 500ms restore/clear, Edit|Preview segmented tabs, live 20-char hint `{n}/20`, Post disabled until ≥20 + Clear draft). Files `AnswerForm.jsx:5-43` → new form + `RichTextEditor.jsx:14` Edit|Preview + `QuestionDetail.jsx:207` props `isAsker/questionId/me/context`. Verify: editor shows guideline + Posting as row, draft persists across refresh until post, preview tabs work, guest CTA still gated by `me`, lint/build.
-
-- [x] **7. [Feature] Redesign All Questions cards single-column post-style + author header (ties to #5)** — Fast-loading: no extra fetch, hydrate `AuthorBlock` via cached `useAuthor` only, keep same `rounded-2xl border bg-white p-4` shell. Current 2-col grid (`BrowseQuestions.jsx:226 sm:grid-cols-2` + `QuestionCard.jsx:85 180char`) → single column `space-y-4` post: header `<AuthorBlock size="sm" time>`, title `text-[16px] font-bold`, body `stripMarkdown` truncated ~150 chars + `More` expand (`useState expanded`, `preventDefault`), footer `ArrowBigUp voteScore · MessageSquare answerCount · Eye viewCount` `border-t text-xs`. Placeholders `docs/img/all-questions-current.png` (Image 1) and `docs/img/quora-reference.png` (Image 2) for audit. Deprecate `view` toggle/limit fork. Verify: All Questions renders single column, author at top linked, More expands/collapses, footer counts correct, skeleton updated to avatar header, mobile stack, lint/build.
-
-- [x] **8. [Feature] Replace pagination with infinite scroll on All Questions (keep filter/search/URL-sync)** — Fast-loading: `useInfiniteQuery` (already `5.65.0`) + native `IntersectionObserver` (no new dep), no `react-infinite-scroll-component`. Replaced `BrowseQuestions.jsx:80 page` + `101 useQuery` + `231 pager` + `Page X of Y:211` with `useInfiniteQuery` `initialPageParam:1` `getNextPageParam`, sentinel `rootMargin 200px` + fallback `Load more`, removed pager/page param, kept filter/search/sort URL-sync, `limit 12`, `pages.flatMap`, scroll reset on filter change, placeholder image paths kept. Verify: scroll triggers next page, filter/sort resets to top page1, URL filters preserved, no pager, `totalPages` respected, `limit 12` consistent, lint/build, no `maxLimit 50` breach.
+- [ ] **M5. [P2][Bug] MyApplication emoji eye → lucide `Eye`** — `MyApplication.jsx:177` `👁️` raw span vs codebase `lucide-react` `Eye`. Swap to `<Eye className="h-4 w-4" />` (already `lucide-react ^0.475.0`). Verify: table view icon consistent, no emoji, lint/build.
 
 ---
 
-## TODO — Card Polish Pass — 4 Items (2026-09-04)
+## TODO — MonkeyCode Deferred — P3 Backlog (2026-09-04)
 
-> Reference screenshots: `Image 1 = image-one.png` current card, `Image 2 = image-two.png` Quora post with stacked images, `Image 3 = image-three.png` `Upvote · 1.6K ↓ | 85 | 5` pill + `single-card*.png` bottom comment section.
+> Not active — P3 nice-to-have, deferred per triage. File as future TODO only if you want. Each still one-sitting but low value/risk.
 
-- [x] **9. [Bug/Feature] Description expand — one-way + text clickable** — `QuestionCard.jsx:50 PostCard` `expanded` `isLong>150` `snippet` + `HandleMore`. Changed `setExpanded(!expanded)` toggle → `setExpanded(true)` one-way, hide `(less)`, keep `…` when collapsed, add `p onClick` when truncated (`cursor-pointer` when `!expanded && isLong`) to also expand. Once expanded, final. Verify: clicking `(more)` expands as now, clicking truncated text also expands, no collapse affordance, lint/build.
+- [ ] **D1. [P3] ScholarshipCard duplication** — `src/Pages/AllScholership/ScholarshipCard.jsx` vs `src/Component/scholarship/ScholarshipCard.jsx` both used (discovery vs manage). Keep both for now; consolidate only if visual drift confirmed. No Verify until scheduled.
 
-- [x] **10. [Bug] Upvote button doesn't work on card + downvote arrow (image-three)** — `QuestionCard.jsx:104 Upvote pill` was `span` no handler; wired `useRole` `useAxiosSecure` `useQueryClient` `myEmail` `iUpvoted/hasVoted` `rep>=125` → `button onClick handleUpvote` `POST /questions/:id/upvote` + `handleDownvote` `POST /questions/:id/downvote` gated `125` (per pick Add downvote arrow), block own `400` duplicate `409`, toast, invalidate `["questions-browse"]` + `["question", id]`. Server added `question.validator downvoterIds`, `question.controller downvoteQuestion` + `routes` `POST /questions/:id/downvote`. Keep Eye views per pick. Verify: click Upvote/Downvote fires API, increments/decrements `voteScore`, toast, unauth/own/duplicate blocked, lint/build.
+- [ ] **D2. [P3] AllScholership `Recommended` vs `Highest rated` identical** — `AllScholership.jsx:109` `rating` + `reviewsCount` same branch. Make `recommended` weighted `rating*0.6+recency*0.3+reviews*0.1` or drop duplicate. Defer.
 
-- [x] **Held — Question-downvote scope** — implemented via image-three pick Add downvote arrow (see 10). No pending.
+- [ ] **D3. [P3] AllScholership dual client/server filtering `serverHasFilter~119`** — `AllScholership.jsx:89-130` implicit `resp.total vs filteredSorted.length` switch fragile. Pick server truth once facets ship. Defer.
 
-- [x] **11. [Feature] Inline comment section on click** — Click `MessageSquare` (`QuestionCard.jsx:108`) expands input + list below card in place (not navigation) — reference `single-card-with-bottom-comment-section.png` input top `G Add a comment…` + list `avatar/name/text/reply` per comment. Reused `CommentThread.jsx:1` placeholder adapted to `questionComments` (not second parallel system) — new `question_comments` collection `db.js:33` + `comment.validator.js 1-500` + `POST/GET /questions/:id/comments` `question.controller`/`question.routes` + indexes. Distinct from `answers` (long-form votable `+10/+15` `answerCount` vs lightweight `commentCount`). Verify: click comment icon expands input+list, post via new endpoint, list lazy-fetches, reply nesting, reuse placeholder, lint/build + curl.
+- [ ] **D4. [P3] Compare N+1 + ids truncated** — `Compare.jsx:40 Promise.all GET /allScholership/:id ×4` + `slice 0,4` silent. Batch `GET /allScholership?ids=a,b` server endpoint needed. Defer (needs server).
 
-- [x] **12. [Bug] Wrong icon for view count** — `QuestionCard.jsx:109` footer `Share2` for views should be `Eye` (`lucide-react` `Eye` already used `QuestionDetail.jsx:131` correctly). Swapped import `Share2 → Eye` (kept `MoreHorizontal`). Verify: footer shows Eye for views, Share2 remains only on detail Share button, lint/build.
+- [ ] **D5. [P3] MyApplication dead lines + no pagination + useDebounced duplication** — `MyApplication.jsx:34` `next.delete("view"); next.set("view",view)` no-op, unbounded `apply` load, `AllScholership.jsx:25` + `BrowseQuestions.jsx:14` duplicate `useDebounced`. Extract `src/Hooks/useDebounce.js`. Defer.
 
 ---
 
@@ -81,4 +68,3 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## TODO — Next
 - Merge `perf/*` branches into main in rank order + live `explain()` + Lighthouse + deploy (needs owner "deploy approved").
-

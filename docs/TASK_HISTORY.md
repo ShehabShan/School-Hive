@@ -6,6 +6,31 @@ Completed work moved from `TASKS.md`. `TASKS.md` stays lean (IN PROGRESS / TODO 
 
 ---
 
+## 2026-09-04 — Q&A Forum Round — 8 Issues + Card Polish Pass (4 Items) — Completed Batch Moved
+
+> **Source:** Two consecutive batches — `TODO — Q&A Forum Round — 8 Issues (2026-09-04)` (1-8) + `TODO — Card Polish Pass — 4 Items (2026-09-04)` (9-12) — all `[x]` per archive rule in `TASKS.md:10`, moved to keep TASKS lean. Each item one-sitting ending `Verify:`.
+
+### Q&A Forum Round — 8 Issues
+
+- [x] **1. [Bug] Gate "Show scheduled scholarships" to scholarship creators** — `PreferencesPanel.jsx:27` Toggle unless `isInstitution || isSuperAdmin` (`Routes.jsx:114/132`). Verify: student/mod/admin 2 toggles, institution/superadmin 3; `PATCH /users/me` persist; lint/build.
+- [x] **2. [Bug] Fix broken profile stats/tabs on every role** — `MyProfile.jsx:309 adminStats` labels `Users/Scholarships/Applications/Pending` add `to` (`/adminDashboard/manageUsers|manageScholarships|manageAppliedApplication|manageReviews`) fix `#students` → `/institutionDashboard/students` enable `allUsers` for `isAdminOrMod`. Verify: chips `Link` hover lift, lint/build.
+- [x] **3. [Feature] Follower-visibility single setting** — `preferences.showFollowersOnPublic` boolean default `true` (`!==false`) no new collection; server `createUser:128` `profile.validator:164` `patchMe:460` gate `getFollowers:571` `getPublicStats:402` `pickPublic:286` hide tile via `hasValue`; client `PreferencesPanel.jsx:27` Toggle `Show followers` + `ProfileHeaderQuora.jsx:44` omit when `false && !isOwner`. Verify: toggle OFF visitor empty, ON sees, lint/build + curl.
+- [x] **4. [Bug] "Answer" tab on public profile redirects to "About"** — `PublicProfile.jsx:82 useEffect([aTotal,qTotal,active])` bounce `hasInteractedRef` mount-only, `AnswersTab.jsx:59` empty. Verify: click Answer stays, lint/build.
+- [x] **5. [Feature] Show question author everywhere + link** — `AuthorBlock.jsx:11` `Link to /profile/:email` `stopPropagation` hover, `QuestionCard.jsx:51,88` outer `Link` → `article/div` + title `Link` + author header `AuthorBlock size=sm time` `useAuthor` cache. Verify: browse cards header `avatar/name/Verified/time` linked, detail linked, no nested `<a>`, lint/build.
+- [x] **6. [Needs scoping → Feature] "Your Answer" section — easy/reliable** — A 3-bullet guidance + `Posting as {name}·{rep}` + `isAsker` amber + B-lite `localStorage answers:draft:<id>` 500ms Edit|Preview segmented `live 20-char` `Clear draft` disabled until ≥20. `AnswerForm.jsx:5` `RichTextEditor.jsx:14` `QuestionDetail.jsx:207`. Verify: guideline + draft persist, preview tabs, lint/build.
+- [x] **7. [Feature] Redesign All Questions cards single-column post-style + author header** — `PostCard` `header AuthorBlock` `title 16px` `stripMarkdown 150 + More` `footer ArrowBigUp·MessageSquare·Eye` `border-t` `view` deprecated `limit 12` `space-y-4` `skeleton avatar`. `docs/img/all-questions-current.png` / `quora-reference.png` placeholders. Verify: single column, author top linked, More expands, lint/build.
+- [x] **8. [Feature] Replace pagination with infinite scroll** — `BrowseQuestions.jsx:80` `useInfiniteQuery` `initialPageParam 1` `getNextPageParam` `sentinel rootMargin 200px` `Load more` remove pager/page param keep filter/search/sort URL-sync `limit 12` `pages.flatMap`. Verify: scroll triggers, filter reset, lint/build.
+
+### Card Polish Pass — 4 Items
+
+- [x] **9. [Bug/Feature] Description expand — one-way + text clickable** — `QuestionCard.jsx:50` `setExpanded(true)` one-way hide `(less)` `p onClick` `cursor-pointer` final. Verify: `(more)` or text expands, no collapse.
+- [x] **10. [Bug] Upvote button doesn't work on card + downvote arrow (image-three)** — `span` no handler → `button handleUpvote/handleDownvote` `useRole/useAxiosSecure/hasVoted rep>=125` `POST /questions/:id/upvote|downvote` `invalidate ["questions-browse"]`, server `downvoterIds` `downvoteQuestion` + `routes`. Keep Eye views. Verify: API fires, toast, lint/build.
+- [x] **Held — Question-downvote scope** — implemented via image-three pick Add downvote arrow (see 10).
+- [x] **11. [Feature] Inline comment section on click** — `MessageSquare` button `setShowComments` `CommentThread.jsx:1` adapted to `question_comments` `db.js:33` `comment.validator 1-500` `POST/GET /questions/:id/comments` `question.controller/routes` threading `parentCommentId` `G Add a comment…` input top + list below `Board` reuse. Verify: click expands input+list, post, reply nesting, lint/build + curl.
+- [x] **12. [Bug] Wrong icon for view count** — `Share2 → Eye` `QuestionCard.jsx:109` keep `Share2` only on detail Share button. Verify: Eye for views.
+
+---
+
 ## 2026-09-04 — Profile System Redesign (Quora-inspired, premium, imgbb) — Completed Batch Moved
 
 > **Context:** Full redesign of user profile system extending the existing working app (do not rebuild). Fix `null`/blank rendering bug, adapt Quora UX principles (hierarchy, credibility signals, progressive disclosure, graceful empty states) to School-Hive's real content model (scholarships, applications, reviews, saved, Q&A questions/answers, follows, institution org data).
