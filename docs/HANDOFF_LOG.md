@@ -25,9 +25,9 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 - Server `3744e08` (`feature/subfeatures`, pushed): `GET/POST /questions/:id/comments` routes, `createQuestionComment`/`listQuestionComments` (+ their notification emits), `comment.validator.js`, db collection/index wiring removed. `question_comments` data **left in Mongo** (owner choice) — recoverable for B2.
 
 ### LEFT
-- Server branch needs merge→main + deploy (owner approval) — until then old comment endpoints still respond on prod but nothing in the UI calls them.
-- Client needs Firebase deploy (owner approval).
+- ~~Deploy~~ **DEPLOYED 2026-09-04** (owner approved): server `feature/subfeatures` → main (`dd7fe3c..5b2c4e1`) + `./scripts/deploy.sh` client release. Verified: `/questions/:id/comments` → 404, client 200.
 - B2 backlog note updated: comments-under-answers to be built fresh when scheduled.
+- `origin/feature/favorites` deleted from both repos (monkeycode-ai duplicate of the existing save system; server side targeted the obsolete monolith `index.js`) — never merged, main untouched.
 
 ---
 

@@ -56,7 +56,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - [x] Card footer fix — the "comment" button was showing `answerCount` but opening a comment wall (`QuestionCard.jsx:152`); replaced with an **Answers chip** (existing `AnswerStat`: accepted ✓ / answered / unanswered states) linking to `/questions/:id#answer`; dead `⋯` dropped; compact views — client `85912bf`
 - [x] `CommentThread.jsx` deleted (sole importer was the card); `question_comment`/`comment_reply` notification types removed from bell
-- [x] Server: comment routes, controller fns, `comment.validator.js`, db collection wiring removed — `3744e08` on `feature/subfeatures` (deploy pending approval). `question_comments` data **left in Mongo** per owner decision
+- [x] Server: comment routes, controller fns, `comment.validator.js`, db collection wiring removed — `3744e08` on `feature/subfeatures`, **merged to main + DEPLOYED 2026-09-04** (owner approved; verified: `/questions/:id/comments` → 404). `question_comments` data **left in Mongo** per owner decision
 - Spec §1.4 alignment: clarifications belong as comments *under answers* (→ B2), not a general wall on the question
 
 ---
