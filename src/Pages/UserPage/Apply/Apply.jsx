@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { format } from "date-fns";
 import {
   Calendar,
@@ -6,6 +6,7 @@ import {
   Building2,
   User,
   Send,
+  Eraser,
 } from "lucide-react";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "../../../assist/add-data.png";
@@ -33,6 +34,17 @@ const SectionTitle = ({ icon: Icon, title }) => (
   </h3>
 );
 
+const DRAFT_FIELDS = [
+  "applicantVillage",
+  "applicantDistrict",
+  "applicantCountry",
+  "applyingDegree",
+  "applicantGender",
+  "SSCResult",
+  "HSCResult",
+  "applicantNumber",
+];
+
 export default function Apply() {
   const { id } = useParams();
   const [scholarship] = useSingleScholership(id);
@@ -40,6 +52,63 @@ export default function Apply() {
   const { user } = useAuth();
   const [userId, setUserId] = useState([]);
   const navigate = useNavigate();
+  const formRef = useRef(null);
+  const timerRef = useRef(null);
+  const [draftSaved, setDraftSaved] = useState(false);
+  const [draftRestored, setDraftRestored] = useState(false);
+  const draftKey = `apply:draft:${id}`;
+
+  useEffect(() => {
+    const form = formRef.current;
+    if (!form || !id) return;
+    try {
+      const raw = localStorage.getItem(draftKey);
+      if (!raw) return;
+      const draft = JSON.parse(raw);
+      let restored = 0;
+      for (const key of DRAFT_FIELDS) {
+        if (draft[key] === undefined) continue;
+        const el = form.elements.namedItem(key);
+        if (el && el.type !== "file") {
+          el.value = draft[key];
+          restored += 1;
+        }
+      }
+      if (restored > 0) {
+        setDraftRestored(true);
+        const t = setTimeout(() => setDraftRestored(false), 4000);
+        return () => clearTimeout(t);
+      }
+    } catch {
+      /* corrupted draft — ignore */
+    }
+  }, [id, draftKey]);
+
+  const handleFormChange = () => {
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      const form = formRef.current;
+      if (!form) return;
+      const draft = {};
+      for (const key of DRAFT_FIELDS) {
+        const el = form.elements.namedItem(key);
+        if (el && el.type !== "file" && el.value) draft[key] = el.value;
+      }
+      if (Object.keys(draft).length === 0) return;
+      localStorage.setItem(draftKey, JSON.stringify(draft));
+      setDraftSaved(true);
+    }, 500);
+  };
+
+  const clearDraft = () => {
+    localStorage.removeItem(draftKey);
+    formRef.current?.reset();
+    setPostDate(new Date());
+    setDraftSaved(false);
+    setDraftRestored(false);
+  };
+
+  useEffect(() => () => clearTimeout(timerRef.current), []);
 
   const axiosPublic = useAxiosPublic();
   const axiosSecure = useAxiosSecure();
@@ -89,6 +158,7 @@ export default function Apply() {
     try {
       const { data } = await axiosSecure.post("/apply", initialData);
       if (data.data.insertedId) {
+        localStorage.removeItem(draftKey);
         e.target.reset();
         navigate("/userDashboard/myApplication");
       }
@@ -100,6 +170,8 @@ export default function Apply() {
   return (
     <div className="min-h-screen bg-slate-50 p-4 md:p-8">
       <form
+        ref={formRef}
+        onChange={handleFormChange}
         onSubmit={handleSubmit}
         className="mx-auto w-full max-w-3xl overflow-hidden rounded-2xl bg-white shadow-soft ring-1 ring-slate-100"
       >
@@ -272,13 +344,29 @@ export default function Apply() {
             </FormField>
           </section>
 
-          <button
-            type="submit"
-            className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-base font-bold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift"
-          >
-            <Send className="h-4 w-4" />
-            Submit Application
-          </button>
+          {(draftSaved || draftRestored) && (
+            <p className={`flex items-center gap-1.5 text-xs font-semibold ${draftRestored ? "text-brand-600" : "text-emerald-600"}`}>
+              {draftRestored ? "Draft restored — continue where you left off" : "Draft saved automatically"}
+            </p>
+          )}
+
+          <div className="flex flex-col gap-3 sm:flex-row">
+            <button
+              type="submit"
+              className="flex flex-1 items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-base font-bold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift"
+            >
+              <Send className="h-4 w-4" />
+              Submit Application
+            </button>
+            <button
+              type="button"
+              onClick={clearDraft}
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-white px-5 py-3.5 text-sm font-semibold text-slate-500 ring-1 ring-slate-200 transition hover:bg-slate-50 hover:text-slate-700"
+            >
+              <Eraser className="h-4 w-4" />
+              Clear draft
+            </button>
+          </div>
         </div>
       </form>
     </div>
