@@ -1,4 +1,4 @@
-import { createContext, useEffect, useState } from "react";
+import { createContext, useEffect, useState, useCallback, useMemo } from "react";
 import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
@@ -18,39 +18,39 @@ const AuthProvider = ({ children }) => {
   const [tokenLoaded, setTokenLoaded] = useState(false);
   const axiosPublic = useAxiosPublic();
 
-  const createUser = (email, password) => {
+  const createUser = useCallback((email, password) => {
     setLoading(true);
     return createUserWithEmailAndPassword(auth, email, password);
-  };
+  }, []);
 
-  const signIn = (email, password) => {
+  const signIn = useCallback((email, password) => {
     setLoading(true);
     return signInWithEmailAndPassword(auth, email, password);
-  };
+  }, []);
 
-  const googleSingIn = async () => {
+  const googleSingIn = useCallback(async () => {
     setLoading(true);
     const { GoogleAuthProvider: GPA, signInWithPopup: SIP } = await import("firebase/auth");
     const provider = new GPA();
     return SIP(auth, provider);
-  };
+  }, []);
 
-  const logOut = () => {
+  const logOut = useCallback(() => {
     localStorage.removeItem("access-token");
     setLoading(true);
     return signOut(auth);
-  };
+  }, []);
 
-  const updateUserProfile = (name, photo) => {
+  const updateUserProfile = useCallback((name, photo) => {
     return updateProfile(auth.currentUser, {
       displayName: name,
       photoURL: photo,
     });
-  };
+  }, []);
 
-  const sendResetPassword = (email) => {
+  const sendResetPassword = useCallback((email) => {
     return sendPasswordResetEmail(auth, email);
-  };
+  }, []);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -91,7 +91,7 @@ const AuthProvider = ({ children }) => {
     };
   }, []);
 
-  const authInfo = {
+  const authInfo = useMemo(() => ({
     user,
     setUser,
     loading,
@@ -102,7 +102,7 @@ const AuthProvider = ({ children }) => {
     googleSingIn,
     sendResetPassword,
     tokenLoaded,
-  };
+  }), [user, loading, tokenLoaded, createUser, signIn, logOut, updateUserProfile, googleSingIn, sendResetPassword]);
 
   return (
     <AuthContext.Provider value={authInfo}>{children}</AuthContext.Provider>

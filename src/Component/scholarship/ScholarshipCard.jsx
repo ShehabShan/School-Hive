@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { Link } from "react-router-dom";
 import { GraduationCap, MapPin, ArrowRight, Eye, Pencil, Trash2, Bookmark, BookmarkCheck, Scale, Clock } from "lucide-react";
 import Stars from "../ui/Stars";
@@ -13,7 +14,7 @@ const fmtMoney = (n, currency = "USD") => {
   }
 };
 
-export default function ScholarshipCard({
+function ScholarshipCard({
   scholarship,
   variant = "browse", // browse | manage | compact
   onDelete,
@@ -198,3 +199,4 @@ export default function ScholarshipCard({
     </article>
   );
 }
+export default memo(ScholarshipCard);
