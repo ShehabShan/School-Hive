@@ -1,9 +1,8 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { MessageSquare, CheckCircle2, ArrowBigUp, ArrowBigDown, Eye, MoreHorizontal } from "lucide-react";
+import { CheckCircle2, ArrowBigUp, ArrowBigDown, Eye } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import AuthorBlock from "./AuthorBlock";
-import CommentThread from "./CommentThread";
 import useRole from "../../Hooks/useRole";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import toast from "react-hot-toast";
@@ -72,7 +71,6 @@ export function AnswerStat({ count, accepted }) {
 
 function PostCard({ q }) {
   const [expanded, setExpanded] = useState(false);
-  const [showComments, setShowComments] = useState(false);
   const full = stripMarkdown(q.body);
   const isLong = full.length > 150;
   const snippet = expanded ? full : full.slice(0, 150);
@@ -142,18 +140,26 @@ function PostCard({ q }) {
           ))}
         </div>
       )}
-      <div className="flex items-center gap-1 px-4 py-2.5 text-xs sm:px-5">
+      <div className="flex flex-wrap items-center gap-1.5 px-4 py-2.5 text-xs sm:px-5">
         <button onClick={handleUpvote} disabled={!me || hasVoted} title={!me ? "Sign in to vote" : hasVoted ? "Already voted" : "Upvote — asker earns +2"} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ring-1 ${iUpvoted ? "bg-brand-600 text-white ring-brand-600" : "bg-sky-50 text-sky-700 ring-sky-100 hover:bg-sky-100"} disabled:opacity-40`}>
           <ArrowBigUp className={`h-3.5 w-3.5 ${iUpvoted ? "fill-white" : ""}`} /> Upvote · {formatCompact(q.voteScore ?? 0)}
         </button>
         <button onClick={handleDownvote} disabled={!me || hasVoted || !canDownvote} title={!me ? "Sign in to vote" : !canDownvote ? "125 rep required to downvote" : hasVoted ? "Already voted" : "Downvote"} className={`inline-flex h-7 w-7 items-center justify-center rounded-full border bg-white shadow-sm disabled:opacity-30 ${iDownvoted ? "border-sky-200 bg-sky-50 text-sky-600" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
           <ArrowBigDown className="h-3.5 w-3.5" />
         </button>
-        <button onClick={(e)=>{ e.preventDefault(); e.stopPropagation(); setShowComments(v=>!v); }} className="ml-2 inline-flex items-center gap-1 text-slate-500 hover:text-slate-700" title="comments"><MessageSquare className="h-3.5 w-3.5" /> {q.answerCount ?? 0}</button>
-        <span className="inline-flex items-center gap-1 text-slate-500" title="views"><Eye className="h-3.5 w-3.5" /> {q.viewCount ?? 0}</span>
-        <span className="ml-auto inline-flex items-center gap-1 text-slate-400"><MoreHorizontal className="h-4 w-4" /></span>
+        <Link
+          to={`/questions/${q._id}#answer`}
+          onClick={(e) => e.stopPropagation()}
+          className="ml-1 inline-flex items-center gap-1.5 rounded-full px-1 py-0.5 transition-colors hover:bg-slate-50"
+          title={q.acceptedAnswerId ? "Accepted answer — view answers" : (q.answerCount ?? 0) > 0 ? "View answers" : "Be the first to answer"}
+        >
+          <AnswerStat count={q.answerCount ?? 0} accepted={Boolean(q.acceptedAnswerId)} />
+          <span className="font-bold text-slate-500">Answer{(q.answerCount ?? 0) === 1 ? "" : "s"}</span>
+        </Link>
+        <span className="ml-auto inline-flex items-center gap-1 tabular-nums text-slate-500" title={`${q.viewCount ?? 0} views`}>
+          <Eye className="h-3.5 w-3.5" /> {formatCompact(q.viewCount ?? 0)}
+        </span>
       </div>
-      {showComments && <CommentThread questionId={q._id} />}
     </article>
   );
 }

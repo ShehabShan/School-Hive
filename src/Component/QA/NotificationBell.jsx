@@ -1,15 +1,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Bell, CheckCheck, MessagesSquare, CheckCircle2, MessageCircle, Reply, UserPlus } from "lucide-react";
+import { Bell, CheckCheck, MessagesSquare, CheckCircle2, UserPlus } from "lucide-react";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useAuth from "../../Hooks/useAuth";
 
 const TYPE_META = {
   question_answered: { Icon: MessagesSquare, tone: "bg-brand-50 text-brand-600", text: (n) => `${n.actorEmail || "Someone"} answered "${n.payload?.questionTitle || "your question"}"` },
   answer_accepted: { Icon: CheckCircle2, tone: "bg-emerald-50 text-emerald-600", text: (n) => `Your answer on "${n.payload?.questionTitle || "a question"}" was accepted` },
-  question_comment: { Icon: MessageCircle, tone: "bg-sky-50 text-sky-600", text: (n) => `${n.actorEmail || "Someone"} commented on "${n.payload?.questionTitle || "your question"}"` },
-  comment_reply: { Icon: Reply, tone: "bg-sky-50 text-sky-600", text: (n) => `${n.actorEmail || "Someone"} replied to your comment on "${n.payload?.questionTitle || "a question"}"` },
   question_followed: { Icon: UserPlus, tone: "bg-amber-50 text-amber-600", text: (n) => `${n.actorEmail || "Someone"} is following "${n.payload?.questionTitle || "your question"}"` },
 };
 

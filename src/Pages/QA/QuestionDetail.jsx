@@ -231,7 +231,7 @@ export default function QuestionDetail(){
             </section>
 
             {/* Your answer */}
-            <section id="answer">
+            <section id="answer" className="scroll-mt-24">
               {me
                 ? <AnswerForm onSubmit={handleAnswer} submitting={submittingAns} questionId={id} isAsker={isAsker} me={me} context={q.context} />
                 : (
