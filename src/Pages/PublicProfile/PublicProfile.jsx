@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPublic from "../../Hooks/useAxiosPublic";
@@ -78,17 +78,19 @@ export default function PublicProfile() {
 
   const [active, setActive] = useState("answers");
   const [visited, setVisited] = useState({ answers: true });
+  const hasInteractedRef = useRef(false);
 
-  // default tab fallback: if answers empty, switch to About after totals load
+  // default tab fallback: only once on mount when both totals are known and both zero — not after user clicks
   useEffect(() => {
-    if (aTotal === 0 && active === "answers") {
-      if (typeof aTotal === "number" && aTotal === 0 && (typeof qTotal === "number" ? qTotal === 0 : true)) {
-        setActive("about");
-      }
+    if (hasInteractedRef.current) return;
+    if (typeof aTotal === "number" && typeof qTotal === "number" && aTotal === 0 && qTotal === 0) {
+      setActive("about");
+      setVisited((v) => ({ ...v, about: true }));
     }
-  }, [aTotal, qTotal, active]);
+  }, [aTotal, qTotal]);
 
   const onTab = (id) => {
+    hasInteractedRef.current = true;
     setActive(id);
     setVisited((v) => ({ ...v, [id]: true }));
   };
