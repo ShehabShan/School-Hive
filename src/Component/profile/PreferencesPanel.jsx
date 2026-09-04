@@ -3,7 +3,7 @@ import useRole from "../../Hooks/useRole";
 import useSuperAdmin from "../../Hooks/useSuperAdmin";
 
 export default function PreferencesPanel({ preferences, onChange }) {
-  const p = preferences || { visibility: "public", showStatsOnPublic: true, showScheduledOnProfile: false, emailNotifications: true };
+  const p = preferences || { visibility: "public", showStatsOnPublic: true, showScheduledOnProfile: false, showFollowersOnPublic: true, emailNotifications: true };
   const { isApprovedInstitution } = useRole();
   const [isSuperAdmin] = useSuperAdmin();
   const canSchedule = isApprovedInstitution || isSuperAdmin;
@@ -30,6 +30,7 @@ export default function PreferencesPanel({ preferences, onChange }) {
         </div>
         <Toggle label="Show stats on public profile" desc="Let visitors see your application & review counts" checked={p.showStatsOnPublic} onToggle={(v)=> onChange({ ...p, showStatsOnPublic: v })} />
         {canSchedule && <Toggle label="Show scheduled scholarships" desc="Display upcoming scholarships on your public page" checked={p.showScheduledOnProfile} onToggle={(v)=> onChange({ ...p, showScheduledOnProfile: v })} />}
+        <Toggle label="Show followers on public profile" desc="Let visitors see who follows you and who you follow" checked={p.showFollowersOnPublic !== false} onToggle={(v)=> onChange({ ...p, showFollowersOnPublic: v })} />
         <Toggle label="Email notifications" desc="Receive updates about applications & scholarships" checked={p.emailNotifications} onToggle={(v)=> onChange({ ...p, emailNotifications: v })} />
       </div>
     </div>
