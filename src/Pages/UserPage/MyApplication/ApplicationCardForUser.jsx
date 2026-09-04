@@ -1,4 +1,4 @@
-import { FaUser } from "react-icons/fa";
+import { User } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
@@ -30,7 +30,7 @@ const ApplicationCardForUser = () => {
   return (
     <div className="mx-auto w-full max-w-4xl">
       <PageHeader
-        icon={FaUser}
+        icon={User}
         title="Application Details"
         subtitle={singleApply?.email}
         actions={<StatusBadge status={singleApply?.applicationStatus} />}

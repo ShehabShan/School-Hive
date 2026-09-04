@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { FaFileAlt } from "react-icons/fa";
+import { FileText } from "lucide-react";
 import { ShieldCheck, LayoutGrid, List, Table, Search, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, Link } from "react-router-dom";
@@ -87,7 +87,7 @@ export default function MyApplication() {
   return (
     <div className="my-applications-wrapper container mx-auto px-4 py-8">
       <PageHeader
-        icon={FaFileAlt}
+        icon={FileText}
         title="My Applications"
         subtitle={`Track the status of the ${apply?.length || 0} scholarships you applied to`}
         actions={
@@ -138,7 +138,7 @@ export default function MyApplication() {
       ) : apply?.length === 0 ? (
         <div className="mt-6">
           <EmptyState
-            icon={FaFileAlt}
+            icon={FileText}
             title="No applications yet"
             message="You haven't applied to any scholarships yet. Explore opportunities and start your journey."
             action={<Link to="/allScholership" className="rounded-xl bg-brand-600 px-5 py-2.5 text-sm font-bold text-white shadow-soft hover:bg-brand-700">Browse Scholarships</Link>}

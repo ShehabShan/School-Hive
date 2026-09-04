@@ -1,5 +1,5 @@
 import Swal from "sweetalert2";
-import { FaStar } from "react-icons/fa";
+import { Star } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import useAuth from "../../../Hooks/useAuth";
@@ -83,7 +83,7 @@ const MyReviews = () => {
 
   return (
     <div>
-      <PageHeader icon={FaStar} title="My Reviews" subtitle={`Reviews you've written (${myReviews?.length || 0}) — 1 per scholarship, edits re-queue as pending`} />
+      <PageHeader icon={Star} title="My Reviews" subtitle={`Reviews you've written (${myReviews?.length || 0}) — 1 per scholarship, edits re-queue as pending`} />
 
       {isLoading ? (
         <div className="flex justify-center py-20">

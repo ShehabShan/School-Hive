@@ -13,7 +13,7 @@ import {
   ShieldCheck,
   AlertTriangle,
 } from "lucide-react";
-import { FaCalendarAlt } from "react-icons/fa";
+import { Calendar } from "lucide-react";
 import toast from "react-hot-toast";
 import useAuth from "../../Hooks/useAuth";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
@@ -268,7 +268,7 @@ function AddReview() {
                 <div>
                   <p className="text-xs font-bold uppercase tracking-widest text-slate-400">Review date</p>
                   <p className="flex items-center gap-1.5 text-sm font-semibold text-slate-800">
-                    <FaCalendarAlt className="h-3.5 w-3.5 text-brand-500" />
+                    <Calendar className="h-3.5 w-3.5 text-brand-500" />
                     {format(postDate, "PPP")}
                   </p>
                 </div>

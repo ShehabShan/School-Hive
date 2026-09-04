@@ -1,4 +1,4 @@
-import { FaEye, FaStar } from "react-icons/fa";
+import { Eye, Star } from "lucide-react";
 import { ShieldCheck, MapPin, GraduationCap, BookOpen, DollarSign } from "lucide-react";
 import StatusBadge from "../../../Component/ui/StatusBadge";
 
@@ -13,7 +13,7 @@ export default function ApplicationCard({ applicant, hasReviewed, onView, varian
       title="View application"
       aria-label="View application"
     >
-      <FaEye className="h-4 w-4" />
+      <Eye className="h-4 w-4" />
     </button>
   );
 
@@ -25,7 +25,7 @@ export default function ApplicationCard({ applicant, hasReviewed, onView, varian
           className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-100 text-slate-400 ring-1 ring-slate-200 cursor-not-allowed"
           title="Review available only after moderator accepts your application"
         >
-          <FaStar className="h-4 w-4" />
+          <Star className="h-4 w-4" />
         </button>
       );
     }
@@ -46,7 +46,7 @@ export default function ApplicationCard({ applicant, hasReviewed, onView, varian
         className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-amber-100 text-amber-600 ring-1 ring-amber-200 hover:bg-amber-500 hover:text-white"
         title="Write a review (verified applicant, 1 per scholarship)"
       >
-        <FaStar className="h-4 w-4" />
+        <Star className="h-4 w-4" />
       </a>
     );
   };

@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { format } from "date-fns";
 import {
-  FaCalendarAlt,
-  FaGraduationCap,
-  FaUniversity,
-  FaUser,
-  FaPaperPlane,
-} from "react-icons/fa";
+  Calendar,
+  GraduationCap,
+  Building2,
+  User,
+  Send,
+} from "lucide-react";
 import "react-datepicker/dist/react-datepicker.css";
 import Image from "../../../assist/add-data.png";
 import useAxiosPublic from "../../../Hooks/useAxiosPublic";
@@ -120,7 +120,7 @@ export default function Apply() {
         <div className="space-y-8 p-6 md:p-8">
           {/* Applicant Details */}
           <section>
-            <SectionTitle icon={FaUser} title="Applicant Details" />
+            <SectionTitle icon={User} title="Applicant Details" />
             <div className="grid gap-4 md:grid-cols-2">
               <FormField label="University Name">
                 <input
@@ -160,7 +160,7 @@ export default function Apply() {
 
           {/* Scholarship Information */}
           <section className="border-t border-slate-100 pt-8">
-            <SectionTitle icon={FaGraduationCap} title="Scholarship Information" />
+            <SectionTitle icon={GraduationCap} title="Scholarship Information" />
             <div className="grid gap-4 md:grid-cols-2">
               <FormField label="Scholarship Type">
                 <p className="rounded-xl bg-brand-50 px-3 py-2.5 text-sm font-semibold text-brand-700 ring-1 ring-brand-100">
@@ -232,7 +232,7 @@ export default function Apply() {
                   onClick={() => setPostDate(new Date())}
                 >
                   <span className="flex items-center gap-2">
-                    <FaCalendarAlt className="text-brand-500" />
+                    <Calendar className="text-brand-500" />
                     {postDate ? format(postDate, "PPP") : "March 15, 2025"}
                   </span>
                   <span className="rounded-md bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">
@@ -245,7 +245,7 @@ export default function Apply() {
 
           {/* Photo */}
           <section className="border-t border-slate-100 pt-8">
-            <SectionTitle icon={FaUniversity} title="Photo" />
+            <SectionTitle icon={Building2} title="Photo" />
             <div className="flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
               <span className="shrink-0 rounded-lg bg-brand-50 px-2.5 py-1 text-xs font-bold text-brand-600">
                 Upload
@@ -261,7 +261,7 @@ export default function Apply() {
 
           {/* Contact */}
           <section className="border-t border-slate-100 pt-8">
-            <SectionTitle icon={FaUser} title="Contact Info" />
+            <SectionTitle icon={User} title="Contact Info" />
             <FormField label="Phone Number" required>
               <input
                 type="number"
@@ -276,7 +276,7 @@ export default function Apply() {
             type="submit"
             className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-brand-600 to-brand-700 px-6 py-3.5 text-base font-bold text-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift"
           >
-            <FaPaperPlane className="h-4 w-4" />
+            <Send className="h-4 w-4" />
             Submit Application
           </button>
         </div>

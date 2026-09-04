@@ -1,4 +1,4 @@
-import { FaMailBulk, FaCalendarAlt, FaUser, FaBookOpen } from "react-icons/fa";
+import { Mail, Calendar, User, BookOpen } from "lucide-react";
 import useAxiosSecure from "../../../../Hooks/useAxiosSecure";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -21,10 +21,10 @@ const ApplicationCard = () => {
   const totalFees = Number(singleApply?.applicationFees || 0) + Number(singleApply?.serviceCharge || 0);
 
   const infoRows = [
-    { icon: FaMailBulk, label: "Email", value: singleApply?.email },
-    { icon: FaCalendarAlt, label: "Posted", value: singleApply?.postDate },
-    { icon: FaBookOpen, label: "Subject", value: singleApply?.subjectName },
-    { icon: FaUser, label: "Scholarship", value: `${singleApply?.scholarshipCategory || "—"} Scholarship` },
+    { icon: Mail, label: "Email", value: singleApply?.email },
+    { icon: Calendar, label: "Posted", value: singleApply?.postDate },
+    { icon: BookOpen, label: "Subject", value: singleApply?.subjectName },
+    { icon: User, label: "Scholarship", value: `${singleApply?.scholarshipCategory || "—"} Scholarship` },
   ];
 
   if (isLoading) {
@@ -38,7 +38,7 @@ const ApplicationCard = () => {
   return (
     <div className="mx-auto w-full max-w-4xl">
       <PageHeader
-        icon={FaUser}
+        icon={User}
         title="Application Details"
         subtitle={singleApply?.email || "Review applicant information"}
         actions={<StatusBadge status={singleApply?.applicationStatus} />}

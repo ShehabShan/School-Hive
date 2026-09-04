@@ -1,16 +1,16 @@
-import { FaMailBulk, FaCalendarAlt, FaUser, FaBookOpen } from "react-icons/fa";
+import { Mail, Calendar, User, BookOpen } from "lucide-react";
 import StatusBadge from "../../../Component/ui/StatusBadge";
 
 export default function ApplicationDetails({ data }) {
   if (!data) return null;
   const totalFees = Number(data?.applicationFees) + Number(data?.serviceCharge);
   const infoRows = [
-    { icon: FaMailBulk, label: "Email", value: data?.email },
-    { icon: FaCalendarAlt, label: "Posted", value: data?.postDate },
-    { icon: FaBookOpen, label: "Subject", value: data?.subjectName },
-    { icon: FaUser, label: "Scholarship", value: `${data?.scholarshipCategory} Scholarship` },
-    { icon: FaUser, label: "Degree", value: data?.applyingDegree || data?.Postgraduate || "—" },
-    { icon: FaMailBulk, label: "District", value: data?.applicantDistrict || "—" },
+    { icon: Mail, label: "Email", value: data?.email },
+    { icon: Calendar, label: "Posted", value: data?.postDate },
+    { icon: BookOpen, label: "Subject", value: data?.subjectName },
+    { icon: User, label: "Scholarship", value: `${data?.scholarshipCategory} Scholarship` },
+    { icon: User, label: "Degree", value: data?.applyingDegree || data?.Postgraduate || "—" },
+    { icon: Mail, label: "District", value: data?.applicantDistrict || "—" },
   ];
 
   return (

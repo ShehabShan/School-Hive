@@ -14,7 +14,7 @@ export default defineConfig({
         manualChunks: {
           vendor: ['react', 'react-dom', 'react-router-dom'],
           query: ['@tanstack/react-query', 'axios'],
-          ui: ['framer-motion', 'lucide-react', 'react-icons'],
+          ui: ['framer-motion', 'lucide-react'],
           firebase: ['firebase/app', 'firebase/auth'],
         },
       },

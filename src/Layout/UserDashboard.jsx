@@ -1,11 +1,11 @@
-import { FaHome, FaFileAlt, FaStar, FaUserGraduate, FaArrowRight } from "react-icons/fa";
+import { Home, FileText, Star, GraduationCap, ArrowRight } from "lucide-react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import useAuth from "../Hooks/useAuth";
 
 const navItems = [
-  { to: "/userDashboard/myProfile", label: "My Profile", icon: <FaUserGraduate /> },
-  { to: "/userDashboard/myApplication", label: "My Application", icon: <FaFileAlt /> },
-  { to: "/userDashboard/myReviews", label: "My Reviews", icon: <FaStar /> },
+  { to: "/userDashboard/myProfile", label: "My Profile", icon: <GraduationCap className="h-4 w-4" /> },
+  { to: "/userDashboard/myApplication", label: "My Application", icon: <FileText className="h-4 w-4" /> },
+  { to: "/userDashboard/myReviews", label: "My Reviews", icon: <Star className="h-4 w-4" /> },
 ];
 
 const UserDashboard = () => {
@@ -20,7 +20,7 @@ const UserDashboard = () => {
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 lg:flex-col lg:items-stretch lg:border-b lg:px-0 lg:py-0">
             <Link to="/" className="flex items-center gap-3 lg:hidden">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white">
-                <FaUserGraduate />
+                <GraduationCap className="h-5 w-5 text-white" />
               </span>
               <span className="text-lg font-extrabold tracking-tight text-slate-900">
                 School Hive
@@ -70,7 +70,7 @@ const UserDashboard = () => {
                         <>
                           <span className={`flex h-8 w-8 items-center justify-center rounded-lg transition-colors ${isActive ? "bg-brand-600 text-white" : "bg-slate-100 text-slate-500 group-hover:bg-brand-100 group-hover:text-brand-600"}`}>{item.icon}</span>
                           {item.label}
-                          {isActive && <FaArrowRight className="ml-auto text-xs text-brand-400" />}
+                          {isActive && <ArrowRight className="ml-auto h-3 w-3 text-brand-400" />}
                         </>
                       )}
                     </NavLink>
@@ -79,7 +79,7 @@ const UserDashboard = () => {
                 <div className="my-2 border-t border-slate-100"></div>
                 <li>
                   <Link to="/" className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-500 transition-all duration-200 hover:bg-slate-50 hover:text-brand-600">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500"><FaHome /></span>Back to Home
+                    <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500"><Home className="h-4 w-4" /></span>Back to Home
                   </Link>
                 </li>
               </ul>
@@ -106,7 +106,7 @@ const UserDashboard = () => {
               to="/"
               className="flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:text-brand-600"
             >
-              <FaHome />
+              <Home className="h-4 w-4" />
               Home
             </Link>
           </nav>

@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { FcGoogle } from "react-icons/fc";
+import { Chrome } from "lucide-react";
 import useAuth from "../../Hooks/useAuth";
 
 const SocialLogin = ({ onSuccess }) => {
@@ -23,7 +23,7 @@ const SocialLogin = ({ onSuccess }) => {
       type="button"
       className="mt-6 flex w-full items-center justify-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm font-semibold text-slate-700 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-slate-300 hover:shadow-soft"
     >
-      <FcGoogle className="h-5 w-5" />
+      <Chrome className="h-5 w-5" />
       Sign in with Google
     </motion.button>
   );

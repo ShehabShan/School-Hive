@@ -1,4 +1,4 @@
-import { FaEye, FaCheckCircle, FaTimes } from "react-icons/fa";
+import { Eye, CheckCircle, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import useAuth from "../../../Hooks/useAuth";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
@@ -127,7 +127,7 @@ const MyApplication = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-slate-900 text-white transition-colors hover:bg-slate-800"
                           aria-label="View details"
                         >
-                          <FaEye className="h-3.5 w-3.5" />
+                          <Eye className="h-3.5 w-3.5" />
                         </Link>
                         <button
                           disabled={applicant?.applicationStatus === "accepted"}
@@ -135,7 +135,7 @@ const MyApplication = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-600 text-white transition-colors hover:bg-emerald-700 disabled:opacity-40 disabled:cursor-not-allowed"
                           aria-label="Accept"
                         >
-                          <FaCheckCircle className="h-3.5 w-3.5" />
+                          <CheckCircle className="h-3.5 w-3.5" />
                         </button>
                         <button
                           disabled={applicant?.applicationStatus === "rejected"}
@@ -143,7 +143,7 @@ const MyApplication = () => {
                           className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-white text-rose-600 ring-1 ring-slate-200 transition-colors hover:bg-rose-50 disabled:opacity-40 disabled:cursor-not-allowed"
                           aria-label="Reject"
                         >
-                          <FaTimes className="h-3.5 w-3.5" />
+                          <X className="h-3.5 w-3.5" />
                         </button>
                       </div>
                     </td>

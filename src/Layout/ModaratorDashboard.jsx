@@ -1,13 +1,13 @@
-import { FaHome, FaStar, FaUserShield, FaArrowRight, FaPlusCircle, FaThList, FaClipboardList } from "react-icons/fa";
+import { Home, Star, ShieldCheck, ArrowRight, PlusCircle, LayoutGrid, ClipboardList } from "lucide-react";
 import { Link, NavLink, Outlet } from "react-router-dom";
 import useAuth from "../Hooks/useAuth";
 
 const navItems = [
-  { to: "/modaratorDashboard/myProfile", label: "My Profile", icon: <FaUserShield /> },
-  { to: "/modaratorDashboard/manageScholarships", label: "Manage Scholarships", icon: <FaThList /> },
-  { to: "/modaratorDashboard/myReviews", label: "All Reviews", icon: <FaStar /> },
-  { to: "/modaratorDashboard/allAppliedScholarships", label: "All Applied", icon: <FaClipboardList /> },
-  { to: "/modaratorDashboard/addScholarships", label: "Add Scholarship", icon: <FaPlusCircle /> },
+  { to: "/modaratorDashboard/myProfile", label: "My Profile", icon: <ShieldCheck /> },
+  { to: "/modaratorDashboard/manageScholarships", label: "Manage Scholarships", icon: <LayoutGrid /> },
+  { to: "/modaratorDashboard/myReviews", label: "All Reviews", icon: <Star /> },
+  { to: "/modaratorDashboard/allAppliedScholarships", label: "All Applied", icon: <ClipboardList /> },
+  { to: "/modaratorDashboard/addScholarships", label: "Add Scholarship", icon: <PlusCircle /> },
 ];
 
 const ModaratorDashboard = () => {
@@ -20,7 +20,7 @@ const ModaratorDashboard = () => {
           <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4 lg:flex-col lg:items-stretch lg:border-b lg:px-0 lg:py-0">
             <Link to="/" className="flex items-center gap-3 lg:hidden">
               <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 text-white">
-                <FaUserShield />
+                <ShieldCheck />
               </span>
               <span className="text-lg font-extrabold tracking-tight text-slate-900">
                 School Hive
@@ -94,7 +94,7 @@ const ModaratorDashboard = () => {
                               {item.icon}
                             </span>
                             {item.label}
-                            {isActive && <FaArrowRight className="ml-auto text-xs text-brand-400" />}
+                            {isActive && <ArrowRight className="ml-auto text-xs text-brand-400" />}
                           </>
                         )}
                       </NavLink>
@@ -107,7 +107,7 @@ const ModaratorDashboard = () => {
                       className="flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold text-slate-500 transition-all duration-200 hover:bg-slate-50 hover:text-brand-600"
                     >
                       <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-slate-100 text-slate-500">
-                        <FaHome />
+                        <Home />
                       </span>
                       Back to Home
                     </Link>
@@ -136,7 +136,7 @@ const ModaratorDashboard = () => {
               to="/"
               className="flex shrink-0 items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-500 hover:bg-slate-50 hover:text-brand-600"
             >
-              <FaHome />
+              <Home />
               Home
             </Link>
           </nav>

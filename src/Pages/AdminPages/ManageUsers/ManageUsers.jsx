@@ -1,10 +1,9 @@
 import { useQuery } from "@tanstack/react-query";
-import { FaTrash, FaCrown, FaLock, FaUserShield, FaUser, FaChalkboardTeacher } from "react-icons/fa";
+import { Trash2, Crown, Lock, ShieldCheck, User, Users } from "lucide-react";
 import Swal from "sweetalert2";
 import useAxiosSecure from "../../../Hooks/useAxiosSecure";
 import PageHeader from "../../../Component/ui/PageHeader";
 import EmptyState from "../../../Component/ui/EmptyState";
-import { Users } from "lucide-react";
 import { roleMeta } from "../../../Component/profile/RoleBadge";
 
 const showError = (error) => {
@@ -125,14 +124,14 @@ const ManageUsers = () => {
                       <td className="px-4 py-3.5 text-slate-600">{u?.email}</td>
                       <td className="px-4 py-3.5">
                         <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold capitalize ring-1 ${roleBadgeClass(u?.role)}`}>
-                          {isOwner && <FaCrown className="h-3 w-3" />}
+                          {isOwner && <Crown className="h-3 w-3" />}
                           {isOwner ? "Owner" : u?.role === "institution" ? "Institution" : u?.role}
                         </span>
                       </td>
                       <td className="px-4 py-3.5">
                         {isOwner ? (
                           <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-bold text-amber-700 ring-1 ring-amber-100">
-                            <FaCrown className="h-3 w-3" /> Owner
+                            <Crown className="h-3 w-3" /> Owner
                           </span>
                         ) : u?.role === "institution" ? (
                           <span className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold capitalize ring-1 ${statusBadge(u?.status)}`}>
@@ -144,19 +143,19 @@ const ManageUsers = () => {
                               onClick={() => handleRole(u, `/users/admin/${u?._id}`, `${u?.name} is admin now`)}
                               className="inline-flex items-center gap-1 rounded-xl bg-brand-600 px-2.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-brand-700"
                             >
-                              <FaUserShield className="h-3 w-3" /> Admin
+                              <ShieldCheck className="h-3 w-3" /> Admin
                             </button>
                             <button
                               onClick={() => handleRole(u, `/users/modaretor/${u?._id}`, `${u?.name} is moderator now`)}
                               className="inline-flex items-center gap-1 rounded-xl bg-sky-600 px-2.5 py-1.5 text-xs font-bold text-white transition-colors hover:bg-sky-700"
                             >
-                              <FaChalkboardTeacher className="h-3 w-3" /> Mod
+                              <Users className="h-3 w-3" /> Mod
                             </button>
                             <button
                               onClick={() => handleRole(u, `/users/user/${u?._id}`, `${u?.name} is user now`)}
                               className="inline-flex items-center gap-1 rounded-xl bg-white px-2.5 py-1.5 text-xs font-bold text-slate-700 ring-1 ring-slate-200 transition-colors hover:bg-slate-50"
                             >
-                              <FaUser className="h-3 w-3" /> User
+                              <User className="h-3 w-3" /> User
                             </button>
                           </div>
                         )}
@@ -164,7 +163,7 @@ const ManageUsers = () => {
                       <td className="px-4 py-3.5 text-right">
                         {isOwner ? (
                           <span className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-400" title="Owner cannot be removed">
-                            <FaLock className="h-3.5 w-3.5" />
+                            <Lock className="h-3.5 w-3.5" />
                           </span>
                         ) : (
                           <button
@@ -172,7 +171,7 @@ const ManageUsers = () => {
                             className="inline-flex h-8 w-8 items-center justify-center rounded-xl bg-white text-rose-600 ring-1 ring-slate-200 transition-colors hover:bg-rose-50"
                             aria-label="Delete user"
                           >
-                            <FaTrash className="h-3.5 w-3.5" />
+                            <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         )}
                       </td>
