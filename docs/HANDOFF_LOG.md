@@ -8,6 +8,15 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-04 — DEPLOY sub-feature waves W1–W10 to production (user approved: "deploy approved")
+
+### DONE
+- Server: `feature/subfeatures` fast-forward merged to `main` (`0ce9787..d7eab02`) and pushed; deployed via `./scripts/deploy.sh` (+ one `vercel --prod` fallback after GitHub auto-deploy didn't trigger).
+- Client: `./scripts/deploy.sh` guarded build (`[deploy-guard] OK — 0 local refs`, 100 files) + Firebase release to `https://scholarhive-913e4.web.app`.
+- Verified live: `GET /notifications/me` → 401 auth gate (route exists), `GET /questions/:id/follow` → `{"message":"Question not found"}` (route exists), `GET /users/export` → 401, client `/` → 200. W2/W3/W8/W9/W10 server-backed features are now fully functional in production.
+
+---
+
 ## 2026-09-04 — Sub-feature waves W1–W10 (triaged monkeycode research → shipped)
 
 ### DONE

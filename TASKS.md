@@ -35,7 +35,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## DONE — Sub-feature Waves 1–2 (2026-09-04, W1–W10; client `3e1f8af..ca2d785`, server `feature/subfeatures`)
 
-> Triage + rejected false positives: see Wave header note preserved below. Server-dependent parts (W2 history, W3 votes, W8 CSV, W9 notifications, W10 follow) live only after `feature/subfeatures` is merged to server main + deployed (needs owner "deploy approved" — server main auto-deploys).
+> Triage + rejected false positives: see Wave header note preserved below. **DEPLOYED to production 2026-09-04** (owner approved): server `feature/subfeatures` → main → Vercel; client main → Firebase. All W1–W10 live.
 
 - [x] **W1** Print/PDF export — Compare + application details (`window.print()` + global print CSS hiding chrome) — FEAT-206
 - [x] **W2** Application `statusHistory` + user timeline (server `$push` on create/accept/cancel; fallback for old docs) — FEAT-203
