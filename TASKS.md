@@ -25,7 +25,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - [x] **M2. [P2][Bug] AllScholership `view` does not reset page** — `src/Pages/AllScholership/AllScholership.jsx:57` `updateParams` resets `page=1` for `q/category/subject/degree/country/maxFees/sort` but not `view` (`limit 10 vs 12` empty slice on high page). Add `view` to reset list (same as Q&A browse already fixed). Verify: grid→list on page 4 stays on valid slice, URL `?view=` change resets `page=1`, lint/build.
 
-- [ ] **M3. [P2][Bug] AllScholership `SUBJECT_OPTS` hardcoded 3** — `AllScholership.jsx:15` `["","Agriculture","Engineering","Doctor"]` vs DB `CSE/MBBS` etc invisible. Derive unique `subjectName/category/degree` from `resp.data` via `useMemo` (client-side) like stats, fallback to static if empty. Verify: AllScholership filter shows subjects present in catalog (e.g. CSE), select works, lint/build.
+- [x] **M3. [P2][Bug] AllScholership `SUBJECT_OPTS` hardcoded 3** — `AllScholership.jsx:15` `["","Agriculture","Engineering","Doctor"]` vs DB `CSE/MBBS` etc invisible. Derived unique `subjectName` from `resp.data` via `useMemo` (`subjectOptions` sorted) fallback `""` empty, used in Field select. Removed static `SUBJECT_OPTS`. Verify: AllScholership filter shows subjects present in catalog (e.g. CSE), select works, lint/build.
 
 - [ ] **M4. [P2][Feature] MyApplication status filter `?status`** — `MyApplication.jsx:63 filtered` only `?q` search, no `All/Pending/Accepted/Rejected` chips despite `applicationStatus` pill `:174`. Add chips mapping to `?status` URL param reusing `filtered` memo (existing pattern `BrowseQuestions activeFilters`). Verify: chips filter list, URL sync `?status=pending` shareable, clear, lint/build.
 

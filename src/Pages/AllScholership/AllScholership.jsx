@@ -12,7 +12,6 @@ import "./AllScholership.css";
 
 const CATEGORY_OPTS = ["", "Partial", "Full-fund", "Self-fund"];
 const DEGREE_OPTS = ["", "Diploma", "Bachelor", "Masters", "PhD"];
-const SUBJECT_OPTS = ["", "Agriculture", "Engineering", "Doctor"];
 const SORT_OPTS = [
   { v: "recommended", l: "Recommended" },
   { v: "deadline", l: "Deadline (soonest)" },
@@ -87,6 +86,11 @@ export default function AllScholership() {
 
   const { data: resp, isLoading } = useScholership(serverParams);
   // Fallback client-side filtering — live server-six-vert still old (returns all 37 for any q)
+  const subjectOptions = useMemo(() => {
+    const set = new Set((resp?.data || []).map((s) => s.subjectName).filter(Boolean));
+    return ["", ...Array.from(set).sort((a, b) => a.localeCompare(b))];
+  }, [resp?.data]);
+
   // When server is deployed with faceted filter, this client filter is redundant but harmless.
   const raw = resp?.data || [];
   const filteredSorted = useMemo(() => {
@@ -244,7 +248,7 @@ export default function AllScholership() {
                   <span className="mb-1 block text-xs font-semibold uppercase tracking-wide text-slate-500">Field</span>
                   <select value={subject} onChange={(e) => updateParams({ subject: e.target.value })} className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2.5 text-sm">
                     <option value="">All fields</option>
-                    {SUBJECT_OPTS.filter(Boolean).map((o) => <option key={o} value={o}>{o}</option>)}
+                    {subjectOptions.filter(Boolean).map((o) => <option key={o} value={o}>{o}</option>)}
                   </select>
                 </label>
 
