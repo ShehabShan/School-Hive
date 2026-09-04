@@ -1,8 +1,8 @@
-import { useParams, Link } from "react-router-dom";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { ArrowBigUp, ArrowLeft, CheckCircle2, Eye, MessageSquare, Share2, Sparkles, Flame } from "lucide-react";
+import { ArrowBigUp, ArrowLeft, BellOff, BellPlus, CheckCircle2, Eye, MessageSquare, Share2, Sparkles, Flame } from "lucide-react";
 import axios from "axios";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useRole from "../../Hooks/useRole";
@@ -41,9 +41,11 @@ export default function QuestionDetail(){
   const axiosSecure = useAxiosSecure();
   const { me } = useRole();
   const qc = useQueryClient();
+  const navigate = useNavigate();
   const [acceptingId,setAcceptingId]=useState(null);
   const [submittingAns,setSubmittingAns]=useState(false);
   const [answerSort,setAnswerSort]=useState("votes");
+  const [followBusy,setFollowBusy]=useState(false);
 
   const { data: q, isLoading, error } = useQuery({
     queryKey: ["question", id],
@@ -57,6 +59,30 @@ export default function QuestionDetail(){
   const isAsker = Boolean(q && me && String(q.authorEmail||"").toLowerCase()===String(me.email||"").toLowerCase());
   const myEmail = String(me?.email||"").toLowerCase();
   const iUpvoted = Boolean(q && Array.isArray(q.upvoterIds) && q.upvoterIds.map(String).includes(myEmail));
+
+  const { data: followState } = useQuery({
+    queryKey: ["question-follow", id, myEmail],
+    enabled: Boolean(id),
+    staleTime: 30 * 1000,
+    queryFn: async () => {
+      const res = await axiosSecure.get(`/questions/${id}/follow${myEmail ? `?email=${encodeURIComponent(myEmail)}` : ""}`);
+      return res.data?.data || { followersCount: 0, following: false };
+    },
+  });
+
+  const handleFollowToggle = async () => {
+    if (!me) return navigate("/signIn");
+    try {
+      setFollowBusy(true);
+      const res = await axiosSecure.post(`/questions/${id}/follow`);
+      toast.success(res.data?.data?.following ? "Following — you'll be notified of new answers" : "Unfollowed");
+      qc.invalidateQueries({ queryKey: ["question-follow", id] });
+    } catch (e) {
+      toast.error(e?.response?.data?.message || "Failed to update follow");
+    } finally {
+      setFollowBusy(false);
+    }
+  };
 
   const relatedTag = (q?.tags||[])[0];
   const { data: relatedResp } = useQuery({
@@ -221,6 +247,23 @@ export default function QuestionDetail(){
           {/* Right rail */}
           <aside className="hidden lg:block">
             <div className="sticky top-24 space-y-4">
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <button
+                  onClick={handleFollowToggle}
+                  disabled={followBusy}
+                  className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-bold transition disabled:opacity-50 ${
+                    followState?.following
+                      ? "bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      : "bg-brand-600 text-white hover:bg-brand-700"
+                  }`}
+                >
+                  {followState?.following ? <BellOff className="h-4 w-4" /> : <BellPlus className="h-4 w-4" />}
+                  {followState?.following ? "Following" : "Follow question"}
+                </button>
+                <p className="mt-2 text-center text-xs text-slate-400">
+                  {followState?.followersCount || 0} follower{(followState?.followersCount || 0) === 1 ? "" : "s"} — get notified on new answers
+                </p>
+              </div>
               <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
                 <h3 className="text-xs font-extrabold uppercase tracking-widest text-slate-400">Stats</h3>
                 <div className="mt-3 grid grid-cols-3 gap-2">
