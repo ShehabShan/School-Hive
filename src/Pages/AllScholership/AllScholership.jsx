@@ -60,7 +60,7 @@ export default function AllScholership() {
       if (v === "" || v === null || v === undefined) next.delete(k);
       else next.set(k, String(v));
     });
-    if (patch.q !== undefined || patch.category !== undefined || patch.subject !== undefined || patch.degree !== undefined || patch.country !== undefined || patch.maxFees !== undefined || patch.sort !== undefined) {
+    if (patch.q !== undefined || patch.category !== undefined || patch.subject !== undefined || patch.degree !== undefined || patch.country !== undefined || patch.maxFees !== undefined || patch.sort !== undefined || patch.view !== undefined) {
       if (!patch.page) next.set("page", "1");
     }
     setSearchParams(next, { replace: true });

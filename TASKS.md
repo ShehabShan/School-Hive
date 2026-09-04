@@ -23,7 +23,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - [x] **M1. [P2][Bug] Delete dead `MyApplicationCard.jsx`** — `src/Pages/UserPage/MyApplication/MyApplicationCard.jsx:10` 0 importers confirmed vs `ApplicationCard.jsx:11` + `ApplicationCardForUser.jsx:42` alive (`Routes.jsx:41-42,92,106`). Delete file. Verify: `grep -r MyApplicationCard src` 0 hits, `npm run lint` 0, `npm run build` 79 files guard OK, no route imports it.
 
-- [ ] **M2. [P2][Bug] AllScholership `view` does not reset page** — `src/Pages/AllScholership/AllScholership.jsx:57` `updateParams` resets `page=1` for `q/category/subject/degree/country/maxFees/sort` but not `view` (`limit 10 vs 12` empty slice on high page). Add `view` to reset list (same as Q&A browse already fixed). Verify: grid→list on page 4 stays on valid slice, URL `?view=` change resets `page=1`, lint/build.
+- [x] **M2. [P2][Bug] AllScholership `view` does not reset page** — `src/Pages/AllScholership/AllScholership.jsx:57` `updateParams` resets `page=1` for `q/category/subject/degree/country/maxFees/sort` but not `view` (`limit 10 vs 12` empty slice on high page). Add `view` to reset list (same as Q&A browse already fixed). Verify: grid→list on page 4 stays on valid slice, URL `?view=` change resets `page=1`, lint/build.
 
 - [ ] **M3. [P2][Bug] AllScholership `SUBJECT_OPTS` hardcoded 3** — `AllScholership.jsx:15` `["","Agriculture","Engineering","Doctor"]` vs DB `CSE/MBBS` etc invisible. Derive unique `subjectName/category/degree` from `resp.data` via `useMemo` (client-side) like stats, fallback to static if empty. Verify: AllScholership filter shows subjects present in catalog (e.g. CSE), select works, lint/build.
 
