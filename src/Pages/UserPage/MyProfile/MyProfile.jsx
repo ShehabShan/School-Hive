@@ -138,7 +138,7 @@ export default function ProfilePage() {
   const { data: statsData } = useMeStats();
   const { data: scholership = [] } = useQuery({
     queryKey: ["profile-scholarships"], enabled: !!isAdminOrMod,
-    queryFn: async () => { const { data } = await axiosPublic.get("/allScholership"); return data.data; },
+    queryFn: async () => { const { data } = await axiosPublic.get("/allScholership", { params: { limit: 50 } }); return data.data; },
   });
   const { data: reviewStats } = useQuery({
     queryKey: ["profile-review-stats"], enabled: !!isAdmin || !!isModaretor,

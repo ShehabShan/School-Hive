@@ -54,7 +54,7 @@ export default function PublicProfile() {
     queryKey: ["public-scholarships", decodedEmail],
     enabled: !!decodedEmail && profileUser?.role === "institution",
     queryFn: async () => {
-      const res = await axiosPublic.get("/allScholership", { params: { status: "all" } });
+      const res = await axiosPublic.get("/allScholership", { params: { status: "all", limit: 50 } });
       const list = res.data.data || res.data || [];
       const arr = Array.isArray(list) ? list : [];
       return arr.filter((s) => {
