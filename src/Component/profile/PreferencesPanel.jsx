@@ -1,7 +1,12 @@
 import { Eye } from "lucide-react";
+import useRole from "../../Hooks/useRole";
+import useSuperAdmin from "../../Hooks/useSuperAdmin";
 
 export default function PreferencesPanel({ preferences, onChange }) {
   const p = preferences || { visibility: "public", showStatsOnPublic: true, showScheduledOnProfile: false, emailNotifications: true };
+  const { isApprovedInstitution } = useRole();
+  const [isSuperAdmin] = useSuperAdmin();
+  const canSchedule = isApprovedInstitution || isSuperAdmin;
   const Toggle = ({ label, desc, checked, onToggle }) => (
     <label className="flex items-center justify-between gap-4 rounded-xl border border-slate-100 bg-slate-50 p-3">
       <div>
@@ -24,7 +29,7 @@ export default function PreferencesPanel({ preferences, onChange }) {
           </select>
         </div>
         <Toggle label="Show stats on public profile" desc="Let visitors see your application & review counts" checked={p.showStatsOnPublic} onToggle={(v)=> onChange({ ...p, showStatsOnPublic: v })} />
-        <Toggle label="Show scheduled scholarships" desc="Display upcoming scholarships on your public page" checked={p.showScheduledOnProfile} onToggle={(v)=> onChange({ ...p, showScheduledOnProfile: v })} />
+        {canSchedule && <Toggle label="Show scheduled scholarships" desc="Display upcoming scholarships on your public page" checked={p.showScheduledOnProfile} onToggle={(v)=> onChange({ ...p, showScheduledOnProfile: v })} />}
         <Toggle label="Email notifications" desc="Receive updates about applications & scholarships" checked={p.emailNotifications} onToggle={(v)=> onChange({ ...p, emailNotifications: v })} />
       </div>
     </div>
