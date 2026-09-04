@@ -6,6 +6,18 @@ Completed work moved from `TASKS.md`. `TASKS.md` stays lean (IN PROGRESS / TODO 
 
 ---
 
+## 2026-09-04 — MonkeyCode Triaged — 5 P2 Active — Completed Batch Moved
+
+> **Source:** `docs/moneycode-report.md` Passes 1-5 (AI-generated, triaged — 0 false positives on cited lines, 5×P2 active one-sitting). All `[x]` per archive rule `TASKS.md:10`, moved to keep TASKS lean. Each item ends `Verify:`.
+
+- [x] **M1. [P2][Bug] Delete dead `MyApplicationCard.jsx`** — `src/Pages/UserPage/MyApplication/MyApplicationCard.jsx:10` 0 importers vs `ApplicationCard.jsx:11` + `ApplicationCardForUser.jsx:42` alive. Delete file. Verify: `grep -r MyApplicationCard src` 0, `npm run lint` 0, `npm run build` 79 files guard OK.
+- [x] **M2. [P2][Bug] AllScholership `view` does not reset page** — `src/Pages/AllScholership/AllScholership.jsx:57` add `|| patch.view` to `page=1` reset list (`limit 10 vs 12`). Verify: grid→list on page 4 stays valid, `npm run lint/build`.
+- [x] **M3. [P2][Bug] AllScholership `SUBJECT_OPTS` hardcoded 3** — `AllScholership.jsx:15` derived `subjectOptions` via `useMemo` from `resp.data` unique `subjectName` sorted, removed static `SUBJECT_OPTS`. Verify: filter shows CSE/MBBS etc, lint/build.
+- [x] **M4. [P2][Feature] MyApplication status filter `?status`** — `MyApplication.jsx:63` `filtered` handles `status + q`, `updateStatus` sets `?status`, chips `All/Pending/Accepted/Rejected` `rounded-full`. Verify: chips filter, URL sync `?status=pending`, lint/build.
+- [x] **M5. [P2][Bug] MyApplication emoji eye → lucide `Eye`** — `MyApplication.jsx:177` `👁️` → `<Eye h-4 w-4 lucide>`. Verify: icon consistency, lint/build.
+
+---
+
 ## 2026-09-04 — Q&A Forum Round — 8 Issues + Card Polish Pass (4 Items) — Completed Batch Moved
 
 > **Source:** Two consecutive batches — `TODO — Q&A Forum Round — 8 Issues (2026-09-04)` (1-8) + `TODO — Card Polish Pass — 4 Items (2026-09-04)` (9-12) — all `[x]` per archive rule in `TASKS.md:10`, moved to keep TASKS lean. Each item one-sitting ending `Verify:`.

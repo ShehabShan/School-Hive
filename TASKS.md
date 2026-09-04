@@ -13,23 +13,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## IN PROGRESS
 
-- **MonkeyCode Report Triaged — 5 P2 active** — see TODO below. P2 verified true, one-sitting each, ends `Verify:`. P3 deferred to backlog. Implement one at a time, stop for review after each commit.
-
----
-
-## TODO — MonkeyCode Triaged — P2 Active (2026-09-04)
-
-> Source: `docs/moneycode-report.md` Passes 1-5 (AI-generated, triaged — 0 false positives on cited lines, but priority filtered). P2 = bug/correctness, small one-sitting. P3 deferred below — not filed as active TODO.
-
-- [x] **M1. [P2][Bug] Delete dead `MyApplicationCard.jsx`** — `src/Pages/UserPage/MyApplication/MyApplicationCard.jsx:10` 0 importers confirmed vs `ApplicationCard.jsx:11` + `ApplicationCardForUser.jsx:42` alive (`Routes.jsx:41-42,92,106`). Delete file. Verify: `grep -r MyApplicationCard src` 0 hits, `npm run lint` 0, `npm run build` 79 files guard OK, no route imports it.
-
-- [x] **M2. [P2][Bug] AllScholership `view` does not reset page** — `src/Pages/AllScholership/AllScholership.jsx:57` `updateParams` resets `page=1` for `q/category/subject/degree/country/maxFees/sort` but not `view` (`limit 10 vs 12` empty slice on high page). Add `view` to reset list (same as Q&A browse already fixed). Verify: grid→list on page 4 stays on valid slice, URL `?view=` change resets `page=1`, lint/build.
-
-- [x] **M3. [P2][Bug] AllScholership `SUBJECT_OPTS` hardcoded 3** — `AllScholership.jsx:15` `["","Agriculture","Engineering","Doctor"]` vs DB `CSE/MBBS` etc invisible. Derived unique `subjectName` from `resp.data` via `useMemo` (`subjectOptions` sorted) fallback `""` empty, used in Field select. Removed static `SUBJECT_OPTS`. Verify: AllScholership filter shows subjects present in catalog (e.g. CSE), select works, lint/build.
-
-- [x] **M4. [P2][Feature] MyApplication status filter `?status`** — `MyApplication.jsx:63 filtered` only `?q` search, no `All/Pending/Accepted/Rejected` chips despite `applicationStatus` pill `:174`. Add chips `All/Pending/Accepted/Rejected` → `?status` URL param reusing `filtered` memo (`status` + `q` both filter, `updateStatus` sets/deletes `status`). Verify: chips filter list, URL sync `?status=pending` shareable, clear, lint/build.
-
-- [x] **M5. [P2][Bug] MyApplication emoji eye → lucide `Eye`** — `MyApplication.jsx:177` `👁️` raw span vs codebase `lucide-react` `Eye`. Swap to `<Eye className="h-4 w-4" />` (already `lucide-react ^0.475.0`). Verify: table view icon consistent, no emoji, lint/build.
+- None — all P2 batches completed, see `DONE` stubs and `TODO — Deferred` backlog below.
 
 ---
 
