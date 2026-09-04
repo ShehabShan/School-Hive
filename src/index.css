@@ -82,3 +82,27 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* Print: strip app chrome (navbars/sidebars/footers) + anything marked .no-print */
+@media print {
+  header,
+  footer,
+  nav,
+  aside,
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff !important;
+  }
+
+  .shadow-soft,
+  .shadow-lift {
+    box-shadow: none !important;
+  }
+
+  .overflow-x-auto {
+    overflow: visible !important;
+  }
+}

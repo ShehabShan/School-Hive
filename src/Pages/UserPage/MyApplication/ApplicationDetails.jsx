@@ -1,4 +1,4 @@
-import { Mail, Calendar, User, BookOpen } from "lucide-react";
+import { Mail, Calendar, User, BookOpen, Printer } from "lucide-react";
 import StatusBadge from "../../../Component/ui/StatusBadge";
 
 export default function ApplicationDetails({ data }) {
@@ -26,8 +26,13 @@ export default function ApplicationDetails({ data }) {
               <p className="text-sm text-slate-500 truncate">{data?.email}</p>
               <p className="text-sm font-semibold text-slate-700 truncate">{data?.universityName}</p>
             </div>
-            <div className="ml-auto hidden md:block">
-              <StatusBadge status={data?.applicationStatus} />
+            <div className="ml-auto flex items-center gap-3">
+              <div className="hidden md:block">
+                <StatusBadge status={data?.applicationStatus} />
+              </div>
+              <button onClick={() => window.print()} className="no-print inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50">
+                <Printer className="h-3.5 w-3.5" /> Print
+              </button>
             </div>
           </div>
 

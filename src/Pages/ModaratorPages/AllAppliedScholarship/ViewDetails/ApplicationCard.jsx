@@ -1,4 +1,4 @@
-import { Mail, Calendar, User, BookOpen } from "lucide-react";
+import { Mail, Calendar, User, BookOpen, Printer } from "lucide-react";
 import useAxiosSecure from "../../../../Hooks/useAxiosSecure";
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
@@ -41,7 +41,14 @@ const ApplicationCard = () => {
         icon={User}
         title="Application Details"
         subtitle={singleApply?.email || "Review applicant information"}
-        actions={<StatusBadge status={singleApply?.applicationStatus} />}
+        actions={
+          <div className="flex items-center gap-3">
+            <StatusBadge status={singleApply?.applicationStatus} />
+            <button onClick={() => window.print()} className="no-print inline-flex items-center gap-1.5 rounded-xl bg-white px-3 py-2 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50">
+              <Printer className="h-3.5 w-3.5" /> Print
+            </button>
+          </div>
+        }
       />
 
       <div className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-100 md:p-8">

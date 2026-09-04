@@ -1,5 +1,5 @@
 import { useSearchParams, Link } from "react-router-dom";
-import { Scale, X, Bookmark, ArrowRight, Trash2, Share2, Star, MapPin, Calendar, Award, Coins, Clock, GraduationCap, Building2, FileText, Tag, Trophy, Camera } from "lucide-react";
+import { Scale, X, Bookmark, ArrowRight, Trash2, Share2, Printer, Star, MapPin, Calendar, Award, Coins, Clock, GraduationCap, Building2, FileText, Tag, Trophy, Camera } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import useAxiosPublic from "../../Hooks/useAxiosPublic";
 import Stars from "../../Component/ui/Stars";
@@ -16,10 +16,10 @@ const fmt = (n, cur = "USD") => {
 
 const placeholder = "https://placehold.co/600x400?text=Scholarship";
 
-function Row({ label, icon: Icon, children }) {
+function Row({ label, icon: Icon, className = "", children }) {
   return (
-    <tr className="border-b border-slate-100 last:border-0">
-      <th className="sticky left-0 z-10 w-[180px] bg-slate-50 px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500">
+    <tr className={`border-b border-slate-100 last:border-0 ${className}`}>
+      <th className="sticky left-0 z-10 w-[180px] bg-slate-50 px-4 py-3 text-left text-xs font-bold uppercase tracking-wide text-slate-500 print:static">
         <span className="flex items-center gap-1.5"><Icon className="h-3.5 w-3.5 text-slate-400" /> {label}</span>
       </th>
       {children}
@@ -106,26 +106,32 @@ export default function Compare() {
   const bestRank = ranks.length ? Math.min(...ranks) : null;
 
   return (
-    <section className="bg-slate-50 py-8">
+    <section className="bg-slate-50 py-8 print:bg-white print:py-2">
       <div className="container-page">
-        <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="hidden print:block">
+          <h1 className="text-xl font-extrabold text-slate-900">Scholarship Comparison</h1>
+          <p className="mt-1 text-xs text-slate-500">School Hive · {new Date().toLocaleDateString()} · {scholarships.length} scholarship(s)</p>
+          <hr className="my-4 border-slate-200" />
+        </div>
+        <div className="no-print mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <h1 className="flex items-center gap-2 text-2xl font-extrabold text-slate-900"><Scale className="h-6 w-6 text-brand-600" /> Compare <span className="rounded-full bg-white px-3 py-1 text-sm font-bold ring-1 ring-slate-200">{scholarships.length}/4</span></h1>
           <div className="flex items-center gap-2">
+            <button onClick={() => window.print()} className="inline-flex items-center gap-1.5 rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800"><Printer className="h-4 w-4" /> Print / PDF</button>
             <button onClick={share} className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"><Share2 className="h-4 w-4" /> Share</button>
             <button onClick={clearAll} className="inline-flex items-center gap-1 rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"><Trash2 className="h-4 w-4" /> Clear</button>
           </div>
         </div>
 
-        <div className="overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-soft">
-          <table className="w-full min-w-[720px] border-collapse">
+        <div className="overflow-x-auto rounded-2xl border border-slate-100 bg-white shadow-soft print:overflow-visible print:shadow-none">
+          <table className="w-full min-w-[720px] border-collapse print:min-w-0">
             <thead>
               <tr>
-                <th className="sticky left-0 z-20 w-[180px] bg-slate-900 px-4 py-4 text-left text-xs font-bold uppercase tracking-wide text-white">Feature</th>
+                <th className="sticky left-0 z-20 w-[180px] bg-slate-900 px-4 py-4 text-left text-xs font-bold uppercase tracking-wide text-white print:static">Feature</th>
                 {scholarships.map((s) => (
                   <th key={s._id} className="min-w-[220px] bg-white px-4 py-4 text-left">
                     <div className="relative overflow-hidden rounded-xl">
                       <img src={s.universityImage || placeholder} alt={s.universityName} className="h-32 w-full object-cover" onError={(e) => (e.currentTarget.src = placeholder)} />
-                      <button onClick={() => remove(s._id)} aria-label="Remove" className="absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow hover:bg-white"><X className="h-4 w-4" /></button>
+                      <button onClick={() => remove(s._id)} aria-label="Remove" className="no-print absolute right-2 top-2 inline-flex h-8 w-8 items-center justify-center rounded-full bg-white/90 text-slate-700 shadow hover:bg-white"><X className="h-4 w-4" /></button>
                       <span className="absolute left-2 top-2 rounded-full bg-white/95 px-2.5 py-1 text-xs font-bold text-brand-700">{s.scholarshipCategory || "—"}</span>
                       {s.status === "draft" && <span className="absolute left-2 top-10 rounded-full bg-amber-500 px-2.5 py-1 text-xs font-bold text-white">Draft</span>}
                     </div>
@@ -135,7 +141,7 @@ export default function Compare() {
                   </th>
                 ))}
                 {scholarships.length < 4 && (
-                  <th className="min-w-[220px] bg-slate-50 px-4 py-4">
+                  <th className="no-print min-w-[220px] bg-slate-50 px-4 py-4">
                     <Link to="/allScholership" className="flex h-[160px] flex-col items-center justify-center rounded-xl border-2 border-dashed border-slate-200 bg-white p-4 text-center hover:border-brand-200">
                       <Bookmark className="h-8 w-8 text-slate-300" /><p className="mt-2 text-sm font-semibold text-slate-700">Add more</p><p className="text-xs text-slate-400">Browse and add up to {4 - scholarships.length} more</p>
                     </Link>
@@ -230,15 +236,14 @@ export default function Compare() {
                 {scholarships.map((s) => <Cell key={s._id}>{(s.gallery?.length || 0) + (s.videoUrl ? 1 : 0)} item{(s.gallery?.length || 0) + (s.videoUrl ? 1 : 0) === 1 ? "" : "s"} {s.videoUrl ? "• video" : ""}</Cell>)}
                 {scholarships.length < 4 && <td className="bg-slate-50" />}
               </Row>
-              <Row label="Action" icon={ArrowRight}>
+              <Row label="Action" icon={ArrowRight} className="no-print">
                 {scholarships.map((s) => <Cell key={s._id}><Link to={`/allScholership/${s._id}`} className="inline-flex w-full items-center justify-center gap-1 rounded-xl bg-slate-900 py-2 text-xs font-bold text-white hover:bg-slate-800">View <ArrowRight className="h-3 w-3" /></Link></Cell>)}
-                {scholarships.length < 4 && <td className="bg-slate-50" />}
               </Row>
             </tbody>
           </table>
         </div>
 
-        <p className="mt-4 text-xs text-slate-400">Tip: cheapest fee and highest rating are highlighted. Drafts are hidden from public but appear here if you added them.</p>
+        <p className="no-print mt-4 text-xs text-slate-400">Tip: cheapest fee and highest rating are highlighted. Drafts are hidden from public but appear here if you added them.</p>
       </div>
     </section>
   );
