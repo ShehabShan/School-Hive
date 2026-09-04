@@ -17,6 +17,20 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-04 — Q&A answers-only model: question comment system removed
+
+### DONE
+- Owner decision: the general question comment wall was a mistake (spec §1.4 says clarifications belong *under answers*, not on the question). Removed it; answers are the only reply mechanic on questions.
+- Client `85912bf`: card footer comment button (which wrongly showed `answerCount` but opened comments) → **Answers chip** (`AnswerStat` accepted/answered/unanswered) linking to `/questions/:id#answer` (`scroll-mt-24` added); `CommentThread.jsx` deleted; `question_comment`/`comment_reply` bell types removed; dead `⋯` dropped; views compact. Fixes browse + profile Questions tab (same `PostCard`).
+- Server `3744e08` (`feature/subfeatures`, pushed): `GET/POST /questions/:id/comments` routes, `createQuestionComment`/`listQuestionComments` (+ their notification emits), `comment.validator.js`, db collection/index wiring removed. `question_comments` data **left in Mongo** (owner choice) — recoverable for B2.
+
+### LEFT
+- Server branch needs merge→main + deploy (owner approval) — until then old comment endpoints still respond on prod but nothing in the UI calls them.
+- Client needs Firebase deploy (owner approval).
+- B2 backlog note updated: comments-under-answers to be built fresh when scheduled.
+
+---
+
 ## 2026-09-04 — Sub-feature waves W1–W10 (triaged monkeycode research → shipped)
 
 ### DONE

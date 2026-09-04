@@ -52,12 +52,21 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ---
 
+## DONE — Q&A answers-only model: question comments removed (2026-09-04)
+
+- [x] Card footer fix — the "comment" button was showing `answerCount` but opening a comment wall (`QuestionCard.jsx:152`); replaced with an **Answers chip** (existing `AnswerStat`: accepted ✓ / answered / unanswered states) linking to `/questions/:id#answer`; dead `⋯` dropped; compact views — client `85912bf`
+- [x] `CommentThread.jsx` deleted (sole importer was the card); `question_comment`/`comment_reply` notification types removed from bell
+- [x] Server: comment routes, controller fns, `comment.validator.js`, db collection wiring removed — `3744e08` on `feature/subfeatures` (deploy pending approval). `question_comments` data **left in Mongo** per owner decision
+- Spec §1.4 alignment: clarifications belong as comments *under answers* (→ B2), not a general wall on the question
+
+---
+
 ## BACKLOG — Sub-features deferred (2026-09-04)
 
 > From `docs/img/monkeycode-research-sub-feature.md` triage. Promote to TODO one at a time when waves above drain. Full-stack entries; anchors verified 2026-09-04.
 
 - [ ] **B1. [M] Owner answer edit + editHistory (FEAT-103a)** — no PATCH/PUT on answers (`answer.routes.js:10-20`); owner-only PATCH + `editHistory[]` (editorEmail, at, reason); reuse `RichTextEditor`; history viewer. (103b suggested-edits folded into B3 queue.)
-- [ ] **B2. [M] Threaded comments under answers (FEAT-109)** — `CommentThread.jsx:43-46` renders only a placeholder for answers; extend `comment.validator.js` (questionId-only, `:24-29`) to accept `answerId`; `GET/POST /answers/:id/comments`; denormalize `commentCount` on answers (like `answerCount`, perf R12).
+- [ ] **B2. [M] Threaded comments under answers (FEAT-109)** — comment system removed from questions 2026-09-04 (answers-only model, see DONE above); build fresh when scheduled: `GET/POST /answers/:id/comments`, threaded replies, denormalized `commentCount` on answers (like `answerCount`), new comment component.
 - [ ] **B3. [M] Content flags + moderation queue (FEAT-104 + FEAT-502, paired)** — no flags anywhere today; `flags` collection (targetType/targetId/reason/reporterEmail/status) + POST/GET/PATCH + auto-hide at threshold; staff queue page (tabs: Flagged / Suggested edits (103b, rep≥300) / First posts) with Approve/Dismiss/Remove.
 - [ ] **B4. [M] Inquiry lifecycle (FEAT-601)** — only POST/GET exist (`inquiry.routes.js:9-10`); `status:"open"` written at create (`inquiry.controller.js:15`) but never updatable. PATCH status (open/in_progress/resolved) + `replies[]` (staffEmail, body, at) + small staff inbox UI; public form unchanged.
 - [ ] **B5. [M] Route-level SEO/OG meta (FEAT-701 + FEAT-401 remainder)** — `react-helmet-async` in deps but zero `<Helmet>` usages (only HelmetProvider `main.jsx:32`; `QAPageSchema.jsx:39` is a raw script). Add title/description/canonical/OG per public route (scholarship detail, profile, browse, compare).
