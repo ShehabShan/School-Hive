@@ -27,7 +27,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - [x] **M3. [P2][Bug] AllScholership `SUBJECT_OPTS` hardcoded 3** — `AllScholership.jsx:15` `["","Agriculture","Engineering","Doctor"]` vs DB `CSE/MBBS` etc invisible. Derived unique `subjectName` from `resp.data` via `useMemo` (`subjectOptions` sorted) fallback `""` empty, used in Field select. Removed static `SUBJECT_OPTS`. Verify: AllScholership filter shows subjects present in catalog (e.g. CSE), select works, lint/build.
 
-- [ ] **M4. [P2][Feature] MyApplication status filter `?status`** — `MyApplication.jsx:63 filtered` only `?q` search, no `All/Pending/Accepted/Rejected` chips despite `applicationStatus` pill `:174`. Add chips mapping to `?status` URL param reusing `filtered` memo (existing pattern `BrowseQuestions activeFilters`). Verify: chips filter list, URL sync `?status=pending` shareable, clear, lint/build.
+- [x] **M4. [P2][Feature] MyApplication status filter `?status`** — `MyApplication.jsx:63 filtered` only `?q` search, no `All/Pending/Accepted/Rejected` chips despite `applicationStatus` pill `:174`. Add chips `All/Pending/Accepted/Rejected` → `?status` URL param reusing `filtered` memo (`status` + `q` both filter, `updateStatus` sets/deletes `status`). Verify: chips filter list, URL sync `?status=pending` shareable, clear, lint/build.
 
 - [ ] **M5. [P2][Bug] MyApplication emoji eye → lucide `Eye`** — `MyApplication.jsx:177` `👁️` raw span vs codebase `lucide-react` `Eye`. Swap to `<Eye className="h-4 w-4" />` (already `lucide-react ^0.475.0`). Verify: table view icon consistent, no emoji, lint/build.
 

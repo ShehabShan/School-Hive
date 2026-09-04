@@ -20,6 +20,7 @@ export default function MyApplication() {
   const [searchParams, setSearchParams] = useSearchParams();
   const view = searchParams.get("view") || "grid";
   const qParam = searchParams.get("q") || "";
+  const status = searchParams.get("status") || "";
   const [localQ, setLocalQ] = useState(qParam);
   const [selected, setSelected] = useState(null);
   const [isOpen, setIsOpen] = useState(false);
@@ -60,13 +61,20 @@ export default function MyApplication() {
 
   const hasReviewed = (scholarshipId) => myReviews.some((r) => String(r.scholarShip_id) === String(scholarshipId));
 
+  const updateStatus = (v) => {
+    const next = new URLSearchParams(searchParams);
+    if (v) next.set("status", v);
+    else next.delete("status");
+    setSearchParams(next, { replace: true });
+  };
+
   const filtered = useMemo(() => {
+    let arr = apply;
+    if (status) arr = arr.filter((a) => String(a.applicationStatus || "").toLowerCase() === status.toLowerCase());
     const q = qParam.trim().toLowerCase();
-    if (!q) return apply;
-    return apply.filter((a) =>
-      `${a.universityName} ${a.subjectName} ${a.applicationStatus} ${a.applicantDistrict}`.toLowerCase().includes(q)
-    );
-  }, [apply, qParam]);
+    if (q) arr = arr.filter((a) => `${a.universityName} ${a.subjectName} ${a.applicationStatus} ${a.applicantDistrict}`.toLowerCase().includes(q));
+    return arr;
+  }, [apply, qParam, status]);
 
   const openModal = (applicant) => {
     setSelected(applicant);
@@ -118,6 +126,17 @@ export default function MyApplication() {
           </div>
         }
       />
+
+      <div className="mt-4 flex flex-wrap gap-1.5">
+        {[
+          { v: "", l: "All" },
+          { v: "pending", l: "Pending" },
+          { v: "accepted", l: "Accepted" },
+          { v: "rejected", l: "Rejected" },
+        ].map((o) => (
+          <button key={o.v} onClick={() => updateStatus(o.v)} className={`rounded-full px-3.5 py-1.5 text-xs font-bold ring-1 transition-colors ${status === o.v ? "bg-slate-900 text-white ring-slate-900" : "bg-white text-slate-600 ring-slate-200 hover:bg-slate-50"}`}>{o.l}</button>
+        ))}
+      </div>
 
       <div className="mt-4 flex items-center gap-2 sm:hidden">
         <div className="relative flex-1">
