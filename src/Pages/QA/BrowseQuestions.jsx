@@ -3,10 +3,10 @@ import { Link, useSearchParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import axios from "axios";
-import { Search, SlidersHorizontal, X, LayoutGrid, List, ChevronLeft, ChevronRight, Plus, FilterX, Inbox } from "lucide-react";
+import { Search, SlidersHorizontal, X, ChevronLeft, ChevronRight, Plus, FilterX, Inbox } from "lucide-react";
 import FilterChip from "../../Component/scholarship/FilterChip";
 import { QUESTION_CATEGORIES, STUDY_LEVELS, COUNTRIES } from "../../constants/qa";
-import { QuestionCard, QuestionListItem } from "../../Component/QA/QuestionCard";
+import { QuestionListItem } from "../../Component/QA/QuestionCard";
 
 const baseURL = import.meta.env.VITE_server_url || "https://server-six-vert.vercel.app";
 const SORTS = [["newest","Newest"],["votes","Top voted"],["views","Most viewed"],["relevance","Relevance"]];
@@ -17,15 +17,17 @@ function useDebounced(v, ms=400){
   return d;
 }
 
-function BrowseSkeleton({ view }){
+function BrowseSkeleton(){
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       {Array.from({length:5}).map((_,i)=> (
-        <div key={i} className="animate-pulse rounded-2xl border border-slate-100 bg-white p-4">
-          <div className="flex gap-4">
-            {view!=="grid" && <div className="hidden w-24 shrink-0 flex-col gap-2 sm:flex"><div className="h-5 w-16 rounded bg-slate-100" /><div className="h-5 w-12 rounded bg-slate-100" /><div className="h-4 w-10 rounded bg-slate-100" /></div>}
-            <div className="flex-1 space-y-2"><div className={`h-4 rounded bg-slate-200 ${i%2?"w-2/3":"w-5/6"}`} /><div className="h-3 w-full rounded bg-slate-100" /><div className="h-3 w-3/4 rounded bg-slate-100" /><div className="flex gap-1.5 pt-1"><div className="h-5 w-20 rounded-full bg-slate-100" /><div className="h-5 w-16 rounded-full bg-slate-100" /></div></div>
-          </div>
+        <div key={i} className="animate-pulse rounded-2xl border border-slate-100 bg-white p-4 sm:p-5">
+          <div className="flex items-center gap-2"><div className="h-8 w-8 rounded-full bg-slate-100" /><div className="h-3 w-24 rounded bg-slate-100" /><div className="h-3 w-12 rounded bg-slate-100" /></div>
+          <div className={`mt-3 h-4 rounded bg-slate-200 ${i%2?"w-2/3":"w-5/6"}`} />
+          <div className="mt-2 h-3 w-full rounded bg-slate-100" />
+          <div className="mt-1 h-3 w-3/4 rounded bg-slate-100" />
+          <div className="mt-3 flex gap-1.5"><div className="h-5 w-20 rounded-full bg-slate-100" /><div className="h-5 w-16 rounded-full bg-slate-100" /></div>
+          <div className="mt-3 flex gap-4 border-t border-slate-100 pt-3"><div className="h-3 w-12 rounded bg-slate-100" /><div className="h-3 w-16 rounded bg-slate-100" /><div className="h-3 w-12 rounded bg-slate-100" /></div>
         </div>
       ))}
     </div>
@@ -78,12 +80,13 @@ export default function BrowseQuestions(){
   const studyLevel = searchParams.get("studyLevel") || "";
   const sort = searchParams.get("sort") || "newest";
   const page = Math.max(1, parseInt(searchParams.get("page")||"1",10)||1);
-  const view = searchParams.get("view") || "list";
 
   const [localQ,setLocalQ]=useState(q);
   const debouncedQ = useDebounced(localQ,400);
   const [drawerOpen,setDrawerOpen]=useState(false);
 
+  // clean deprecated view param from URL for fast single-column post style
+  useEffect(()=> { if (searchParams.get("view")) { const n=new URLSearchParams(searchParams); n.delete("view"); setSearchParams(n,{replace:true}); } }, [searchParams, setSearchParams]);
   useEffect(()=> setLocalQ(q),[q]);
 
   const updateParams=(patch)=>{
@@ -99,7 +102,7 @@ export default function BrowseQuestions(){
   useEffect(()=>{ if(debouncedQ!==q) updateParams({ q: debouncedQ }); },[debouncedQ]);
 
   const { data: resp, isLoading } = useQuery({
-    queryKey: ["questions-browse", { q: debouncedQ, category, tag, destinationCountry, homeCountry, studyLevel, sort, page, view }],
+    queryKey: ["questions-browse", { q: debouncedQ, category, tag, destinationCountry, homeCountry, studyLevel, sort, page }],
     queryFn: async ()=>{
       const params={};
       if(debouncedQ) params.q=debouncedQ;
@@ -110,7 +113,7 @@ export default function BrowseQuestions(){
       if(studyLevel) params.studyLevel=studyLevel;
       if(sort) params.sort=sort;
       params.page=page;
-      params.limit= view==="list" ? 15 : 12;
+      params.limit=12;
       const res= await axios.get(`${baseURL}/questions`, { params });
       return res.data;
     }
@@ -118,7 +121,7 @@ export default function BrowseQuestions(){
 
   const list = resp?.data || [];
   const total = resp?.total ?? list.length;
-  const totalPages = resp?.totalPages || Math.max(1, Math.ceil(total / (view==="list"?15:12)));
+  const totalPages = resp?.totalPages || Math.max(1, Math.ceil(total / 12));
 
   const activeFilters=[];
   if(q) activeFilters.push({k:"q", label:`"${q}"`});
@@ -129,7 +132,7 @@ export default function BrowseQuestions(){
 
   const clearAll=()=>{
     setLocalQ("");
-    setSearchParams(new URLSearchParams({ sort, view }),{replace:true});
+    setSearchParams(new URLSearchParams({ sort }),{replace:true});
   };
 
   const activeCategoryLabel = QUESTION_CATEGORIES.find(c=>c.value===category)?.label;
@@ -166,10 +169,6 @@ export default function BrowseQuestions(){
               <button onClick={()=>setDrawerOpen(true)} className="inline-flex items-center gap-1.5 rounded-2xl border border-slate-200 bg-white px-3.5 py-2.5 text-xs font-bold text-slate-600 shadow-sm hover:bg-slate-50 lg:hidden">
                 <SlidersHorizontal className="h-3.5 w-3.5" /> Filters{activeFilters.length?` (${activeFilters.length})`:""}
               </button>
-              <div className="hidden inline-flex rounded-2xl border border-slate-200 bg-white p-0.5 shadow-sm sm:inline-flex">
-                <button onClick={()=>updateParams({view:"list"})} className={`rounded-xl p-2 ${view==="list"?"bg-slate-900 text-white":"text-slate-400 hover:text-slate-700"}`} aria-label="List view"><List className="h-4 w-4" /></button>
-                <button onClick={()=>updateParams({view:"grid"})} className={`rounded-xl p-2 ${view==="grid"?"bg-slate-900 text-white":"text-slate-400 hover:text-slate-700"}`} aria-label="Grid view"><LayoutGrid className="h-4 w-4" /></button>
-              </div>
             </div>
           </div>
 
@@ -212,7 +211,7 @@ export default function BrowseQuestions(){
               <span className="hidden sm:block">Showing {list.length} of {total}</span>
             </div>
 
-            {isLoading ? <BrowseSkeleton view={view} /> : list.length===0 ? (
+            {isLoading ? <BrowseSkeleton /> : list.length===0 ? (
               <div className="rounded-2xl border border-dashed border-slate-300 bg-white py-16 text-center">
                 <Inbox className="mx-auto h-10 w-10 text-slate-300" />
                 <p className="mt-3 font-extrabold text-slate-800">{isFiltered ? "No matching questions" : "No questions yet"}</p>
@@ -222,10 +221,8 @@ export default function BrowseQuestions(){
                   <Link to="/questions/ask" className="btn btn-sm btn-primary">Ask a question</Link>
                 </div>
               </div>
-            ) : view==="grid" ? (
-              <div className="grid gap-4 sm:grid-cols-2">{list.map(q=> <QuestionCard key={q._id} q={q} />)}</div>
             ) : (
-              <div className="space-y-3">{list.map(q=> <QuestionListItem key={q._id} q={q} />)}</div>
+              <div className="space-y-4">{list.map(q=> <QuestionListItem key={q._id} q={q} />)}</div>
             )}
 
             {totalPages>1 && (
