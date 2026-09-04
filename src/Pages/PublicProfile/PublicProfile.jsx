@@ -10,6 +10,7 @@ import AnswersTab from "../../Component/profile/AnswersTab";
 import QuestionsTab from "../../Component/profile/QuestionsTab";
 import ActivityTab from "../../Component/profile/ActivityTab";
 import AboutTab from "../../Component/profile/AboutTab";
+import PrivilegeLadder from "../../Component/QA/PrivilegeLadder";
 import { usePublicStats } from "../../Hooks/useProfileStats";
 import { useFollow } from "../../Hooks/useFollow";
 import { hasValue } from "../../utils/hasValue";
@@ -150,6 +151,8 @@ export default function PublicProfile() {
             )}
           </div>
         </div>
+
+        <PrivilegeLadder reputation={profileUser?.reputation} />
       </div>
     </div>
   );

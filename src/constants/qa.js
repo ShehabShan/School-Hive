@@ -28,6 +28,16 @@ export const QUESTION_LANGUAGES = [
 
 export const STUDY_LEVELS = ["bachelors","masters","phd","diploma","foundation-year"];
 
+export const PRIVILEGE_LADDER = [
+  { rep: 1, label: "Ask, answer, and comment on your own posts" },
+  { rep: 15, label: "Upvote answers" },
+  { rep: 75, label: "Comment on any post" },
+  { rep: 125, label: "Downvote (reason required)" },
+  { rep: 300, label: "Suggest edits (applied directly)" },
+  { rep: 750, label: "Access the flagged-content review queue" },
+  { rep: 1500, label: "Vote to merge duplicate questions" },
+];
+
 export const COUNTRIES = [
   { value: "Canada", label: "Canada", flag: "🇨🇦" },
   { value: "USA", label: "United States", flag: "🇺🇸" },
