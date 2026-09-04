@@ -1,4 +1,4 @@
-import { useMemo } from "react";
+import { useMemo, useState } from "react";
 import { Link, useParams, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Info, BookOpen, Award, ShieldCheck, Clock, GraduationCap, MapPin, MessagesSquare } from "lucide-react";
@@ -66,6 +66,12 @@ export default function ScholarshipDetails() {
   const dl = getDeadlineState(scholarship?.applicationDeadline);
   const isExpired = dl.tone === "rose" && dl.label === "Expired";
   const cur = scholarship?.currency || "USD";
+  const [reviewSort, setReviewSort] = useState("recent");
+  const activeReviews = displayReviews || review || [];
+  const sortedReviews = useMemo(() => {
+    if (reviewSort !== "helpful") return activeReviews;
+    return [...activeReviews].sort((a, b) => (b.helpfulCount || 0) - (a.helpfulCount || 0));
+  }, [activeReviews, reviewSort]);
 
   const gallery = useMemo(() => {
     if (Array.isArray(scholarship?.gallery) && scholarship.gallery.length) return scholarship.gallery;
@@ -101,7 +107,6 @@ export default function ScholarshipDetails() {
   }
 
   const avgRating = Number(scholarship.rating || 0);
-  const activeReviews = displayReviews || review || [];
   const dist = [5, 4, 3, 2, 1].map((star) => {
     const c = (activeReviews || []).filter((r) => Math.round(Number(r.rating)) === star).length;
     return { star, c };
@@ -209,11 +214,25 @@ export default function ScholarshipDetails() {
                 </div>
               ))}
             </div>
+            <div className="mt-4 flex items-center justify-between gap-3">
+              <div className="flex flex-wrap gap-1.5">
+                {[["recent", "Recent"], ["helpful", "Most helpful"]].map(([k, label]) => (
+                  <button
+                    key={k}
+                    onClick={() => setReviewSort(k)}
+                    className={`rounded-full px-3 py-1 text-xs font-bold transition ${reviewSort === k ? "bg-slate-900 text-white" : "bg-slate-100 text-slate-600 hover:bg-slate-200"}`}
+                  >
+                    {label}
+                  </button>
+                ))}
+              </div>
+              <span className="text-xs text-slate-400">{sortedReviews.length} shown</span>
+            </div>
             <div className="mt-6">
-              {activeReviews.length === 0 ? (
+              {sortedReviews.length === 0 ? (
                 <div className="rounded-2xl border-2 border-dashed border-slate-200 bg-slate-50 px-6 py-10 text-center"><MessagesSquare className="mx-auto h-8 w-8 text-slate-300" /><p className="mt-2 font-bold text-slate-700">No reviews yet</p><p className="text-sm text-slate-500">Verified applicants after acceptance can review. Be first after you’re accepted.</p></div>
               ) : (
-                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{activeReviews.map((r, i) => <AllReviews key={r._id || i} review={r} />)}</div>
+                <div className="grid grid-cols-1 gap-4 md:grid-cols-2">{sortedReviews.map((r, i) => <AllReviews key={r._id || i} review={r} />)}</div>
               )}
             </div>
           </section>

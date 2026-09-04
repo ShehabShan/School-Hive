@@ -1,12 +1,33 @@
 import { motion } from "framer-motion";
-import { Quote, CalendarDays, ShieldCheck } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Quote, CalendarDays, ShieldCheck, ThumbsUp } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import toast from "react-hot-toast";
 import Stars from "../../Component/ui/Stars";
+import useAuth from "../../Hooks/useAuth";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
 
 const AllReviews = ({ review }) => {
   const initials =
     review?.reviewer_email?.charAt(0)?.toUpperCase() || "U";
   const profileLink = `/profile/${encodeURIComponent(review?.reviewer_email || "")}`;
+  const { user } = useAuth();
+  const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
+  const navigate = useNavigate();
+  const isOwn = !!user?.email && String(review?.reviewer_email || "").toLowerCase() === String(user.email).toLowerCase();
+
+  const { mutate: toggleHelpful, isLoading: voting } = useMutation({
+    mutationFn: async () => {
+      const res = await axiosSecure.post(`/allReviews/${review._id}/helpful`);
+      return res.data;
+    },
+    onSuccess: (d) => {
+      toast.success(d?.data?.voted ? "Marked helpful" : "Vote removed");
+      queryClient.invalidateQueries({ queryKey: ["review"] });
+    },
+    onError: (e) => toast.error(e?.response?.data?.message || "Failed to vote"),
+  });
 
   return (
     <motion.div
@@ -49,8 +70,24 @@ const AllReviews = ({ review }) => {
           <CalendarDays className="h-3.5 w-3.5" />
           {new Date(review?.reviewer_postDate).toLocaleDateString()}
         </span>
-        <span className="rounded-md bg-slate-50 px-2 py-0.5 font-mono text-[10px] text-slate-400">
-          ID: {review?.scholarShip_id}
+        <span className="flex items-center gap-2">
+          {!isOwn && (
+            <button
+              onClick={() => (user ? toggleHelpful() : navigate("/signIn"))}
+              disabled={voting}
+              className={`inline-flex items-center gap-1 rounded-lg px-2 py-1 font-bold ring-1 transition ${
+                review?.helpfulVoted
+                  ? "bg-brand-50 text-brand-700 ring-brand-200"
+                  : "bg-white text-slate-500 ring-slate-200 hover:text-brand-600"
+              } disabled:opacity-50`}
+            >
+              <ThumbsUp className="h-3 w-3" />
+              Helpful{typeof review?.helpfulCount === "number" ? ` (${review.helpfulCount})` : ""}
+            </button>
+          )}
+          <span className="rounded-md bg-slate-50 px-2 py-0.5 font-mono text-[10px] text-slate-400">
+            ID: {review?.scholarShip_id}
+          </span>
         </span>
       </div>
     </motion.div>
