@@ -29,7 +29,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 - [x] **M4. [P2][Feature] MyApplication status filter `?status`** — `MyApplication.jsx:63 filtered` only `?q` search, no `All/Pending/Accepted/Rejected` chips despite `applicationStatus` pill `:174`. Add chips `All/Pending/Accepted/Rejected` → `?status` URL param reusing `filtered` memo (`status` + `q` both filter, `updateStatus` sets/deletes `status`). Verify: chips filter list, URL sync `?status=pending` shareable, clear, lint/build.
 
-- [ ] **M5. [P2][Bug] MyApplication emoji eye → lucide `Eye`** — `MyApplication.jsx:177` `👁️` raw span vs codebase `lucide-react` `Eye`. Swap to `<Eye className="h-4 w-4" />` (already `lucide-react ^0.475.0`). Verify: table view icon consistent, no emoji, lint/build.
+- [x] **M5. [P2][Bug] MyApplication emoji eye → lucide `Eye`** — `MyApplication.jsx:177` `👁️` raw span vs codebase `lucide-react` `Eye`. Swap to `<Eye className="h-4 w-4" />` (already `lucide-react ^0.475.0`). Verify: table view icon consistent, no emoji, lint/build.
 
 ---
 

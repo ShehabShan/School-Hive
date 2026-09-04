@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { FileText } from "lucide-react";
+import { FileText, Eye } from "lucide-react";
 import { ShieldCheck, LayoutGrid, List, Table, Search, X } from "lucide-react";
 import { useQuery } from "@tanstack/react-query";
 import { useSearchParams, Link } from "react-router-dom";
@@ -193,7 +193,7 @@ export default function MyApplication() {
                     <td className="px-4 py-3.5"><span className={`inline-flex rounded-full px-2.5 py-1 text-xs font-bold ring-1 ${applicant?.applicationStatus === "accepted" ? "bg-emerald-50 text-emerald-700 ring-emerald-200" : applicant?.applicationStatus === "rejected" ? "bg-rose-50 text-rose-700 ring-rose-200" : "bg-amber-50 text-amber-700 ring-amber-100"}`}>{applicant?.applicationStatus}</span></td>
                     <td className="px-4 py-3.5">
                       <div className="flex justify-end">
-                        <button onClick={() => openModal(applicant)} className="btn btn-sm btn-circle bg-slate-900 text-white border-none hover:bg-slate-800" title="View"><span className="text-xs">👁️</span></button>
+                        <button onClick={() => openModal(applicant)} className="btn btn-sm btn-circle bg-slate-900 text-white border-none hover:bg-slate-800" title="View"><Eye className="h-4 w-4" /></button>
                       </div>
                     </td>
                   </tr>
