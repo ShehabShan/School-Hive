@@ -43,7 +43,6 @@ export default function ScholarshipDetails() {
   const [isModaretor] = useModaretor();
   const { isInstitution, isPending } = useRole();
   const isStaff = isAdmin || isModaretor;
-  const canApply = !isAdmin && !isModaretor && !isInstitution && !isExpired && !isPending;
   const axiosSecure = useAxiosSecure();
   const { user } = useAuth();
   const { data: savedDocs } = useSaved();
@@ -65,6 +64,7 @@ export default function ScholarshipDetails() {
   const compareOn = hasCompare(String(id));
   const dl = getDeadlineState(scholarship?.applicationDeadline);
   const isExpired = dl.tone === "rose" && dl.label === "Expired";
+  const canApply = !isAdmin && !isModaretor && !isInstitution && !isExpired && !isPending;
   const cur = scholarship?.currency || "USD";
   const [reviewSort, setReviewSort] = useState("recent");
   const [ratingFilter, setRatingFilter] = useState(0);
