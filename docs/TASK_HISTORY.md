@@ -6,6 +6,27 @@ Completed work moved from `TASKS.md`. `TASKS.md` stays lean (IN PROGRESS / TODO 
 
 ---
 
+## 2026-09-04 — Performance Optimization (14 ranks, 13 branches) — Completed Batch Moved
+
+> **Source:** `TASKS.md: DONE — Performance Optimization (2026-09-04, 14 ranks, 13 branches)` — all 9 checked per archive rule `TASKS.md:10`, moved to keep TASKS lean.
+
+- [x] **R1 pagination** `scholarship/review/apply/saved/question` `limit 20 max 50` + callers fix
+- [x] **R2 compression** `compression 1.8.1` gzip
+- [x] **R3+R8 images + Home lazy** `WebP 60%` src 26→12M, `Home` 110→68KB
+- [x] **R4 icons** `lucide` only, `firebase/auth` lazy
+- [x] **R5 fonts** 6→3 weights + preconnect API
+- [x] **R6 rerenders** `useMemo/useCallback/memo` + singleton axios
+- [x] **R7 roles** single `useRole`
+- [x] **R9 cache** firebase `Cache-Control` + server LRU 30s
+- [x] **R10 indexes** 9 new
+- [x] **R11 parallel** `Promise.all` stats
+- [x] **R12 bulk** `aggregate` rating + `bulkWrite`
+- [x] **R13 jwt async** + HSTS + global 100/min
+- Deferred per prompt: sweetalert vs toast, self-host fonts, dual-write tx, string→Date migration
+- Report: `docs/PERFORMANCE_REPORT.md`, log: `docs/HANDOFF_LOG.md 2026-09-04`
+
+---
+
 ## 2026-09-04 — Q&A answers-only model: question comments removed — Completed & Deployed
 
 > **Source:** `TASKS.md: DONE — Q&A answers-only model: question comments removed (2026-09-04)` — all 3 checked per archive rule `TASKS.md:10`, moved to keep TASKS lean. **DEPLOYED 2026-09-04** (owner approved; verified: `/questions/:id/comments` → 404). `question_comments` data left in Mongo per owner decision.
