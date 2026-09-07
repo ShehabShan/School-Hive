@@ -1,9 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bell, CheckCheck, MessagesSquare, CheckCircle2, UserPlus } from "lucide-react";
-import useAxiosSecure from "../../Hooks/useAxiosSecure";
-import useAuth from "../../Hooks/useAuth";
+import useNotifications from "../../Hooks/useNotifications";
 
 const TYPE_META = {
   question_answered: { Icon: MessagesSquare, tone: "bg-brand-50 text-brand-600", text: (n) => `${n.actorEmail || "Someone"} answered "${n.payload?.questionTitle || "your question"}"` },
@@ -25,31 +23,7 @@ export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const panelRef = useRef(null);
   const navigate = useNavigate();
-  const axiosSecure = useAxiosSecure();
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-
-  const { data: resp } = useQuery({
-    queryKey: ["notifications", "me"],
-    enabled: !!user,
-    refetchOnWindowFocus: true,
-    staleTime: 30 * 1000,
-    queryFn: async () => {
-      const { data } = await axiosSecure.get("/notifications/me?limit=10");
-      return data;
-    },
-  });
-
-  const invalidate = () => queryClient.invalidateQueries({ queryKey: ["notifications"] });
-
-  const { mutate: markRead } = useMutation({
-    mutationFn: async (id) => axiosSecure.patch(`/notifications/read/${id}`),
-    onSuccess: invalidate,
-  });
-  const { mutate: markAllRead } = useMutation({
-    mutationFn: async () => axiosSecure.patch("/notifications/read-all"),
-    onSuccess: invalidate,
-  });
+  const { notifications, unread, markRead, markAllRead } = useNotifications();
 
   useEffect(() => {
     const onDown = (e) => {
@@ -63,9 +37,6 @@ export default function NotificationBell() {
       document.removeEventListener("keydown", onEsc);
     };
   }, []);
-
-  const notifications = resp?.data || [];
-  const unread = resp?.unreadCount || 0;
 
   const handleItemClick = (n) => {
     if (!n.read) markRead(n._id);
