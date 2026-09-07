@@ -4,7 +4,6 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowBigUp,
-  ArrowLeft,
   BellOff,
   BellPlus,
   CheckCircle2,
@@ -285,15 +284,29 @@ export default function QuestionDetail() {
       {/* Subtle top gradient */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-16 h-[360px] bg-[radial-gradient(60%_60%_at_50%_0%,rgba(99,102,241,0.08),transparent_70%)]" />
       <div className="relative mx-auto max-w-[1280px] px-4 py-6 sm:px-6 lg:px-8">
-        {/* Top bar */}
+        {/* Top bar — breadcrumb + actions */}
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <Link
-            to="/questions"
-            className="inline-flex items-center gap-1.5 rounded-full bg-white px-3.5 py-2 text-sm font-semibold text-slate-600 ring-1 ring-slate-200 shadow-sm hover:bg-slate-50 hover:text-slate-900"
-          >
-            <ArrowLeft className="h-4 w-4" /> All questions
-          </Link>
-          <div className="flex items-center gap-2">
+          <nav className="flex min-w-0 items-center gap-1 text-xs text-slate-500" aria-label="Breadcrumb">
+            <Link to="/questions" className="shrink-0 font-medium text-slate-500 hover:text-slate-700 hover:underline">
+              Questions
+            </Link>
+            <span className="text-slate-400">›</span>
+            {(q.context?.destinationCountry || q.category) && (
+              <>
+                <Link
+                  to={`/questions?${q.context?.destinationCountry ? `dest=${encodeURIComponent(q.context.destinationCountry)}` : `category=${encodeURIComponent(q.category)}`}`}
+                  className="shrink-0 font-medium text-slate-500 hover:text-slate-700 hover:underline"
+                >
+                  {q.context?.destinationCountry || categoryLabel(q.category)}
+                </Link>
+                <span className="text-slate-400">›</span>
+              </>
+            )}
+            <span className="min-w-0 truncate font-medium text-slate-900" title={q.title}>
+              {q.title.length > 48 ? `${q.title.slice(0, 48)}…` : q.title}
+            </span>
+          </nav>
+          <div className="flex shrink-0 items-center gap-2">
             <button
               onClick={handleShare}
               className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3.5 py-2 text-xs font-semibold text-slate-600 shadow-sm hover:bg-slate-50"
@@ -302,59 +315,32 @@ export default function QuestionDetail() {
             </button>
             <Link
               to="/questions/ask"
-              className="hidden items-center gap-1.5 rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-black sm:inline-flex"
+              className="hidden items-center gap-1.5 rounded-full bg-brand-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-brand-700 sm:inline-flex"
             >
-              <Sparkles className="h-3.5 w-3.5" /> Ask
+              <Sparkles className="h-3.5 w-3.5" /> Ask a question
             </Link>
           </div>
         </div>
 
-        {/* Title zone — hero */}
+        {/* Title zone — compact header above card */}
         <div className="mt-6">
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-3 py-1.5 font-bold text-white shadow-sm">
-              <Sparkles className="h-3 w-3" /> {categoryLabel(q.category)}
-            </span>
-            {q.context?.destinationCountry && (
-              <span className="rounded-full bg-white px-3 py-1.5 font-semibold text-indigo-700 ring-1 ring-indigo-100 shadow-sm">
-                → {q.context.destinationCountry}
-              </span>
-            )}
-            {q.context?.homeCountry && (
-              <span className="rounded-full bg-white px-3 py-1.5 font-semibold text-slate-600 ring-1 ring-slate-200 shadow-sm">
-                {q.context.homeCountry}
-              </span>
-            )}
-            {q.context?.studyLevel && (
-              <span className="rounded-full bg-white px-3 py-1.5 font-semibold capitalize text-slate-600 ring-1 ring-slate-200 shadow-sm">
-                {q.context.studyLevel}
-              </span>
-            )}
-            <span className="inline-flex items-center gap-1 text-slate-400">
-              <Clock className="h-3 w-3" /> asked {timeAgo(q.createdAt)}
-            </span>
             {q.acceptedAnswerId && (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 px-2.5 py-1 font-bold text-white">
                 <CheckCircle2 className="h-3.5 w-3.5" /> Solved
               </span>
             )}
-          </div>
-          <h1 className="mt-4 text-[26px] font-extrabold leading-[1.15] tracking-tight text-slate-900 sm:text-[32px] lg:text-[36px]">
-            {q.title}
-          </h1>
-          <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-            <span className="inline-flex items-center gap-1">
-              <Users className="h-3.5 w-3.5" /> {followerCount} follower{followerCount === 1 ? "" : "s"}
+            <span className="inline-flex items-center gap-1 text-slate-500">
+              <Clock className="h-3 w-3" /> Asked {timeAgo(q.createdAt)}
             </span>
-            <span>·</span>
-            <span className="inline-flex items-center gap-1">
-              <MessageSquare className="h-3.5 w-3.5" /> {q.answerCount ?? (q.answers || []).length} answers
-            </span>
-            <span>·</span>
-            <span className="inline-flex items-center gap-1">
+            <span className="text-slate-300">·</span>
+            <span className="inline-flex items-center gap-1 text-slate-500">
               <Eye className="h-3.5 w-3.5" /> {q.viewCount ?? 0} views
             </span>
           </div>
+          <h1 className="mt-3 text-[22px] font-extrabold leading-[1.25] tracking-tight text-slate-900 sm:text-[26px]">
+            {q.title}
+          </h1>
         </div>
 
         <div className="mt-7 grid gap-8 lg:grid-cols-[1fr_340px]">
@@ -368,9 +354,9 @@ export default function QuestionDetail() {
               className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-soft"
             >
               <div className="flex flex-col sm:flex-row">
-                {/* Mobile horizontal vote pill — thumb-reachable, saves 72px width */}
-                <div className="flex items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/70 px-4 py-3 sm:hidden">
-                  <div className="flex items-center gap-3">
+                {/* Mobile vote — plain, no box */}
+                <div className="flex items-center justify-between gap-3 px-4 py-3 sm:hidden">
+                  <div className="flex items-center gap-2">
                     <button
                       onClick={handleQuestionUpvote}
                       disabled={!authReady}
@@ -381,23 +367,19 @@ export default function QuestionDetail() {
                             ? "Upvoted — click to remove"
                             : "Upvote — asker earns +2"
                       }
-                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all ${
-                        iUpvoted
-                          ? "bg-brand-600 text-white shadow-md"
-                          : "bg-white text-slate-500 ring-1 ring-slate-200 hover:bg-brand-50 hover:text-brand-600 hover:ring-brand-200"
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
+                        iUpvoted ? "bg-brand-600 text-white" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
                       } disabled:opacity-40`}
                     >
-                      <ArrowBigUp className={`h-6 w-6 ${iUpvoted ? "fill-white/20" : ""}`} />
+                      <ArrowBigUp className="h-5 w-5" />
                     </button>
-                    <div className="flex items-baseline gap-1.5">
-                      <span className="text-[18px] font-extrabold tracking-tight text-slate-900">{q.voteScore ?? 0}</span>
-                      <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">votes</span>
-                    </div>
+                    <span className="text-sm font-bold text-slate-900">{q.voteScore ?? 0}</span>
+                    <span className="text-xs text-slate-500">votes</span>
                   </div>
-                  <span className="text-[11px] font-medium leading-tight text-slate-500">Upvote to reward asker</span>
+                  <span className="text-xs text-slate-400">Upvote to reward asker</span>
                 </div>
-                {/* Desktop vertical rail — hidden on mobile */}
-                <div className="hidden w-[84px] shrink-0 flex-col items-center gap-1 border-r border-slate-100 bg-slate-50/70 px-3 py-5 sm:flex">
+                {/* Desktop vote — plain vertical, no box */}
+                <div className="hidden w-[68px] shrink-0 flex-col items-center gap-1 py-6 sm:flex">
                   <button
                     onClick={handleQuestionUpvote}
                     disabled={!authReady}
@@ -408,55 +390,38 @@ export default function QuestionDetail() {
                           ? "Upvoted — click to remove"
                           : "Upvote — asker earns +2"
                     }
-                    className={`flex h-10 w-10 items-center justify-center rounded-xl transition-all ${
-                      iUpvoted
-                        ? "bg-brand-600 text-white shadow-md"
-                        : "bg-white text-slate-500 ring-1 ring-slate-200 hover:bg-brand-50 hover:text-brand-600 hover:ring-brand-200"
+                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
+                      iUpvoted ? "bg-brand-600 text-white" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
                     } disabled:opacity-40`}
                   >
-                    <ArrowBigUp className={`h-6 w-6 ${iUpvoted ? "fill-white/20" : ""}`} />
+                    <ArrowBigUp className="h-5 w-5" />
                   </button>
-                  <span className="text-[18px] font-extrabold tracking-tight text-slate-900">{q.voteScore ?? 0}</span>
-                  <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">votes</span>
-                  <span className="mt-2 text-center text-[10px] leading-tight text-slate-400">
-                    Upvote to
-                    <br />
-                    reward asker
-                  </span>
+                  <span className="text-sm font-bold text-slate-900">{q.voteScore ?? 0}</span>
+                  <span className="text-[11px] text-slate-500">votes</span>
                 </div>
                 <div className="min-w-0 flex-1 p-4 sm:p-6">
                   <div className="prose max-w-none prose-slate prose-sm sm:prose-base prose-p:leading-relaxed prose-a:text-brand-600 hover:prose-a:text-brand-700">
                     <MarkdownBody text={q.body} />
                   </div>
-                  {(q.tags || []).length > 0 && (
-                    <div className="mt-5 flex flex-wrap items-center gap-1.5 sm:gap-2">
-                      {(q.tags || []).map((t) => (
-                        <Link
-                          key={t}
-                          to={`/questions?tag=${encodeURIComponent(t)}`}
-                          className="inline-flex items-center rounded-full bg-slate-900 px-3 py-1.5 text-xs font-bold text-white ring-1 ring-slate-900 hover:bg-black"
-                        >
-                          #{tagLabel(t)}
-                        </Link>
-                      ))}
+                  <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {(q.tags || []).length > 0 &&
+                        (q.tags || []).map((t) => (
+                          <Link
+                            key={t}
+                            to={`/questions?tag=${encodeURIComponent(t)}`}
+                            className="inline-flex items-center rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700 ring-1 ring-slate-200 hover:bg-slate-200"
+                          >
+                            #{tagLabel(t)}
+                          </Link>
+                        ))}
                     </div>
-                  )}
-                  <div className="mt-6 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
                     <AuthorBlock
                       email={q.authorEmail}
                       role={q.authorRole}
                       isVerified={q.authorIsVerified}
                       size="lg"
                     />
-                    <div className="flex flex-wrap items-center gap-2 text-xs">
-                      <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 font-medium text-slate-500 ring-1 ring-slate-200">
-                        <Clock className="h-3 w-3" /> {new Date(q.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
-                      </span>
-                      <span className="hidden text-slate-300 sm:inline">·</span>
-                      <span className="hidden text-slate-400 sm:inline">
-                        {new Date(q.createdAt).toLocaleTimeString(undefined, { hour: "2-digit", minute: "2-digit" })}
-                      </span>
-                    </div>
                   </div>
                 </div>
               </div>
@@ -543,17 +508,17 @@ export default function QuestionDetail() {
               </div>
             </section>
 
-            {/* Your answer */}
+            {/* Your answer — match reference clean card */}
             <section id="answer" className="scroll-mt-28">
               {user ? (
-                <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-soft">
-                  <div className="border-b border-slate-100 bg-slate-50/60 px-5 py-3">
-                    <h3 className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
-                      <Sparkles className="h-4 w-4 text-brand-500" /> Your answer
+                <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
+                  <div className="border-b border-slate-100 bg-white px-4 py-3">
+                    <h3 className="flex items-center gap-2 text-sm font-bold text-slate-900">
+                      <Sparkles className="h-4 w-4 text-brand-600" /> Your Answer
                     </h3>
-                    <p className="mt-1 text-xs text-slate-500">Share what you know · add a source link for +3 reputation</p>
+                    <p className="mt-1 text-xs text-slate-500">Help the community by sharing your knowledge. Add source links for better reputation.</p>
                   </div>
-                  <div className="p-5">
+                  <div className="p-4">
                     <AnswerForm
                       onSubmit={handleAnswer}
                       submitting={submittingAns}
@@ -590,92 +555,101 @@ export default function QuestionDetail() {
           {/* Right rail */}
           <aside className="hidden lg:block">
             <div className="sticky top-[88px] space-y-5">
-              {/* Follow card */}
-              <div className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-soft">
-                <div className="bg-gradient-to-br from-brand-600 to-indigo-600 px-5 py-4">
-                  <h3 className="flex items-center gap-2 text-sm font-extrabold text-white">
+              {/* Stay updated — match reference indigo card */}
+              <div className="overflow-hidden rounded-2xl border border-indigo-600 bg-brand-600 shadow-sm">
+                <div className="bg-brand-600 px-5 py-4">
+                  <h3 className="flex items-center gap-2 text-sm font-bold text-white">
                     <BellPlus className="h-4 w-4" /> Stay updated
                   </h3>
-                  <p className="mt-1 text-xs leading-relaxed text-brand-100">Get notified when someone answers this question.</p>
+                  <p className="mt-1 text-xs leading-relaxed text-indigo-100">Get notified via email when someone answers this question.</p>
                 </div>
-                <div className="p-4">
+                <div className="bg-brand-600 px-4 pb-4">
                   <button
                     onClick={handleFollowToggle}
                     disabled={followBusy || authLoading || roleLoading}
-                    className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-extrabold shadow-sm transition disabled:opacity-50 ${
-                      isFollowing ? "bg-slate-900 text-white hover:bg-black" : "bg-brand-600 text-white hover:bg-brand-700"
+                    className={`flex w-full items-center justify-center gap-2 rounded-xl bg-white px-4 py-2.5 text-sm font-bold text-brand-700 shadow-sm transition hover:bg-slate-50 disabled:opacity-50 ${
+                      isFollowing ? "ring-1 ring-white/20" : ""
                     }`}
                   >
                     {isFollowing ? <BellOff className="h-4 w-4" /> : <BellPlus className="h-4 w-4" />}
                     {isFollowing ? "Following" : "Follow question"}
                   </button>
-                  <div className="mt-3 flex items-center justify-center gap-1.5 text-xs font-medium text-slate-500">
-                    <Users className="h-3.5 w-3.5 text-slate-400" />
-                    <span className="font-bold text-slate-900">{followerCount}</span> follower{followerCount === 1 ? "" : "s"}
-                    <span className="text-slate-300">·</span>
-                    <span className="text-slate-400">notified on new answers</span>
+                  <div className="mt-2.5 flex items-center justify-center gap-1 text-xs text-indigo-200">
+                    <Users className="h-3 w-3" />
+                    <span className="font-semibold text-white">{followerCount}</span> follower{followerCount === 1 ? "" : "s"} tracking
                   </div>
                 </div>
               </div>
 
-              {/* Stats */}
-              <div className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-soft">
-                <h3 className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-slate-400">
+              {/* Stats — match reference compact stats */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <h3 className="flex items-center gap-2 text-xs font-bold uppercase tracking-widest text-slate-500">
                   <ShieldCheck className="h-3.5 w-3.5" /> Stats
                 </h3>
-                <div className="mt-4 grid grid-cols-3 gap-3">
+                <div className="mt-3 grid grid-cols-3 gap-2">
                   {stats.map((s) => (
-                    <div key={s.label} className="flex flex-col items-center rounded-2xl bg-gradient-to-b from-white to-slate-50 px-2 py-4 ring-1 ring-slate-100">
-                      <s.icon className="h-5 w-5 text-slate-400" />
-                      <span className="mt-1.5 text-[18px] font-extrabold tracking-tight text-slate-900">{s.value}</span>
-                      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">{s.label}</span>
+                    <div key={s.label} className="flex flex-col items-center rounded-xl bg-slate-50 px-2 py-3 ring-1 ring-slate-100">
+                      <s.icon className="h-4 w-4 text-slate-500" />
+                      <span className="mt-1 text-[15px] font-extrabold tracking-tight text-slate-900">{s.value}</span>
+                      <span className="text-[10px] font-medium uppercase tracking-widest text-slate-500">{s.label}</span>
                     </div>
                   ))}
                 </div>
-                <div className="mt-4 flex items-center gap-2 rounded-xl bg-slate-50 px-3 py-2.5 ring-1 ring-slate-100">
-                  <Clock className="h-3.5 w-3.5 text-slate-400" />
-                  <span className="text-xs font-medium text-slate-600">
-                    Asked {timeAgo(q.createdAt)} · {new Date(q.createdAt).toLocaleDateString()}
+                <div className="mt-3 flex items-center gap-2 border-t border-slate-100 pt-3 text-xs text-slate-500">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>
+                    Asked: {new Date(q.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                   </span>
+                  <span className="ml-auto text-slate-400">{new Date(q.createdAt).toLocaleDateString(undefined, { weekday: "short" })}</span>
                 </div>
               </div>
 
-              {/* Related */}
+              {/* Community tools / Related — match reference */}
+              <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                <h3 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-500">
+                  <ShieldCheck className="h-3.5 w-3.5" /> Community Tools
+                </h3>
+                <div className="mt-3 space-y-1">
+                  <a href="#" onClick={(e) => e.preventDefault()} className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-500">○</span> How to write a good answer
+                  </a>
+                  <a href="#" onClick={(e) => e.preventDefault()} className="flex items-center gap-2 rounded-lg px-2 py-2 text-xs font-medium text-slate-600 hover:bg-slate-50">
+                    <span className="flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-slate-500">◧</span> Report content issue
+                  </a>
+                </div>
+              </div>
+
               {related.length > 0 && (
-                <div className="rounded-[20px] border border-slate-200 bg-white p-5 shadow-soft">
-                  <h3 className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-slate-400">
-                    <Flame className="h-3.5 w-3.5" /> Related
+                <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+                  <h3 className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-widest text-slate-500">
+                    <Flame className="h-3.5 w-3.5" /> Related Questions
                   </h3>
                   <ul className="mt-3 space-y-1">
                     {related.map((r) => (
                       <li key={r._id}>
                         <Link
                           to={`/questions/${r._id}`}
-                          className="group flex items-start gap-2 rounded-xl p-2.5 -mx-2.5 hover:bg-slate-50"
+                          className="group flex items-start gap-2 rounded-lg px-2 py-2 -mx-2 hover:bg-slate-50"
                         >
-                          <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-slate-300 group-hover:bg-brand-500" />
-                          <span className="text-[13.5px] font-semibold leading-snug text-slate-700 group-hover:text-brand-600 line-clamp-2">{r.title}</span>
+                          <span className="mt-2 h-1 w-1 shrink-0 rounded-full bg-slate-300 group-hover:bg-brand-500" />
+                          <span className="text-[13px] font-medium leading-snug text-slate-700 group-hover:text-brand-600 line-clamp-2">{r.title}</span>
                         </Link>
                       </li>
                     ))}
                   </ul>
-                  <Link to="/questions" className="mt-3 inline-flex text-xs font-bold text-brand-600 hover:text-brand-700">
-                    Browse all questions →
+                  <Link to="/questions" className="mt-2 inline-flex text-xs font-semibold text-brand-600 hover:text-brand-700">
+                    View all related →
                   </Link>
                 </div>
               )}
 
-              {/* CTA */}
+              {/* CTA — keep hidden per reference? Reference has no CTA, but keep minimal */}
               <Link
                 to="/questions/ask"
-                className="flex items-center justify-center gap-2 rounded-[20px] bg-slate-900 p-4 text-sm font-extrabold text-white shadow-soft hover:bg-black"
+                className="hidden items-center justify-center gap-2 rounded-2xl bg-slate-900 p-3 text-sm font-bold text-white shadow-sm hover:bg-black lg:flex"
               >
                 <Sparkles className="h-4 w-4" /> Ask a question
               </Link>
-
-              <p className="text-center text-[11px] leading-relaxed text-slate-400">
-                Be specific · add context · include sources for <span className="font-bold text-slate-600">+3</span> bonus.
-              </p>
             </div>
           </aside>
         </div>

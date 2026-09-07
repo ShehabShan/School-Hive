@@ -67,15 +67,10 @@ export default function AnswerForm({ onSubmit, submitting, questionId, isAsker, 
   const photo = me?.photoURL;
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
-      <h3 className="flex items-center gap-2 text-lg font-bold text-slate-900">Your answer</h3>
-      <p className="mt-0.5 text-xs text-slate-500">
-        Answer the specific question, cite official sources for factual claims — a source link earns <span className="rounded-full bg-sky-50 px-1.5 py-0.5 font-bold text-sky-700 ring-1 ring-sky-200">+3 rep</span> instantly.
-      </p>
-
-      {/* Guidance trust strip */}
-      <div className="mt-3 rounded-xl border border-slate-100 bg-slate-50 p-3">
-        <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-slate-500"><Info className="h-3.5 w-3.5" /> How to write a helpful answer</p>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      {/* Guidance trust strip — kept */}
+      <div className="rounded-xl border border-slate-100 bg-slate-50 p-3">
+        <p className="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wide text-slate-500"><Info className="h-3.5 w-3.5" /> How to write a helpful answer</p>
         <ul className="mt-2 list-disc space-y-1 pl-5 text-xs text-slate-600">
           <li>Answer the corridor question {context?.destinationCountry || context?.homeCountry || context?.studyLevel ? <span className="font-semibold text-slate-700">{[context.destinationCountry, context.homeCountry, context.studyLevel].filter(Boolean).join(" · ")}</span> : "directly"} — be specific to the ask.</li>
           <li>Cite a checkable source for numbers/dates/policy — paste official link below for <span className="font-semibold">+3</span> rep.</li>
@@ -84,15 +79,15 @@ export default function AnswerForm({ onSubmit, submitting, questionId, isAsker, 
       </div>
 
       {isAsker && (
-        <div className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
+        <div className="flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 px-3 py-2.5 text-xs text-amber-800">
           <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
           <p><b>You asked this question</b> — only add an answer if you found a new solution or update. Otherwise edit the question for clarity.</p>
         </div>
       )}
 
-      {/* Identity row */}
+      {/* Identity row — rep count / Posting as */}
       {me && (
-        <div className="mt-3 flex items-center gap-2 rounded-full bg-slate-50 px-3 py-2 ring-1 ring-slate-100">
+        <div className="flex items-center gap-2 rounded-full bg-slate-50 px-3 py-2 ring-1 ring-slate-100">
           <div className="h-7 w-7 shrink-0 overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-indigo-600 text-xs font-extrabold text-white flex items-center justify-center">
             {photo ? <img src={photo} alt={name} className="h-full w-full object-cover" /> : name.charAt(0).toUpperCase()}
           </div>

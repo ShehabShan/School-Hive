@@ -19,7 +19,15 @@ const MarkdownBody = memo(function MarkdownBody({ text, className = "", compact 
       <ReactMarkdown
         remarkPlugins={[remarkGfm]}
         components={{
-          img: (props) => { const p = { ...props }; delete p.node; return <img {...p} loading="lazy" className="max-h-[560px] object-contain" alt={p.alt || ""} />; },
+          img: (props) => {
+            const p = { ...props };
+            delete p.node;
+            return (
+              <span className="my-4 block overflow-hidden rounded-2xl border border-slate-200 bg-white p-1.5 shadow-sm">
+                <img {...p} loading="lazy" className="max-h-[560px] w-full rounded-xl object-contain" alt={p.alt || ""} />
+              </span>
+            );
+          },
           a: (props) => { const p = { ...props }; delete p.node; return <a {...p} target="_blank" rel="noreferrer noopener" />; },
         }}
       >

@@ -52,9 +52,13 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
   };
 
   return (
-    <article className={`relative overflow-hidden rounded-2xl border bg-white shadow-sm transition-colors ${isAccepted ? "border-emerald-300" : "border-slate-200"}`}>
-      {isAccepted && <div className="flex items-center gap-1.5 bg-emerald-600 px-4 py-1.5 text-xs font-bold text-white"><CheckCircle2 className="h-3.5 w-3.5" /> Accepted answer — verified by the asker</div>}
-      <div className="flex gap-1 p-4 sm:gap-3">
+    <article className={`relative overflow-hidden rounded-2xl border bg-white shadow-sm transition-colors ${isAccepted ? "border-emerald-200 bg-emerald-50/30" : "border-slate-200"}`}>
+      {isAccepted && (
+        <div className="flex items-center gap-1.5 border-b border-emerald-100 bg-emerald-50 px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-emerald-700">
+          <CheckCircle2 className="h-3.5 w-3.5" /> Accepted Answer
+        </div>
+      )}
+      <div className="flex gap-3 p-5">
         {/* Vote rail */}
         <div className="flex w-10 shrink-0 flex-col items-center gap-0.5">
           <button onClick={handleUpvote} disabled={voting || !me} title={me ? "Upvote" : "Sign in to vote"} className="rounded-lg p-1 text-slate-400 transition-colors hover:bg-brand-50 hover:text-brand-600 disabled:opacity-40">
