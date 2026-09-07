@@ -1,5 +1,6 @@
 import { GraduationCap, Briefcase, Award, Trophy, Languages, Heart } from "lucide-react";
 import { motion } from "framer-motion";
+import { hasValue } from "../../utils/hasValue";
 
 function Item({ title, subtitle, meta, desc, logo }) {
   return (
@@ -21,14 +22,14 @@ function Item({ title, subtitle, meta, desc, logo }) {
 }
 
 export function EducationTimeline({ education = [] }) {
-  const filtered = (education || []).filter((e) => e?.school);
+  const filtered = (education || []).filter((e) => hasValue(e?.school));
   if (!filtered.length) return null;
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.14 }} className="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-slate-100 sm:p-6">
       <h3 className="flex items-center gap-2 text-base font-bold text-slate-900"><GraduationCap className="h-4 w-4 text-brand-500" /> Education</h3>
       <div className="mt-4 space-y-3 border-l border-slate-100 pl-0">
         {filtered.map((e,i)=> (
-          <Item key={i} title={e.school || "Untitled school"} subtitle={[e.degree, e.field].filter(Boolean).join(" • ")} meta={[e.startYear, e.endYear].filter(Boolean).join(" — ") + (e.grade ? ` • ${e.grade}` : "")} desc={e.description} logo={e.logoUrl} />
+          <Item key={i} title={hasValue(e.school) ? e.school : "Untitled school"} subtitle={[e.degree, e.field].filter(v => hasValue(v)).join(" • ")} meta={[e.startYear, e.endYear].filter(v => hasValue(v)).join(" — ") + (e.grade ? ` • ${e.grade}` : "")} desc={e.description} logo={e.logoUrl} />
         ))}
       </div>
     </motion.div>
@@ -36,14 +37,14 @@ export function EducationTimeline({ education = [] }) {
 }
 
 export function ExperienceTimeline({ experience = [] }) {
-  const filtered = (experience || []).filter((e) => e?.title || e?.org);
+  const filtered = (experience || []).filter((e) => hasValue(e?.title) || hasValue(e?.org));
   if (!filtered.length) return null;
   return (
     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.16 }} className="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-slate-100 sm:p-6">
       <h3 className="flex items-center gap-2 text-base font-bold text-slate-900"><Briefcase className="h-4 w-4 text-brand-500" /> Experience</h3>
       <div className="mt-4 space-y-3">
         {filtered.map((e,i)=> (
-          <Item key={i} title={e.title || "Untitled role"} subtitle={[e.org, e.location].filter(Boolean).join(" • ")} meta={[e.startDate, e.current ? "Present" : e.endDate].filter(Boolean).join(" — ")} desc={e.description} />
+          <Item key={i} title={hasValue(e.title) ? e.title : "Untitled role"} subtitle={[e.org, e.location].filter(v => hasValue(v)).join(" • ")} meta={[e.startDate, e.current ? "Present" : e.endDate].filter(v => hasValue(v)).join(" — ")} desc={e.description} />
         ))}
       </div>
     </motion.div>
@@ -51,7 +52,7 @@ export function ExperienceTimeline({ experience = [] }) {
 }
 
 export function CertificationsSection({ certifications = [] }) {
-  const filtered = (certifications || []).filter((c) => c?.name);
+  const filtered = (certifications || []).filter((c) => hasValue(c?.name));
   if (!filtered.length) return null;
   return (
     <div className="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-slate-100 sm:p-6">
@@ -59,8 +60,8 @@ export function CertificationsSection({ certifications = [] }) {
       <div className="mt-3 grid gap-2 sm:grid-cols-2">
         {filtered.map((c,i)=> (
           <a key={i} href={c.url || undefined} target={c.url ? "_blank" : undefined} rel="noopener noreferrer" className="rounded-xl border border-slate-100 bg-slate-50 p-3 hover:bg-white hover:shadow-sm">
-            <p className="text-sm font-bold text-slate-900">{c.name}</p>
-            {[c.issuer, c.issueDate].filter(Boolean).join(" • ") && <p className="text-xs text-slate-600">{[c.issuer, c.issueDate].filter(Boolean).join(" • ")}</p>}
+            <p className="text-sm font-bold text-slate-900">{hasValue(c.name) ? c.name : "Untitled"}</p>
+            {[c.issuer, c.issueDate].filter(v => hasValue(v)).join(" • ") && <p className="text-xs text-slate-600">{[c.issuer, c.issueDate].filter(v => hasValue(v)).join(" • ")}</p>}
             {c.credentialId && <p className="text-[11px] text-slate-500">ID: {c.credentialId}</p>}
           </a>
         ))}
@@ -70,7 +71,7 @@ export function CertificationsSection({ certifications = [] }) {
 }
 
 export function AchievementsSection({ achievements = [] }) {
-  const filtered = (achievements || []).filter((a) => a?.title);
+  const filtered = (achievements || []).filter((a) => hasValue(a?.title));
   if (!filtered.length) return null;
   return (
     <div className="rounded-2xl bg-white p-5 shadow-soft ring-1 ring-slate-100 sm:p-6">
@@ -89,8 +90,8 @@ export function AchievementsSection({ achievements = [] }) {
 }
 
 export function LanguagesInterests({ languages=[], interests=[] }) {
-  const langs = (languages || []).filter((l) => l?.name);
-  const ints = (interests || []).filter(Boolean).map((s)=> String(s).trim()).filter(Boolean);
+  const langs = (languages || []).filter((l) => hasValue(l?.name));
+  const ints = (interests || []).filter(v => hasValue(v)).map((s)=> String(s).trim()).filter(v => hasValue(v));
   if (!langs.length && !ints.length) return null;
   return (
     <div className="grid gap-4 sm:grid-cols-2">

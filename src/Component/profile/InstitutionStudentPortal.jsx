@@ -1,3 +1,4 @@
+import { hasValue } from "../../utils/hasValue";
 import { useState } from "react";
 import { Users, Plus, Upload, Search, Trash2, Edit3, GraduationCap } from "lucide-react";
 import { useInstitutionStudents, useAddStudent, useBulkAddStudents, useDeleteStudent, useUpdateStudent } from "../../Hooks/useInstitutionStudents";
@@ -40,7 +41,7 @@ export default function InstitutionStudentPortal({ institutionEmail }) {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const text = ev.target.result;
-      const lines = String(text).split(/\r?\n/).filter(Boolean);
+      const lines = String(text).split(/\r?\n/).filter(v => hasValue(v));
       const header = lines[0]?.toLowerCase();
       const hasHeader = header?.includes("name") && header?.includes("email");
       const rows = (hasHeader ? lines.slice(1) : lines).slice(0, 50).map(line => {
@@ -100,8 +101,8 @@ export default function InstitutionStudentPortal({ institutionEmail }) {
                   <tr key={s._id} className="border-t border-slate-100">
                     <td className="py-2.5 font-semibold text-slate-900">{s.studentName}</td>
                     <td className="text-slate-600 text-xs sm:text-sm">{s.studentEmail}</td>
-                    <td className="hidden sm:table-cell text-slate-600">{s.department || "—"}</td>
-                    <td className="hidden sm:table-cell text-slate-600">{s.year || "—"}</td>
+                    <td className="hidden sm:table-cell text-slate-600">{hasValue(s.department) ? s.department : "—"}</td>
+                    <td className="hidden sm:table-cell text-slate-600">{hasValue(s.year) ? s.year : "—"}</td>
                     <td className="flex gap-1 py-2">
                       <button onClick={()=> { setEditing(s); setForm({ studentName: s.studentName, studentEmail: s.studentEmail, department: s.department||"", program: s.program||"", year: s.year||"", rollId: s.rollId||"" }); setShowAdd(true); }} className="rounded-lg p-1.5 text-slate-500 hover:bg-slate-100"><Edit3 className="h-3.5 w-3.5" /></button>
                       <button onClick={()=> delMut.mutate({ institutionEmail, id: s._id })} className="rounded-lg p-1.5 text-rose-500 hover:bg-rose-50"><Trash2 className="h-3.5 w-3.5" /></button>

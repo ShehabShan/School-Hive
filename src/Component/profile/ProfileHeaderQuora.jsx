@@ -14,9 +14,9 @@ export default function ProfileHeaderQuora({
   following,
   onShare,
 }) {
-  const name = user?.name?.trim() || "Anonymous";
+  const name = hasValue(user?.name) ? user.name.trim() : "Anonymous";
   const photo = hasValue(user?.photoURL) ? user.photoURL : null;
-  const role = user?.role || "user";
+  const role = hasValue(user?.role) ? user.role : "user";
   const isInstitution = role === "institution";
   const reputation = typeof user?.reputation === "number" ? user.reputation : 0;
   const verified = Boolean(user?.isVerified) || Boolean(user?.verified) || (isInstitution && user?.status === "approved");

@@ -1,5 +1,6 @@
 import { FileText, Star } from "lucide-react";
 import { motion } from "framer-motion";
+import { hasValue } from "../../utils/hasValue";
 import StatusBadge from "../ui/StatusBadge";
 import Stars from "../ui/Stars";
 
@@ -73,7 +74,7 @@ export default function ActivitySection({ applications = [], reviews = [], viewA
               >
                 <div className="flex items-center justify-between">
                   <p className="truncate text-sm font-semibold text-slate-800">
-                    {r.scholership_details?.universityName || "Scholarship"}
+                    {hasValue(r.scholership_details?.universityName) ? r.scholership_details.universityName : "Scholarship"}
                   </p>
                   <Stars rating={r.rating} />
                 </div>

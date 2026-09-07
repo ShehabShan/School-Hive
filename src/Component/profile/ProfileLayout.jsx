@@ -6,13 +6,13 @@ import CompletenessMeter from "./CompletenessMeter";
 import { hasValue, joinFiltered } from "../../utils/hasValue";
 
 export default function ProfileLayout({ user, isOwnProfile, onEdit, stats, completeness, onFollow, following, onShare, activeTab, onTabChange, tabs = [] }) {
-  const name = user?.name?.trim() || "Anonymous";
+  const name = hasValue(user?.name) ? user.name.trim() : "Anonymous";
   const photo = hasValue(user?.photoURL) ? user.photoURL : null;
   const cover = hasValue(user?.coverPhoto) ? user.coverPhoto : bg;
-  const role = user?.role || "user";
+  const role = hasValue(user?.role) ? user.role : "user";
   const headline = hasValue(user?.headline) ? user.headline : null;
-  const city = user?.city?.trim() || null;
-  const country = user?.country?.trim() || null;
+  const city = hasValue(user?.city) ? user.city.trim() : null;
+  const country = hasValue(user?.country) ? user.country.trim() : null;
   const location = joinFiltered([city, country], ", ");
   const isInstitution = role === "institution";
   const joined = user?.createdAt ? new Date(user.createdAt).toLocaleDateString(undefined, { year: "numeric", month: "short" }) : "Recently";

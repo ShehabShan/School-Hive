@@ -1,9 +1,10 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { hasValue } from "../../utils/hasValue";
 
 export default function AboutSection({ user }) {
   const [expanded, setExpanded] = useState(false);
-  const bio = user?.bio || "No bio provided.";
+  const bio = hasValue(user?.bio) ? user.bio : "No bio provided.";
   const skills = user?.skills?.length ? user.skills : [];
   const isLong = bio.length > 180;
 

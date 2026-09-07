@@ -9,7 +9,13 @@
  */
 export function hasValue(v) {
   if (v === null || v === undefined) return false;
-  if (typeof v === "string") return v.trim().length > 0;
+  if (typeof v === "string") {
+    const t = v.trim();
+    if (t.length === 0) return false;
+    const lower = t.toLowerCase();
+    if (lower === "null" || lower === "undefined" || lower === "nil") return false;
+    return true;
+  }
   if (typeof v === "number") return true; // 0 is valid (counts)
   if (typeof v === "boolean") return v; // true present, false empty for toggles -> treat false as empty for visibility purpose? keep false as present for explicit bool
   if (Array.isArray(v)) {

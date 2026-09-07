@@ -10,7 +10,7 @@ export default function AboutTab({ user, enabled }) {
   const isInstitution = user?.role === "institution";
   const bio = hasValue(user?.bio) ? user.bio : null;
   const headline = hasValue(user?.headline) ? user.headline : null;
-  const skills = (user?.skills || []).filter(Boolean);
+  const skills = (user?.skills || []).filter(v => hasValue(v));
 
   if (isInstitution) {
     const hasInst = hasValue(user?.orgName) || hasValue(user?.orgDescription) || hasValue(user?.orgHighlights) || hasValue(user?.orgDepartments);
@@ -18,7 +18,7 @@ export default function AboutTab({ user, enabled }) {
       <div className="space-y-5">
         <div className="rounded-2xl bg-white p-6 shadow-soft ring-1 ring-slate-100">
           <h3 className="flex items-center gap-2 text-base font-bold text-slate-900">
-            <Building2 className="h-5 w-5 text-violet-600" /> {user?.orgName || "Institution"}
+            <Building2 className="h-5 w-5 text-violet-600" /> {hasValue(user?.orgName) ? user.orgName : "Institution"}
             {hasValue(user?.orgType) && <span className="text-sm font-medium text-slate-500">· {user.orgType}</span>}
           </h3>
           <div className="mt-3 space-y-2 text-sm leading-relaxed text-slate-600">
@@ -29,15 +29,15 @@ export default function AboutTab({ user, enabled }) {
               <p><span className="font-semibold">Community:</span> {user.orgStudentCount ?? "—"} students · {user.orgFacultyCount ?? "—"} faculty</p>
             )}
             {hasValue(user?.orgDescription) ? <p className="whitespace-pre-wrap">{user.orgDescription}</p> : !hasInst ? <p className="text-slate-500">No institution details yet.</p> : null}
-            {Array.isArray(user?.orgHighlights) && user.orgHighlights.filter(Boolean).length > 0 && (
+            {Array.isArray(user?.orgHighlights) && user.orgHighlights.filter(v => hasValue(v)).length > 0 && (
               <div className="flex flex-wrap gap-1.5 pt-1">
-                {user.orgHighlights.filter(Boolean).map((h) => (
+                {user.orgHighlights.filter(v => hasValue(v)).map((h) => (
                   <span key={h} className="rounded-full bg-violet-50 px-3 py-1 text-xs font-semibold text-violet-700 ring-1 ring-violet-100">{h}</span>
                 ))}
               </div>
             )}
-            {Array.isArray(user?.orgDepartments) && user.orgDepartments.filter(Boolean).length > 0 && (
-              <p className="text-xs text-slate-500">Departments: {user.orgDepartments.filter(Boolean).join(", ")}</p>
+            {Array.isArray(user?.orgDepartments) && user.orgDepartments.filter(v => hasValue(v)).length > 0 && (
+              <p className="text-xs text-slate-500">Departments: {user.orgDepartments.filter(v => hasValue(v)).join(", ")}</p>
             )}
           </div>
           <div className="mt-4 flex flex-wrap gap-2">

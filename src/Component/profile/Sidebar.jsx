@@ -1,4 +1,5 @@
 import { Mail, Phone, MapPin, Globe, CalendarDays } from "lucide-react";
+import { hasValue } from "../../utils/hasValue";
 import { motion } from "framer-motion";
 
 export default function Sidebar({ user }) {
@@ -12,10 +13,10 @@ export default function Sidebar({ user }) {
 
   const contactItems = [
     { icon: Mail, label: user?.email, href: user?.email ? `mailto:${user.email}` : null },
-    { icon: Phone, label: user?.phone || null },
-    { icon: MapPin, label: user?.city || user?.country ? [user.city, user.country].filter(Boolean).join(", ") : null },
-    { icon: Globe, label: user?.orgWebsite || null, href: user?.orgWebsite || null },
-  ].filter((item) => item.label);
+    { icon: Phone, label: hasValue(user?.phone) ? user.phone : null },
+    { icon: MapPin, label: user?.city || user?.country ? [user.city, user.country].filter(v => hasValue(v)).join(", ") : null },
+    { icon: Globe, label: hasValue(user?.orgWebsite) ? user.orgWebsite : null, href: hasValue(user?.orgWebsite) ? user.orgWebsite : null },
+  ].filter((item) => hasValue(item.label));
 
   return (
     <div className="space-y-4">

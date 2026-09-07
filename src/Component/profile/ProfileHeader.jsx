@@ -3,15 +3,16 @@ import { MapPin, CalendarDays, Edit3, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
 import RoleBadge from "./RoleBadge";
+import { hasValue } from "../../utils/hasValue";
 import BadgeRow from "../QA/BadgeRow";
 import bg from "../../assist/bgImg/profileBg.webp";
 
 export default function ProfileHeader({ user, isOwnProfile, onEdit, stats }) {
-  const name = user?.name || "Anonymous";
+  const name = hasValue(user?.name) ? user.name : "Anonymous";
   // email available via user.email if needed
   const photo = user?.photoURL;
   const cover = user?.coverPhoto || bg;
-  const role = user?.role || "user";
+  const role = hasValue(user?.role) ? user.role : "user";
   const city = user?.city;
   const country = user?.country;
   const joined = user?.createdAt
@@ -53,7 +54,7 @@ export default function ProfileHeader({ user, isOwnProfile, onEdit, stats }) {
               {(city || country) && (
                 <span className="flex items-center gap-1">
                   <MapPin className="h-3.5 w-3.5 text-slate-400" />
-                  {[city, country].filter(Boolean).join(", ")}
+                  {[city, country].filter(v => hasValue(v)).join(", ")}
                 </span>
               )}
               <span className="flex items-center gap-1">

@@ -2,16 +2,17 @@
 import { MapPin, CalendarDays, Edit3, BadgeCheck, Building2, Share2, UserPlus, UserCheck } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
+import { hasValue } from "../../utils/hasValue";
 import RoleBadge from "./RoleBadge";
 import bg from "../../assist/bgImg/profileBg.webp";
 import CompletenessMeter from "./CompletenessMeter";
 import SocialLinks from "./SocialLinks";
 
 export default function ProfileHeroV2({ user, isOwnProfile, onEdit, stats, completeness, onFollow, following, onShare }) {
-  const name = user?.name || "Anonymous";
+  const name = hasValue(user?.name) ? user.name : "Anonymous";
   const photo = user?.photoURL;
   const cover = user?.coverPhoto || bg;
-  const role = user?.role || "user";
+  const role = hasValue(user?.role) ? user.role : "user";
   const headline = user?.headline;
   const city = user?.city;
   const country = user?.country;
@@ -45,7 +46,7 @@ export default function ProfileHeroV2({ user, isOwnProfile, onEdit, stats, compl
               <h1 className="flex items-center gap-2 truncate text-xl font-extrabold tracking-tight text-slate-900 sm:text-2xl">{name} {verified && <BadgeCheck className="h-5 w-5 text-emerald-500" />}</h1>
               {headline && <p className="mt-0.5 text-sm font-medium text-slate-600 line-clamp-1">{headline}</p>}
               <div className="mt-1 flex flex-wrap items-center gap-2 text-xs text-slate-500">
-                {(city || country) && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {[city,country].filter(Boolean).join(", ")}</span>}
+                {(city || country) && <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {[city,country].filter(v => hasValue(v)).join(", ")}</span>}
                 <span className="flex items-center gap-1"><CalendarDays className="h-3.5 w-3.5" /> Joined {joined}</span>
                 {isInstitution && user?.orgCountry && <span className="flex items-center gap-1"><Building2 className="h-3.5 w-3.5" /> {user.orgCountry}</span>}
               </div>

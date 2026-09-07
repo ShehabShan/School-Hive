@@ -1,9 +1,10 @@
 import { Image as ImageIcon, Play } from "lucide-react";
+import { hasValue } from "../../utils/hasValue";
 import { motion } from "framer-motion";
 
 export default function GalleryStrip({ images = [], videoUrl, orgGallery = [] }) {
   const gallery = images.length ? images : orgGallery;
-  const hasGallery = Array.isArray(gallery) && gallery.filter(Boolean).length > 0;
+  const hasGallery = Array.isArray(gallery) && gallery.filter(v => hasValue(v)).length > 0;
   const hasVideo = Boolean(videoUrl);
   if (!hasGallery && !hasVideo) return null;
   const ytId = hasVideo ? extractYouTubeId(videoUrl) : null;

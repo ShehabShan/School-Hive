@@ -153,40 +153,40 @@ export default function ProfilePage() {
   const openEdit = () => {
     setForm({
       name: dbUser?.name || user?.displayName || "",
-      headline: dbUser?.headline || "",
-      phone: dbUser?.phone || "",
-      city: dbUser?.city || "",
-      country: dbUser?.country || "",
-      bio: dbUser?.bio || "",
-      skills: (dbUser?.skills || []).join(", "),
-      interests: (dbUser?.interests || []).join(", "),
+      headline: hasValue(dbUser?.headline) ? dbUser.headline : "",
+      phone: hasValue(dbUser?.phone) ? dbUser.phone : "",
+      city: hasValue(dbUser?.city) ? dbUser.city : "",
+      country: hasValue(dbUser?.country) ? dbUser.country : "",
+      bio: hasValue(dbUser?.bio) ? dbUser.bio : "",
+      skills: ( (dbUser?.skills || []).filter(v => hasValue(v)).join(", ") ),
+      interests: ( (dbUser?.interests || []).filter(v => hasValue(v)).join(", ") ),
       languages: dbUser?.languages || [],
-      photoURL: dbUser?.photoURL || user?.photoURL || "",
-      coverPhoto: dbUser?.coverPhoto || "",
-      gallery: (dbUser?.gallery || []).join(", "),
-      videoIntro: dbUser?.videoIntro || "",
+      photoURL: hasValue(dbUser?.photoURL) ? dbUser.photoURL : hasValue(user?.photoURL) ? user.photoURL : "",
+      coverPhoto: hasValue(dbUser?.coverPhoto) ? dbUser.coverPhoto : "",
+      gallery: ( (dbUser?.gallery || []).filter(v => hasValue(v)).join(", ") ),
+      videoIntro: hasValue(dbUser?.videoIntro) ? dbUser.videoIntro : "",
       socials: dbUser?.socials || { linkedin: "", twitter: "", github: "", website: "" },
       education: dbUser?.education || [],
       experience: dbUser?.experience || [],
       certifications: dbUser?.certifications || [],
       achievements: dbUser?.achievements || [],
       preferences: dbUser?.preferences || { visibility: "public", showStatsOnPublic: true, showScheduledOnProfile: false, emailNotifications: true },
-      orgName: dbUser?.orgName || "",
+      orgName: hasValue(dbUser?.orgName) ? dbUser.orgName : "",
       orgType: dbUser?.orgType || "university",
-      orgCountry: dbUser?.orgCountry || "",
-      orgWebsite: dbUser?.orgWebsite || "",
-      orgDescription: dbUser?.orgDescription || "",
-      orgFounded: dbUser?.orgFounded || "",
-      orgAccreditation: dbUser?.orgAccreditation || "",
-      orgStudentCount: dbUser?.orgStudentCount || "",
-      orgFacultyCount: dbUser?.orgFacultyCount || "",
-      orgDepartments: (dbUser?.orgDepartments || []).join(", "),
-      orgProgramsText: (dbUser?.orgPrograms || []).map(p=>p.name).join(", "),
-      orgGallery: (dbUser?.orgGallery || []).join(", "),
-      orgVideoUrl: dbUser?.orgVideoUrl || "",
-      orgBrochureUrl: dbUser?.orgBrochureUrl || "",
-      orgMapUrl: dbUser?.orgMapUrl || "",
-      orgHighlights: (dbUser?.orgHighlights || []).join(", "),
+      orgCountry: hasValue(dbUser?.orgCountry) ? dbUser.orgCountry : "",
+      orgWebsite: hasValue(dbUser?.orgWebsite) ? dbUser.orgWebsite : "",
+      orgDescription: hasValue(dbUser?.orgDescription) ? dbUser.orgDescription : "",
+      orgFounded: hasValue(dbUser?.orgFounded) ? String(dbUser.orgFounded) : "",
+      orgAccreditation: hasValue(dbUser?.orgAccreditation) ? dbUser.orgAccreditation : "",
+      orgStudentCount: hasValue(dbUser?.orgStudentCount) ? String(dbUser.orgStudentCount) : "",
+      orgFacultyCount: hasValue(dbUser?.orgFacultyCount) ? String(dbUser.orgFacultyCount) : "",
+      orgDepartments: ( (dbUser?.orgDepartments || []).filter(v => hasValue(v)).join(", ") ),
+      orgProgramsText: ( (dbUser?.orgPrograms || []).filter(v => hasValue(v?.name)).map(p=>p.name).join(", ") ),
+      orgGallery: ( (dbUser?.orgGallery || []).filter(v => hasValue(v)).join(", ") ),
+      orgVideoUrl: hasValue(dbUser?.orgVideoUrl) ? dbUser.orgVideoUrl : "",
+      orgBrochureUrl: hasValue(dbUser?.orgBrochureUrl) ? dbUser.orgBrochureUrl : "",
+      orgMapUrl: hasValue(dbUser?.orgMapUrl) ? dbUser.orgMapUrl : "",
+      orgHighlights: ( (dbUser?.orgHighlights || []).filter(v => hasValue(v)).join(", ") ),
       _edu: { school:"", degree:"", field:"", startYear:"", endYear:"", grade:"", description:"" },
       _exp: { title:"", org:"", location:"", startDate:"", endDate:"", current:false, description:"" },
       _cert: { name:"", issuer:"", issueDate:"", url:"" },
@@ -220,27 +220,27 @@ export default function ProfilePage() {
     e.preventDefault();
     setSaving(true);
     try {
-      const skillsArr = String(form.skills).split(",").map(s=>s.trim()).filter(Boolean).slice(0,20);
-      const interestsArr = String(form.interests).split(",").map(s=>s.trim()).filter(Boolean).slice(0,12);
-      const galleryArr = String(form.gallery).split(",").map(s=>s.trim()).filter(Boolean).slice(0,6);
-      const orgGalleryArr = String(form.orgGallery).split(",").map(s=>s.trim()).filter(Boolean).slice(0,6);
-      const orgDeptArr = String(form.orgDepartments).split(",").map(s=>s.trim()).filter(Boolean).slice(0,20);
-      const orgHighArr = String(form.orgHighlights).split(",").map(s=>s.trim()).filter(Boolean).slice(0,10);
-      const orgProgArr = String(form.orgProgramsText).split(",").map(s=>s.trim()).filter(Boolean).slice(0,20).map(name=>({ name }));
+      const skillsArr = (hasValue(form.skills) ? String(form.skills) : "").split(",").map(s=>s.trim()).filter(v => hasValue(v)).slice(0,20);
+      const interestsArr = (hasValue(form.interests) ? String(form.interests) : "").split(",").map(s=>s.trim()).filter(v => hasValue(v)).slice(0,12);
+      const galleryArr = (hasValue(form.gallery) ? String(form.gallery) : "").split(",").map(s=>s.trim()).filter(v => hasValue(v)).slice(0,6);
+      const orgGalleryArr = (hasValue(form.orgGallery) ? String(form.orgGallery) : "").split(",").map(s=>s.trim()).filter(v => hasValue(v)).slice(0,6);
+      const orgDeptArr = (hasValue(form.orgDepartments) ? String(form.orgDepartments) : "").split(",").map(s=>s.trim()).filter(v => hasValue(v)).slice(0,20);
+      const orgHighArr = (hasValue(form.orgHighlights) ? String(form.orgHighlights) : "").split(",").map(s=>s.trim()).filter(v => hasValue(v)).slice(0,10);
+      const orgProgArr = (hasValue(form.orgProgramsText) ? String(form.orgProgramsText) : "").split(",").map(s=>s.trim()).filter(v => hasValue(v)).slice(0,20).map(name=>({ name }));
       const payload = {
-        name: String(form.name).trim(),
-        headline: String(form.headline).trim() || null,
-        photoURL: String(form.photoURL).trim() || null,
-        coverPhoto: String(form.coverPhoto).trim() || null,
-        phone: String(form.phone).trim() || null,
-        city: String(form.city).trim() || null,
-        country: String(form.country).trim() || null,
-        bio: String(form.bio).trim() || null,
+        name: hasValue(form.name) ? String(form.name).trim() : "",
+        headline: hasValue(form.headline) ? String(form.headline).trim() : null,
+        photoURL: hasValue(form.photoURL) ? String(form.photoURL).trim() : null,
+        coverPhoto: hasValue(form.coverPhoto) ? String(form.coverPhoto).trim() : null,
+        phone: hasValue(form.phone) ? String(form.phone).trim() : null,
+        city: hasValue(form.city) ? String(form.city).trim() : null,
+        country: hasValue(form.country) ? String(form.country).trim() : null,
+        bio: hasValue(form.bio) ? String(form.bio).trim() : null,
         skills: skillsArr,
         interests: interestsArr,
         languages: form.languages,
         gallery: galleryArr,
-        videoIntro: String(form.videoIntro).trim() || null,
+        videoIntro: hasValue(form.videoIntro) ? String(form.videoIntro).trim() : null,
         socials: form.socials,
         education: form.education,
         experience: form.experience,
@@ -249,21 +249,21 @@ export default function ProfilePage() {
         preferences: form.preferences,
       };
       if (isInstitution) {
-        payload.orgName = String(form.orgName).trim() || null;
+        payload.orgName = hasValue(form.orgName) ? String(form.orgName).trim() : null;
         payload.orgType = form.orgType;
-        payload.orgCountry = String(form.orgCountry).trim() || null;
-        payload.orgWebsite = String(form.orgWebsite).trim() || null;
-        payload.orgDescription = String(form.orgDescription).trim() || null;
+        payload.orgCountry = hasValue(form.orgCountry) ? String(form.orgCountry).trim() : null;
+        payload.orgWebsite = hasValue(form.orgWebsite) ? String(form.orgWebsite).trim() : null;
+        payload.orgDescription = hasValue(form.orgDescription) ? String(form.orgDescription).trim() : null;
         payload.orgFounded = form.orgFounded ? Number(form.orgFounded) : null;
-        payload.orgAccreditation = String(form.orgAccreditation).trim() || null;
+        payload.orgAccreditation = hasValue(form.orgAccreditation) ? String(form.orgAccreditation).trim() : null;
         payload.orgStudentCount = form.orgStudentCount ? Number(form.orgStudentCount) : null;
         payload.orgFacultyCount = form.orgFacultyCount ? Number(form.orgFacultyCount) : null;
         payload.orgDepartments = orgDeptArr;
         payload.orgPrograms = orgProgArr;
         payload.orgGallery = orgGalleryArr;
-        payload.orgVideoUrl = String(form.orgVideoUrl).trim() || null;
-        payload.orgBrochureUrl = String(form.orgBrochureUrl).trim() || null;
-        payload.orgMapUrl = String(form.orgMapUrl).trim() || null;
+        payload.orgVideoUrl = hasValue(form.orgVideoUrl) ? String(form.orgVideoUrl).trim() : null;
+        payload.orgBrochureUrl = hasValue(form.orgBrochureUrl) ? String(form.orgBrochureUrl).trim() : null;
+        payload.orgMapUrl = hasValue(form.orgMapUrl) ? String(form.orgMapUrl).trim() : null;
         payload.orgHighlights = orgHighArr;
       }
       if (payload.name.length < 2) throw new Error("Name must be 2-80 characters");
