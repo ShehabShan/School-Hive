@@ -1,4 +1,5 @@
-import { MapPin, CalendarDays, Edit3, BadgeCheck, Building2, Share2, UserPlus, UserCheck } from "lucide-react";
+import { MapPin, CalendarDays, Edit3, Eye, BadgeCheck, Building2, Share2, UserPlus, UserCheck } from "lucide-react";
+import { Link } from "react-router-dom";
 import RoleBadge from "./RoleBadge";
 import bg from "../../assist/bgImg/profileBg.webp";
 import bgFallback from "../../assist/bgImg/profileBg.jpg";
@@ -53,7 +54,19 @@ export default function ProfileLayout({ user, isOwnProfile, onEdit, stats, compl
 
           <div className="flex shrink-0 flex-wrap gap-2 sm:flex-col sm:items-end">
             {isOwnProfile ? (
-              <button onClick={onEdit} className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white hover:bg-brand-700"><Edit3 className="h-4 w-4" /> Edit Profile</button>
+              <div className="flex flex-wrap gap-2">
+                {hasValue(user?.email) && (
+                  <Link
+                    to={`/profile/${encodeURIComponent(user.email)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-sm font-bold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
+                  >
+                    <Eye className="h-4 w-4" /> Preview Public
+                  </Link>
+                )}
+                <button onClick={onEdit} className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-4 py-2 text-sm font-bold text-white hover:bg-brand-700"><Edit3 className="h-4 w-4" /> Edit Profile</button>
+              </div>
             ) : (
               <>
                 {onFollow && <button onClick={onFollow} className={`inline-flex items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-bold ${following ? "bg-slate-100 text-slate-700 ring-1 ring-slate-200" : "bg-brand-600 text-white hover:bg-brand-700"}`}>{following ? <><UserCheck className="h-4 w-4" /> Following</> : <><UserPlus className="h-4 w-4" /> Follow</>}</button>}
