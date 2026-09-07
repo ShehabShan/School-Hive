@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useNavigate } from "react-router-dom";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Bell, CheckCheck, MessagesSquare, CheckCircle2, UserPlus, Ellipsis, VolumeX } from "lucide-react";
@@ -25,6 +26,7 @@ const timeAgo = (date) => {
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
   const [menuId, setMenuId] = useState(null);
+  const [menuPos, setMenuPos] = useState(null);
   const panelRef = useRef(null);
   const navigate = useNavigate();
   const axiosSecure = useAxiosSecure();
@@ -33,17 +35,23 @@ export default function NotificationBell() {
 
   useEffect(() => {
     const onDown = (e) => {
+      // menu portal is outside panelRef — check it first
+      if (e.target.closest("[data-notification-menu]") || e.target.closest("[data-kebab-btn]")) return;
       if (panelRef.current && !panelRef.current.contains(e.target)) {
         setOpen(false);
         setMenuId(null);
-      } else if (menuId && !e.target.closest("[data-notification-menu]") && !e.target.closest("[data-kebab-btn]")) {
+        setMenuPos(null);
+      } else if (menuId) {
         setMenuId(null);
+        setMenuPos(null);
       }
     };
     const onEsc = (e) => {
       if (e.key === "Escape") {
-        if (menuId) setMenuId(null);
-        else setOpen(false);
+        if (menuId) {
+          setMenuId(null);
+          setMenuPos(null);
+        } else setOpen(false);
       }
     };
     document.addEventListener("mousedown", onDown);
@@ -104,6 +112,7 @@ export default function NotificationBell() {
     if (!n.read) markRead(n._id);
     setOpen(false);
     setMenuId(null);
+    setMenuPos(null);
     if (n.payload?.questionId) navigate(`/questions/${n.payload.questionId}`);
   };
 
@@ -115,12 +124,34 @@ export default function NotificationBell() {
     }
     mute({ questionId: qid });
     setMenuId(null);
+    setMenuPos(null);
   };
 
   const handleMuteType = (n) => {
     if (!n.type) return;
     mute({ type: n.type });
     setMenuId(null);
+    setMenuPos(null);
+  };
+
+  const openMenu = (e, id) => {
+    e.stopPropagation();
+    if (menuId === String(id)) {
+      setMenuId(null);
+      setMenuPos(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    // menu width 224, place below button aligned to right, flip if near bottom
+    let top = rect.bottom + 8;
+    const menuH = 92;
+    if (top + menuH > window.innerHeight - 12) top = rect.top - menuH - 8;
+    if (top < 12) top = 12;
+    let left = rect.right - 224;
+    if (left < 8) left = 8;
+    if (left + 224 > window.innerWidth - 8) left = window.innerWidth - 224 - 8;
+    setMenuPos({ top, left });
+    setMenuId(String(id));
   };
 
   return (
@@ -141,7 +172,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl bg-white shadow-lift ring-1 ring-slate-100 sm:w-96" role="dialog" aria-label="Notifications">
+        <div className="absolute right-0 z-50 mt-2 w-[360px] max-w-[calc(100vw-1rem)] overflow-hidden rounded-2xl bg-white shadow-lift ring-1 ring-slate-100 sm:w-[440px]" role="dialog" aria-label="Notifications">
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
             <p className="text-sm font-extrabold text-slate-900">Notifications</p>
             {unread > 0 && (
@@ -154,7 +185,7 @@ export default function NotificationBell() {
           {notifications.length === 0 ? (
             <p className="px-4 py-10 text-center text-sm text-slate-500">No notifications yet — activity on your questions and answers will show up here.</p>
           ) : (
-            <ul className="max-h-96 overflow-y-auto" role="menu" aria-label="Notifications list">
+            <ul className="max-h-[480px] overflow-y-auto overflow-x-hidden overscroll-contain" role="menu" aria-label="Notifications list">
               {notifications.map((n) => {
                 const meta = TYPE_META[n.type] || { Icon: Bell, tone: "bg-slate-100 text-slate-500", text: () => "New activity" };
                 const isMenuOpen = menuId === String(n._id);
@@ -179,39 +210,11 @@ export default function NotificationBell() {
                       aria-label="Mute options"
                       aria-haspopup="menu"
                       aria-expanded={isMenuOpen}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setMenuId(isMenuOpen ? null : String(n._id));
-                      }}
-                      className="flex w-10 shrink-0 items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-700 focus-visible:bg-slate-50 opacity-60 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
+                      onClick={(e) => openMenu(e, n._id)}
+                      className="flex w-11 shrink-0 items-center justify-center border-l border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700 focus-visible:bg-slate-50"
                     >
                       <Ellipsis className="h-4 w-4" />
                     </button>
-                    {isMenuOpen && (
-                      <div
-                        data-notification-menu
-                        role="menu"
-                        className="absolute right-2 top-[46px] z-20 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <button
-                          role="menuitem"
-                          disabled={!n.payload?.questionId}
-                          onClick={() => handleMuteQuestion(n)}
-                          className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
-                        >
-                          <VolumeX className="h-4 w-4 text-slate-500" /> Mute this question
-                        </button>
-                        <div className="border-t border-slate-100" />
-                        <button
-                          role="menuitem"
-                          onClick={() => handleMuteType(n)}
-                          className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
-                        >
-                          <VolumeX className="h-4 w-4 text-slate-500" /> Mute {n.type || "this type"}
-                        </button>
-                      </div>
-                    )}
                   </li>
                 );
               })}
@@ -219,6 +222,44 @@ export default function NotificationBell() {
           )}
         </div>
       )}
+
+      {menuId &&
+        menuPos &&
+        createPortal(
+          <div
+            data-notification-menu
+            role="menu"
+            style={{ position: "fixed", top: menuPos.top, left: menuPos.left, width: 224 }}
+            className="z-[100] overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {(() => {
+              const n = notifications.find((x) => String(x._id) === String(menuId));
+              if (!n) return null;
+              return (
+                <>
+                  <button
+                    role="menuitem"
+                    disabled={!n.payload?.questionId}
+                    onClick={() => handleMuteQuestion(n)}
+                    className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <VolumeX className="h-4 w-4 text-slate-500" /> Mute this question
+                  </button>
+                  <div className="border-t border-slate-100" />
+                  <button
+                    role="menuitem"
+                    onClick={() => handleMuteType(n)}
+                    className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    <VolumeX className="h-4 w-4 text-slate-500" /> Mute {n.type || "this type"}
+                  </button>
+                </>
+              );
+            })()}
+          </div>,
+          document.body
+        )}
     </div>
   );
 }
