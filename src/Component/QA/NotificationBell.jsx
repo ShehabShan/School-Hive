@@ -62,7 +62,7 @@ export default function NotificationBell() {
       </button>
 
       {open && (
-        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl bg-white shadow-lift ring-1 ring-slate-100 sm:w-96">
+        <div className="absolute right-0 z-50 mt-2 w-80 overflow-hidden rounded-2xl bg-white shadow-lift ring-1 ring-slate-100 sm:w-96" role="dialog" aria-label="Notifications">
           <div className="flex items-center justify-between border-b border-slate-100 px-4 py-3">
             <p className="text-sm font-extrabold text-slate-900">Notifications</p>
             {unread > 0 && (
@@ -75,12 +75,13 @@ export default function NotificationBell() {
           {notifications.length === 0 ? (
             <p className="px-4 py-10 text-center text-sm text-slate-500">No notifications yet — activity on your questions and answers will show up here.</p>
           ) : (
-            <ul className="max-h-96 overflow-y-auto">
+            <ul className="max-h-96 overflow-y-auto" role="menu" aria-label="Notifications list">
               {notifications.map((n) => {
                 const meta = TYPE_META[n.type] || { Icon: Bell, tone: "bg-slate-100 text-slate-500", text: () => "New activity" };
                 return (
-                  <li key={n._id}>
+                  <li key={n._id} role="none">
                     <button
+                      role="menuitem"
                       onClick={() => handleItemClick(n)}
                       className={`flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-50 ${n.read ? "" : "bg-brand-50/40"}`}
                     >
