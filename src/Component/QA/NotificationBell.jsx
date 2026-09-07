@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, CheckCheck, MessagesSquare, CheckCircle2, UserPlus } from "lucide-react";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { Bell, CheckCheck, MessagesSquare, CheckCircle2, UserPlus, Ellipsis, VolumeX } from "lucide-react";
 import useNotifications from "../../Hooks/useNotifications";
+import useAxiosSecure from "../../Hooks/useAxiosSecure";
+import toast from "react-hot-toast";
 
 const TYPE_META = {
   question_answered: { Icon: MessagesSquare, tone: "bg-brand-50 text-brand-600", text: (n) => `${n.actorEmail || "Someone"} answered "${n.payload?.questionTitle || "your question"}"` },
@@ -21,27 +24,103 @@ const timeAgo = (date) => {
 
 export default function NotificationBell() {
   const [open, setOpen] = useState(false);
+  const [menuId, setMenuId] = useState(null);
   const panelRef = useRef(null);
   const navigate = useNavigate();
+  const axiosSecure = useAxiosSecure();
+  const queryClient = useQueryClient();
   const { notifications, unread, markRead, markAllRead } = useNotifications();
 
   useEffect(() => {
     const onDown = (e) => {
-      if (panelRef.current && !panelRef.current.contains(e.target)) setOpen(false);
+      if (panelRef.current && !panelRef.current.contains(e.target)) {
+        setOpen(false);
+        setMenuId(null);
+      } else if (menuId && !e.target.closest("[data-notification-menu]") && !e.target.closest("[data-kebab-btn]")) {
+        setMenuId(null);
+      }
     };
-    const onEsc = (e) => e.key === "Escape" && setOpen(false);
+    const onEsc = (e) => {
+      if (e.key === "Escape") {
+        if (menuId) setMenuId(null);
+        else setOpen(false);
+      }
+    };
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onEsc);
     return () => {
       document.removeEventListener("mousedown", onDown);
       document.removeEventListener("keydown", onEsc);
     };
-  }, []);
+  }, [menuId]);
+
+  const { mutate: mute } = useMutation({
+    mutationFn: async ({ type, questionId }) => {
+      const body = {};
+      if (type) body.type = type;
+      if (questionId) body.questionId = String(questionId);
+      return axiosSecure.patch("/notifications/preferences/mute", body);
+    },
+    onSuccess: (_, vars) => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      const isType = !!vars.type;
+      const label = isType ? vars.type : "this question";
+      toast(
+        (t) => (
+          <span className="flex items-center gap-2 text-sm">
+            <span>Muted {label}</span>
+            <button
+              onClick={() => {
+                unmute(vars);
+                toast.dismiss(t.id);
+              }}
+              className="rounded bg-slate-900 px-2 py-1 text-xs font-bold text-white hover:bg-black"
+            >
+              Undo
+            </button>
+          </span>
+        ),
+        { duration: 4000 }
+      );
+    },
+    onError: (e) => toast.error(e?.response?.data?.message || "Mute failed"),
+  });
+
+  const { mutate: unmute } = useMutation({
+    mutationFn: async ({ type, questionId }) => {
+      const body = {};
+      if (type) body.type = type;
+      if (questionId) body.questionId = String(questionId);
+      return axiosSecure.patch("/notifications/preferences/unmute", body);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["notifications"] });
+      toast.success("Unmuted");
+    },
+    onError: (e) => toast.error(e?.response?.data?.message || "Unmute failed"),
+  });
 
   const handleItemClick = (n) => {
     if (!n.read) markRead(n._id);
     setOpen(false);
+    setMenuId(null);
     if (n.payload?.questionId) navigate(`/questions/${n.payload.questionId}`);
+  };
+
+  const handleMuteQuestion = (n) => {
+    const qid = n.payload?.questionId;
+    if (!qid) {
+      toast.error("No question to mute");
+      return;
+    }
+    mute({ questionId: qid });
+    setMenuId(null);
+  };
+
+  const handleMuteType = (n) => {
+    if (!n.type) return;
+    mute({ type: n.type });
+    setMenuId(null);
   };
 
   return (
@@ -78,12 +157,13 @@ export default function NotificationBell() {
             <ul className="max-h-96 overflow-y-auto" role="menu" aria-label="Notifications list">
               {notifications.map((n) => {
                 const meta = TYPE_META[n.type] || { Icon: Bell, tone: "bg-slate-100 text-slate-500", text: () => "New activity" };
+                const isMenuOpen = menuId === String(n._id);
                 return (
-                  <li key={n._id} role="none">
+                  <li key={n._id} role="none" className="relative flex items-stretch border-b border-slate-50 last:border-0 group">
                     <button
                       role="menuitem"
                       onClick={() => handleItemClick(n)}
-                      className={`flex w-full items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-50 ${n.read ? "" : "bg-brand-50/40"}`}
+                      className={`flex flex-1 items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-50 ${n.read ? "" : "bg-brand-50/40"}`}
                     >
                       <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${meta.tone}`}>
                         <meta.Icon className="h-4 w-4" />
@@ -94,6 +174,44 @@ export default function NotificationBell() {
                       </span>
                       {!n.read && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-brand-500" />}
                     </button>
+                    <button
+                      data-kebab-btn
+                      aria-label="Mute options"
+                      aria-haspopup="menu"
+                      aria-expanded={isMenuOpen}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setMenuId(isMenuOpen ? null : String(n._id));
+                      }}
+                      className="flex w-10 shrink-0 items-center justify-center text-slate-400 hover:bg-slate-50 hover:text-slate-700 focus-visible:bg-slate-50 opacity-60 hover:opacity-100 focus:opacity-100 group-hover:opacity-100"
+                    >
+                      <Ellipsis className="h-4 w-4" />
+                    </button>
+                    {isMenuOpen && (
+                      <div
+                        data-notification-menu
+                        role="menu"
+                        className="absolute right-2 top-[46px] z-20 w-56 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        <button
+                          role="menuitem"
+                          disabled={!n.payload?.questionId}
+                          onClick={() => handleMuteQuestion(n)}
+                          className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50 disabled:opacity-40 disabled:cursor-not-allowed"
+                        >
+                          <VolumeX className="h-4 w-4 text-slate-500" /> Mute this question
+                        </button>
+                        <div className="border-t border-slate-100" />
+                        <button
+                          role="menuitem"
+                          onClick={() => handleMuteType(n)}
+                          className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"
+                        >
+                          <VolumeX className="h-4 w-4 text-slate-500" /> Mute {n.type || "this type"}
+                        </button>
+                      </div>
+                    )}
                   </li>
                 );
               })}
