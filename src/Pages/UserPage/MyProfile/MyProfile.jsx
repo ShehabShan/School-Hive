@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Link, useLocation } from "react-router-dom";
-import { ShieldCheck, Users, FileText, Star, GraduationCap, Save, X, Upload, Briefcase, Award, Trophy, Settings, LayoutDashboard, Building2, BookOpen, Heart, Globe, Sparkles } from "lucide-react";
+import { ShieldCheck, Users, FileText, Star, GraduationCap, Save, X, Briefcase, Award, Trophy, Settings, LayoutDashboard, Building2, BookOpen, Heart, Globe, Sparkles } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import toast from "react-hot-toast";
 import useAuth from "../../../Hooks/useAuth";
@@ -23,10 +23,6 @@ import { EducationTimeline, ExperienceTimeline, CertificationsSection, Achieveme
 import PreferencesPanel from "../../../Component/profile/PreferencesPanel";
 import InstitutionStudentPortal from "../../../Component/profile/InstitutionStudentPortal";
 import { hasValue } from "../../../utils/hasValue";
-import { optimizeImage, formatBytes } from "../../../lib/optimizeImage";
-
-const image_hosting_key = import.meta.env.VITE_IMAGE_HOSTING_KEY;
-const image_hosting_api = `https://api.imgbb.com/1/upload?key=${image_hosting_key}`;
 
 const TABS = [
   { id: "overview", label: "Overview", icon: LayoutDashboard },
@@ -196,26 +192,6 @@ export default function ProfilePage() {
     setEditing(true);
   };
 
-  const handleImageUpload = async (e, field) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    if (!image_hosting_key) { toast.error("Image hosting key missing"); return; }
-    try {
-      toast.loading("Optimizing image...", { id: "upload" });
-      const optimized = await optimizeImage(file, {
-        maxSizeMB: field === "photoURL" ? 0.5 : field === "coverPhoto" ? 0.9 : 0.8,
-        maxWidthOrHeight: field === "photoURL" ? 1024 : field === "coverPhoto" ? 1600 : 1280,
-        quality: 0.82,
-      });
-      if (optimized.size < file.size) toast.loading(`Uploading ${formatBytes(optimized.size)} (was ${formatBytes(file.size)})…`, { id: "upload" });
-      else toast.loading("Uploading image...", { id: "upload" });
-      const fd = new FormData(); fd.append("image", optimized);
-      const res = await axiosPublic.post(image_hosting_api, fd, { headers: { "Content-Type": "multipart/form-data" } });
-      const url = res.data?.data?.url || res.data?.data?.display_url;
-      if (url) { setForm((f) => ({ ...f, [field]: url })); toast.success("Image uploaded", { id: "upload" }); }
-    } catch { toast.error("Upload failed", { id: "upload" }); }
-  };
-
   const handleSave = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -327,7 +303,7 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen bg-slate-50 py-6">
       <div className="mx-auto max-w-6xl px-4">
-        <ProfileLayout user={dbUser} isOwnProfile={true} onEdit={openEdit} completeness={completeness} tabs={visibleTabs} activeTab={activeTab} onTabChange={setActiveTab} />
+        <ProfileLayout user={dbUser} isOwnProfile={true} onEdit={openEdit} completeness={completeness} tabs={visibleTabs} activeTab={activeTab} onTabChange={setActiveTab} onProfileUpdated={refetch} />
 
         <div className="mt-4 rounded-[20px] border border-slate-200 bg-white p-5 shadow-soft">
           <h3 className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-slate-400">
@@ -436,13 +412,7 @@ export default function ProfilePage() {
               <form onSubmit={handleSave} className="mt-5 space-y-5">
                 {editStep===1 && (
                   <>
-                    <div className="flex items-center gap-4">
-                      <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-gradient-to-br from-brand-500 to-brand-700 ring-2 ring-white">{form.photoURL ? <img src={form.photoURL} alt="Avatar" className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-2xl font-extrabold text-white">{(form.name||"U").charAt(0).toUpperCase()}</div>}</div>
-                      <label className="cursor-pointer"><span className="inline-flex items-center gap-1.5 rounded-lg bg-slate-100 px-3 py-1.5 text-xs font-bold text-slate-700 hover:bg-slate-200"><Upload className="h-3.5 w-3.5" /> Upload photo</span><input type="file" accept="image/*" onChange={(e)=> handleImageUpload(e, "photoURL")} className="hidden" /></label>
-                    </div>
-                    <div className="overflow-hidden rounded-xl bg-slate-100 ring-1 ring-slate-200">{form.coverPhoto ? <img src={form.coverPhoto} alt="Cover" className="h-36 w-full object-cover" /> : <div className="flex h-36 items-center justify-center text-xs text-slate-400">No cover photo</div>}</div>
-                    <input value={form.coverPhoto} onChange={(e)=> setForm(f=>({...f, coverPhoto:e.target.value}))} placeholder="Cover URL https://..." className="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm" />
-                    <label className="inline-flex cursor-pointer items-center gap-1 text-xs font-medium text-slate-500"><Upload className="h-3 w-3" /> Or upload cover<input type="file" accept="image/*" onChange={(e)=> handleImageUpload(e,"coverPhoto")} className="hidden" /></label>
+                    <p className="rounded-xl bg-slate-50 px-3 py-2 text-xs text-slate-500">Profile and cover photos are now edited directly from the header — use the <span className="font-semibold">pencil</span> icons on the avatar (top-right) and cover (top-right) to change or remove them.</p>
                     <label className="block"><span className="text-sm font-semibold text-slate-700">Display Name *</span><input value={form.name} onChange={(e)=> setForm(f=>({...f,name:e.target.value}))} required className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm" /></label>
                     <label className="block"><span className="text-sm font-semibold text-slate-700">Headline</span><input value={form.headline} onChange={(e)=> setForm(f=>({...f,headline:e.target.value}))} placeholder="CS Undergrad • Aspiring AI Researcher" maxLength={120} className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm" /></label>
                     <label className="block"><span className="text-sm font-semibold text-slate-700">Email</span><input value={dbUser?.email || user?.email || ""} disabled className="mt-1 w-full rounded-xl border bg-slate-50 px-3 py-2.5 text-sm text-slate-500" /></label>
