@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { timeAgo } from "./QuestionCard";
 
-export default function CommentItem({ comment, depth = 0, answerId, questionId, onReplySuccess, children }) {
+export default function CommentItem({ comment, depth = 0, answerId, questionId, parentAuthorEmail, onReplySuccess, children }) {
   const [showReply, setShowReply] = useState(false);
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
@@ -34,13 +34,22 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
     onReplySuccess?.();
   };
 
-  // indent for nested replies — will be capped at 3 in Q3 (min(depth,3))
-  const indentClass = depth === 0 ? "" : depth === 1 ? "ml-4 sm:ml-6" : depth === 2 ? "ml-8 sm:ml-10" : "ml-8 sm:ml-10";
-  const borderClass = depth === 0 ? "" : "border-l-2 border-slate-100 pl-3";
+  // Q3: cap visual nesting at 3 levels — depth 0-3 indented, 4+ flattened at same indent as 3 (Reddit pattern)
+  const visualDepth = Math.min(depth, 3);
+  const indentClass =
+    visualDepth === 0 ? "" : visualDepth === 1 ? "ml-4 sm:ml-6" : visualDepth === 2 ? "ml-8 sm:ml-10" : "ml-10 sm:ml-12";
+  const borderClass = visualDepth === 0 ? "" : "border-l-2 border-slate-100 pl-3";
+  const isFlattened = depth > 3;
+  const parentName = parentAuthorEmail ? String(parentAuthorEmail).split("@")[0] : null;
 
   return (
     <div className={`${indentClass} ${borderClass}`}>
       <div className="rounded-xl bg-white px-3 py-3 ring-1 ring-slate-100">
+        {isFlattened && parentName && (
+          <p className="mb-1.5 text-xs text-slate-500">
+            Replying to <span className="font-semibold text-slate-700">@{parentName}</span> · flattened
+          </p>
+        )}
         <div className="flex items-start justify-between gap-2">
           <AuthorBlock email={comment.authorEmail} role={comment.authorRole} isVerified={comment.authorIsVerified} size="sm" />
           <span className="shrink-0 text-[11px] text-slate-400">{comment.createdAt ? timeAgo(comment.createdAt) : ""}</span>

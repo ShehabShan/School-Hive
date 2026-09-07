@@ -32,10 +32,18 @@ function buildTree(flat) {
   return roots;
 }
 
-function renderNodes(nodes, depth, answerId, questionId, onSuccess) {
+function renderNodes(nodes, depth, answerId, questionId, onSuccess, parentAuthorEmail = null) {
   return nodes.map((node) => (
-    <CommentItem key={node._id} comment={node} depth={depth} answerId={answerId} questionId={questionId} onReplySuccess={onSuccess}>
-      {node.children && node.children.length > 0 && renderNodes(node.children, depth + 1, answerId, questionId, onSuccess)}
+    <CommentItem
+      key={node._id}
+      comment={node}
+      depth={depth}
+      answerId={answerId}
+      questionId={questionId}
+      parentAuthorEmail={parentAuthorEmail}
+      onReplySuccess={onSuccess}
+    >
+      {node.children && node.children.length > 0 && renderNodes(node.children, depth + 1, answerId, questionId, onSuccess, node.authorEmail)}
     </CommentItem>
   ));
 }
