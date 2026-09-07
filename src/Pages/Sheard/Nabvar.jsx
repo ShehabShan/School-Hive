@@ -19,6 +19,7 @@ import useAuth from "../../Hooks/useAuth";
 import useRole from "../../Hooks/useRole";
 import { cn } from "../../lib/cn";
 import NotificationBell from "../../Component/QA/NotificationBell";
+import { hasValue } from "../../utils/hasValue";
 
 const navLinkClass = ({ isActive }) =>
   cn(
@@ -36,7 +37,9 @@ const softLinkClass = ({ isActive }) =>
 
 const Navbar = () => {
   const { user, logOut } = useAuth();
-  const { isAdmin, isModaretor, isInstitution, isPending, isRejected } = useRole();
+  const { isAdmin, isModaretor, isInstitution, isPending, isRejected, me } = useRole();
+  const avatarUrl = hasValue(user?.photoURL) ? user.photoURL : hasValue(me?.photoURL) ? me.photoURL : null;
+  const displayInitial = hasValue(user?.displayName) ? user.displayName.charAt(0).toUpperCase() : hasValue(user?.email) ? user.email.charAt(0).toUpperCase() : hasValue(me?.name) ? me.name.charAt(0).toUpperCase() : "U";
   const [mobileOpen, setMobileOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const [qaOpen, setQaOpen] = useState(false);
@@ -187,9 +190,9 @@ const Navbar = () => {
             <div className="relative" ref={profileRef}>
               <button onClick={() => setProfileOpen((o) => !o)} className="flex items-center gap-2 rounded-full border border-slate-200 bg-white p-1 pr-3 shadow-sm hover:bg-slate-50" aria-haspopup="menu" aria-expanded={profileOpen}>
                 <span className="flex h-9 w-9 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-brand-600 to-indigo-600 text-sm font-extrabold text-white">
-                  {user?.photoURL ? <img src={user.photoURL} alt={user?.displayName || "Profile"} className="h-full w-full object-cover" /> : user?.displayName?.charAt(0)?.toUpperCase() || "U"}
+                  {avatarUrl ? <img src={avatarUrl} alt={user?.displayName || me?.name || "Profile"} className="h-full w-full object-cover" /> : displayInitial}
                 </span>
-                <span className="hidden max-w-[120px] truncate text-sm font-semibold text-slate-800 md:block">{user?.displayName?.split(" ")[0]}</span>
+                <span className="hidden max-w-[120px] truncate text-sm font-semibold text-slate-800 md:block">{hasValue(user?.displayName) ? user.displayName.split(" ")[0] : hasValue(me?.name) ? me.name.split(" ")[0] : hasValue(user?.email) ? user.email.split("@")[0] : "User"}</span>
                 <ChevronDown className="hidden h-4 w-4 text-slate-400 md:block" />
               </button>
               {profileOpen && (

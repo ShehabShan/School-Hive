@@ -14,12 +14,15 @@ import useAuth from "../Hooks/useAuth";
 import useRole from "../Hooks/useRole";
 import { Link, useNavigate } from "react-router-dom";
 import NotificationBell from "../Component/QA/NotificationBell";
+import { hasValue } from "../utils/hasValue";
 
 export function AdminNavbar({ setMobileSidebarOpen }) {
   const [isDarkMode, setIsDarkMode] = useState(false);
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const { user, logOut } = useAuth();
-  const { isAdmin, isModaretor, isInstitution, isSuperAdmin } = useRole();
+  const { isAdmin, isModaretor, isInstitution, isSuperAdmin, me } = useRole();
+  const avatarUrl = hasValue(user?.photoURL) ? user.photoURL : hasValue(me?.photoURL) ? me.photoURL : null;
+  const displayInitial = hasValue(user?.displayName) ? user.displayName.charAt(0).toUpperCase() : hasValue(user?.email) ? user.email.charAt(0).toUpperCase() : hasValue(me?.name) ? me.name.charAt(0).toUpperCase() : "U";
   const profileDropdownRef = useRef(null);
   const navigate = useNavigate();
 
@@ -127,10 +130,10 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
               aria-expanded={profileDropdownOpen}
             >
               <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-brand-700 ring-2 ring-slate-100 text-sm font-bold text-white">
-                {user?.photoURL ? (
-                  <img src={user.photoURL} alt={user?.displayName || "Avatar"} className="h-full w-full object-cover" />
+                {avatarUrl ? (
+                  <img src={avatarUrl} alt={user?.displayName || me?.name || "Avatar"} className="h-full w-full object-cover" />
                 ) : (
-                  (user?.displayName || user?.email || "U").charAt(0).toUpperCase()
+                  displayInitial
                 )}
               </span>
               <ChevronDown className="hidden h-4 w-4 text-slate-400 sm:block" />
@@ -141,15 +144,15 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                 <div className="px-4 py-2">
                   <div className="flex items-center gap-3">
                     <span className="flex h-10 w-10 items-center justify-center overflow-hidden rounded-full bg-gradient-to-br from-brand-500 to-brand-700 ring-2 ring-slate-100 text-sm font-bold text-white">
-                      {user?.photoURL ? (
-                        <img src={user.photoURL} alt={user?.displayName || "Avatar"} className="h-full w-full object-cover" />
+                      {avatarUrl ? (
+                        <img src={avatarUrl} alt={user?.displayName || me?.name || "Avatar"} className="h-full w-full object-cover" />
                       ) : (
-                        (user?.displayName || user?.email || "U").charAt(0).toUpperCase()
+                        displayInitial
                       )}
                     </span>
                     <div className="min-w-0">
-                      <p className="truncate text-sm font-bold text-slate-900">{user?.displayName || user?.email}</p>
-                      <p className="truncate text-xs text-slate-500">{user?.email}</p>
+                      <p className="truncate text-sm font-bold text-slate-900">{hasValue(user?.displayName) ? user.displayName : hasValue(me?.name) ? me.name : user?.email}</p>
+                      <p className="truncate text-xs text-slate-500">{user?.email || me?.email}</p>
                     </div>
                   </div>
                   <span className="mt-2 inline-block rounded-full bg-brand-50 px-2.5 py-0.5 text-xs font-semibold text-brand-700 ring-1 ring-brand-100">

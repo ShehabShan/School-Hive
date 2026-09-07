@@ -148,7 +148,15 @@ const Registration = () => {
         };
 
         try {
-          await axiosPublic.post("/users", userInfo);
+          const { data: postData } = await axiosPublic.post("/users", userInfo);
+          // If server assigned a default avatar (no logo provided), sync Firebase to same URL for consistency (Nabvar fallback already handles DB, but this keeps Auth in sync)
+          const assigned = postData?.user?.photoURL;
+          if (!logoUrl && assigned && assigned.startsWith("/avatars/")) {
+            try {
+              await updateUserProfile(orgName, assigned);
+              setUser((prev) => ({ ...prev, displayName: orgName, photoURL: assigned }));
+            } catch {}
+          }
         } catch (error) {
           toast.error("Account created, but failed to save your profile.");
         }
@@ -186,6 +194,14 @@ const Registration = () => {
           if (data.data.insertedId) {
             e.target.reset();
           }
+          // Sync Firebase if server assigned default avatar (no upload, server picked /avatars/...)
+          const assigned = data?.user?.photoURL;
+          if (!photo && assigned && assigned.startsWith("/avatars/")) {
+            try {
+              await updateUserProfile(name, assigned);
+              setUser((prev) => ({ ...prev, displayName: name, photoURL: assigned }));
+            } catch {}
+          }
         } catch (error) {
           toast.error("Account created, but failed to save your profile.");
         }
@@ -204,16 +220,24 @@ const Registration = () => {
     }
   };
 
-  const handleGoogleSignIn = async (user) => {
+  const handleGoogleSignIn = async (firebaseUser) => {
     try {
       const userInfo = {
-        name: user.displayName,
-        email: user.email,
+        name: firebaseUser.displayName,
+        email: firebaseUser.email,
         accountType: "student",
-        photoURL: user.photoURL || null,
+        photoURL: firebaseUser.photoURL || null,
       };
       try {
-        await axiosPublic.post("/users", userInfo);
+        const { data } = await axiosPublic.post("/users", userInfo);
+        const assigned = data?.user?.photoURL;
+        // If Google had no photo and server assigned default, sync Firebase Auth to same default for consistency
+        if (!firebaseUser.photoURL && assigned && assigned.startsWith("/avatars/")) {
+          try {
+            await updateUserProfile(firebaseUser.displayName, assigned);
+            setUser((prev) => (prev ? { ...prev, photoURL: assigned, displayName: firebaseUser.displayName } : prev));
+          } catch {}
+        }
       } catch (error) {
         // non-fatal: user may already exist
       }
