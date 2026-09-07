@@ -18,6 +18,7 @@ import {
 import useAuth from "../../Hooks/useAuth";
 import useRole from "../../Hooks/useRole";
 import { cn } from "../../lib/cn";
+import NotificationBell from "../../Component/QA/NotificationBell";
 
 const navLinkClass = ({ isActive }) =>
   cn(
@@ -169,12 +170,14 @@ const Navbar = () => {
           <NavLink to="/contact" className={softLinkClass} onClick={() => setMobileOpen(false)}>Contact</NavLink>
         </nav>
 
-        {/* Right side */}
+        {/* Right side — Ask → Bell → avatar (Bell visible outside dashboard, shares useNotifications cache with dashboard) */}
         <div className="flex items-center gap-2">
           {/* Desktop Ask CTA — secondary to dropdown but keeps 1-click */}
           <Link to="/questions/ask" className="hidden items-center gap-1.5 rounded-full bg-slate-900 px-4 py-2 text-sm font-bold text-white shadow-sm hover:bg-black lg:inline-flex">
             <Plus className="h-4 w-4" /> Ask
           </Link>
+
+          {user && <NotificationBell />}
 
           {!user ? (
             <Link to="/signIn" className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand-600 to-indigo-600 px-5 py-2.5 text-sm font-bold text-white shadow-md transition-all hover:shadow-lg hover:from-brand-700 hover:to-indigo-700">
