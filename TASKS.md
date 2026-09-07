@@ -47,15 +47,6 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ---
 
-## DONE — Q&A answers-only model: question comments removed (2026-09-04)
-
-- [x] Card footer fix — the "comment" button was showing `answerCount` but opening a comment wall (`QuestionCard.jsx:152`); replaced with an **Answers chip** (existing `AnswerStat`: accepted ✓ / answered / unanswered states) linking to `/questions/:id#answer`; dead `⋯` dropped; compact views — client `85912bf`
-- [x] `CommentThread.jsx` deleted (sole importer was the card); `question_comment`/`comment_reply` notification types removed from bell
-- [x] Server: comment routes, controller fns, `comment.validator.js`, db collection wiring removed — `3744e08` on `feature/subfeatures`, **merged to main + DEPLOYED 2026-09-04** (owner approved; verified: `/questions/:id/comments` → 404). `question_comments` data **left in Mongo** per owner decision
-- Spec §1.4 alignment: clarifications belong as comments *under answers* (→ B2), not a general wall on the question
-
----
-
 ## DONE — Performance Optimization (2026-09-04, 14 ranks, 13 branches)
 
 - [x] **R1 pagination** `scholarship/review/apply/saved/question` `limit 20 max 50` + callers fix

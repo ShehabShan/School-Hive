@@ -6,6 +6,17 @@ Completed work moved from `TASKS.md`. `TASKS.md` stays lean (IN PROGRESS / TODO 
 
 ---
 
+## 2026-09-04 — Q&A answers-only model: question comments removed — Completed & Deployed
+
+> **Source:** `TASKS.md: DONE — Q&A answers-only model: question comments removed (2026-09-04)` — all 3 checked per archive rule `TASKS.md:10`, moved to keep TASKS lean. **DEPLOYED 2026-09-04** (owner approved; verified: `/questions/:id/comments` → 404). `question_comments` data left in Mongo per owner decision.
+
+- [x] Card footer fix — the "comment" button was showing `answerCount` but opening a comment wall (`QuestionCard.jsx:152`); replaced with an **Answers chip** (existing `AnswerStat`: accepted ✓ / answered / unanswered states) linking to `/questions/:id#answer`; dead `⋯` dropped; compact views — client `85912bf`
+- [x] `CommentThread.jsx` deleted (sole importer was the card); `question_comment`/`comment_reply` notification types removed from bell
+- [x] Server: comment routes, controller fns, `comment.validator.js`, db collection wiring removed — `3744e08` on `feature/subfeatures`, **merged to main + DEPLOYED 2026-09-04** (owner approved; verified: `/questions/:id/comments` → 404). `question_comments` data **left in Mongo** per owner decision
+- Spec §1.4 alignment: clarifications belong as comments *under answers* (→ B2), not a general wall on the question
+
+---
+
 ## 2026-09-04 — Sub-feature Waves 1–2 (W1–W10) — Completed & Deployed
 
 > **Source:** `TASKS.md: DONE — Sub-feature Waves 1–2 (2026-09-04, W1–W10; client 3e1f8af..ca2d785, server feature/subfeatures)` — all 10 checked per archive rule `TASKS.md:10`, moved to keep TASKS lean. **DEPLOYED 2026-09-04** (owner approved: server `feature/subfeatures` → main → Vercel; client main → Firebase). Each one-sitting ending `Verify:` (see HANDOFF_LOG.md 2026-09-04).
