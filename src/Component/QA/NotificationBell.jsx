@@ -190,17 +190,17 @@ export default function NotificationBell() {
                 const meta = TYPE_META[n.type] || { Icon: Bell, tone: "bg-slate-100 text-slate-500", text: () => "New activity" };
                 const isMenuOpen = menuId === String(n._id);
                 return (
-                  <li key={n._id} role="none" className="relative flex items-stretch border-b border-slate-50 last:border-0 group">
+                  <li key={n._id} role="none" className="relative flex items-stretch overflow-hidden border-b border-slate-50 last:border-0 group">
                     <button
                       role="menuitem"
                       onClick={() => handleItemClick(n)}
-                      className={`flex flex-1 items-start gap-3 px-4 py-3 text-left transition hover:bg-slate-50 ${n.read ? "" : "bg-brand-50/40"}`}
+                      className={`flex min-w-0 flex-1 items-start gap-3 overflow-hidden px-4 py-3 text-left transition hover:bg-slate-50 ${n.read ? "" : "bg-brand-50/40"}`}
                     >
                       <span className={`mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ${meta.tone}`}>
                         <meta.Icon className="h-4 w-4" />
                       </span>
-                      <span className="min-w-0 flex-1">
-                        <span className={`block truncate text-sm ${n.read ? "text-slate-600" : "font-semibold text-slate-900"}`}>{meta.text(n)}</span>
+                      <span className="min-w-0 flex-1 overflow-hidden">
+                        <span className={`block max-w-full truncate text-sm ${n.read ? "text-slate-600" : "font-semibold text-slate-900"}`} title={meta.text(n)}>{meta.text(n)}</span>
                         <span className="mt-0.5 block text-xs text-slate-400">{n.createdAt ? timeAgo(n.createdAt) : ""}</span>
                       </span>
                       {!n.read && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-brand-500" />}
