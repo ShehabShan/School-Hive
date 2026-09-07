@@ -34,8 +34,8 @@ export default function ProfileLayout({ user, isOwnProfile, onEdit, stats, compl
         )}
       </div>
 
-      <div className="px-4 pb-4 pt-0 sm:px-6">
-        <div className="-mt-10 flex flex-col gap-4 sm:-mt-12 sm:flex-row sm:items-end sm:justify-between">
+      <div className="px-4 pb-4 pt-px sm:px-6 sm:pt-px">
+        <div className="-mt-10 flex flex-col gap-4 sm:-mt-12 sm:flex-row sm:items-end sm:justify-between relative z-10 isolate">
           <div className="flex gap-4">
             <div className="h-20 w-20 shrink-0 overflow-hidden rounded-2xl bg-gradient-to-br from-brand-500 to-brand-700 shadow-lift ring-4 ring-white sm:h-24 sm:w-24">
               {photo ? <img src={photo} alt={name} className="h-full w-full object-cover" /> : <div className="flex h-full w-full items-center justify-center text-2xl font-extrabold text-white">{name.charAt(0).toUpperCase()}</div>}

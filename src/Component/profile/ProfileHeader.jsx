@@ -1,3 +1,4 @@
+// DEPRECATED — not imported anywhere (0 refs). Kept for reference; use ProfileLayout / ProfileHeaderQuora instead. See TASKS.md P1.
 import { MapPin, CalendarDays, Edit3, Award } from "lucide-react";
 import { Link } from "react-router-dom";
 import { motion } from "framer-motion";
