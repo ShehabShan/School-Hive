@@ -24,6 +24,7 @@ import useAuth from "../../Hooks/useAuth";
 import useRole from "../../Hooks/useRole";
 import AnswerCard from "../../Component/QA/AnswerCard";
 import AnswerForm from "../../Component/QA/AnswerForm";
+import CommentThread from "../../Component/QA/CommentThread";
 import QAPageSchema from "../../Component/QA/QAPageSchema";
 import MarkdownBody from "../../Component/QA/MarkdownBody";
 import AuthorBlock from "../../Component/QA/AuthorBlock";
@@ -485,14 +486,16 @@ export default function QuestionDetail() {
                   </div>
                 ) : (
                   answersSorted.map((a) => (
-                    <AnswerCard
-                      key={a._id}
-                      answer={a}
-                      isAsker={isAsker}
-                      onAccept={handleAccept}
-                      accepting={acceptingId === String(a._id)}
-                      questionId={id}
-                    />
+                    <div key={a._id} className="space-y-3">
+                      <AnswerCard
+                        answer={a}
+                        isAsker={isAsker}
+                        onAccept={handleAccept}
+                        accepting={acceptingId === String(a._id)}
+                        questionId={id}
+                      />
+                      <CommentThread answerId={String(a._id)} questionId={id} />
+                    </div>
                   ))
                 )}
               </div>
