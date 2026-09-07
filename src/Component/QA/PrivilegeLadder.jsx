@@ -8,10 +8,10 @@ const PrivilegeLadder = ({ reputation = 0 }) => {
   const progress = next && prev ? Math.min(100, Math.round(((rep - prev.rep) / (next.rep - prev.rep)) * 100)) : 100;
 
   return (
-    <section aria-label="Reputation privileges" className="mt-4 rounded-2xl bg-white p-5 shadow-soft ring-1 ring-slate-100">
+    <section aria-label="Reputation privileges" className="mt-5 rounded-3xl bg-white p-5 shadow-soft ring-1 ring-slate-200 sm:p-6">
       <div className="flex items-center justify-between gap-3">
-        <h3 className="flex items-center gap-2 text-sm font-extrabold text-slate-900">
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-brand-50 text-brand-600">
+        <h3 className="flex items-center gap-2.5 text-sm font-extrabold text-slate-900 sm:text-base">
+          <span className="flex h-9 w-9 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
             <ShieldCheck className="h-4 w-4" />
           </span>
           Reputation privileges

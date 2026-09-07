@@ -5,7 +5,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    allowedHosts: ['.monkeycode-ai.live']
+    allowedHosts: ['.monkeycode-ai.live', '.vercel.run']
   },
   build: {
     chunkSizeWarningLimit: 600,

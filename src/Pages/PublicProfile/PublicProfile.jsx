@@ -96,8 +96,23 @@ export default function PublicProfile() {
     setVisited((v) => ({ ...v, [id]: true }));
   };
 
-  if (isLoading) return <div className="flex min-h-[60vh] items-center justify-center"><Spinner className="h-8 w-8 text-brand-600" /></div>;
-  if (!profileUser) return <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 text-slate-500"><p className="text-lg font-semibold">User not found</p><Link to="/" className="text-sm font-semibold text-brand-600">Go home</Link></div>;
+  if (isLoading) return (
+    <div className="flex min-h-[60vh] items-center justify-center bg-slate-50">
+      <div className="flex flex-col items-center gap-3 text-slate-500">
+        <Spinner className="h-8 w-8 text-brand-600" />
+        <span className="text-sm font-semibold">Loading profile</span>
+      </div>
+    </div>
+  );
+  if (!profileUser) return (
+    <div className="flex min-h-[60vh] flex-col items-center justify-center gap-3 bg-slate-50 px-4 text-center text-slate-500">
+      <div className="rounded-2xl bg-white px-8 py-7 shadow-soft ring-1 ring-slate-200">
+        <p className="text-lg font-extrabold text-slate-900">User not found</p>
+        <p className="mt-1 text-sm">This profile may have been removed or is not public.</p>
+        <Link to="/" className="mt-4 inline-flex text-sm font-bold text-brand-600 hover:text-brand-700">Go home</Link>
+      </div>
+    </div>
+  );
 
   const isOwn = user?.email?.toLowerCase() === decodedEmail.toLowerCase();
 
@@ -126,8 +141,14 @@ export default function PublicProfile() {
   const isInstitution = profileUser.role === "institution";
 
   return (
-    <div className="min-h-screen bg-slate-50 py-6">
-      <div className="mx-auto max-w-3xl px-4">
+    <div className="min-h-screen bg-slate-50 py-6 sm:py-8">
+      <div className="mx-auto max-w-6xl px-4 sm:px-6">
+        <div className="mb-5 flex items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-[0.18em] text-brand-600">Community profile</p>
+            <p className="mt-1 text-sm text-slate-500">Explore contributions, credentials, and community activity.</p>
+          </div>
+        </div>
         <ProfileHeaderQuora
           user={profileUser}
           stats={headerStats}
