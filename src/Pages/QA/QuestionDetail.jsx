@@ -50,17 +50,31 @@ function DetailSkeleton() {
       <div className="mt-2 h-8 w-1/2 rounded-xl bg-slate-200/70" />
       <div className="mt-6 grid gap-8 lg:grid-cols-[1fr_340px]">
         <div className="space-y-6">
-          <div className="rounded-[20px] border border-slate-100 bg-white p-6">
-            <div className="flex gap-5">
-              <div className="h-20 w-12 rounded-xl bg-slate-100" />
-              <div className="flex-1 space-y-3">
-                <div className="h-3.5 w-full rounded bg-slate-100" />
-                <div className="h-3.5 w-5/6 rounded bg-slate-100" />
-                <div className="h-3.5 w-4/6 rounded bg-slate-100" />
-                <div className="h-6 w-24 rounded-full bg-slate-100" />
+            <div className="overflow-hidden rounded-[20px] border border-slate-100 bg-white">
+              {/* Mobile pill skeleton */}
+              <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/50 px-4 py-3 sm:hidden">
+                <div className="flex items-center gap-2">
+                  <div className="h-9 w-9 rounded-xl bg-slate-100" />
+                  <div className="h-4 w-12 rounded bg-slate-100" />
+                </div>
+                <div className="h-4 w-20 rounded bg-slate-100" />
+              </div>
+              <div className="flex flex-col sm:flex-row">
+                <div className="hidden w-[84px] shrink-0 flex-col items-center gap-2 border-r border-slate-100 bg-slate-50/50 px-3 py-5 sm:flex">
+                  <div className="h-10 w-10 rounded-xl bg-slate-100" />
+                  <div className="h-4 w-8 rounded bg-slate-100" />
+                  <div className="h-3 w-10 rounded bg-slate-100" />
+                </div>
+                <div className="min-w-0 flex-1 p-4 sm:p-6">
+                  <div className="space-y-3">
+                    <div className="h-3.5 w-full rounded bg-slate-100" />
+                    <div className="h-3.5 w-5/6 rounded bg-slate-100" />
+                    <div className="h-3.5 w-4/6 rounded bg-slate-100" />
+                    <div className="h-6 w-24 rounded-full bg-slate-100" />
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
           <div className="h-12 rounded-2xl bg-slate-100" />
           <div className="space-y-4">
             {Array.from({ length: 2 }).map((_, i) => (
@@ -353,9 +367,37 @@ export default function QuestionDetail() {
               transition={{ duration: 0.35 }}
               className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-soft"
             >
-              <div className="flex gap-0 sm:gap-0">
-                {/* Vote rail */}
-                <div className="flex w-[72px] shrink-0 flex-col items-center gap-1 border-r border-slate-100 bg-slate-50/70 px-3 py-5 sm:w-[84px]">
+              <div className="flex flex-col sm:flex-row">
+                {/* Mobile horizontal vote pill — thumb-reachable, saves 72px width */}
+                <div className="flex items-center justify-between gap-3 border-b border-slate-100 bg-slate-50/70 px-4 py-3 sm:hidden">
+                  <div className="flex items-center gap-3">
+                    <button
+                      onClick={handleQuestionUpvote}
+                      disabled={!authReady}
+                      title={
+                        !user
+                          ? "Sign in to vote"
+                          : iUpvoted
+                            ? "Upvoted — click to remove"
+                            : "Upvote — asker earns +2"
+                      }
+                      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition-all ${
+                        iUpvoted
+                          ? "bg-brand-600 text-white shadow-md"
+                          : "bg-white text-slate-500 ring-1 ring-slate-200 hover:bg-brand-50 hover:text-brand-600 hover:ring-brand-200"
+                      } disabled:opacity-40`}
+                    >
+                      <ArrowBigUp className={`h-6 w-6 ${iUpvoted ? "fill-white/20" : ""}`} />
+                    </button>
+                    <div className="flex items-baseline gap-1.5">
+                      <span className="text-[18px] font-extrabold tracking-tight text-slate-900">{q.voteScore ?? 0}</span>
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-slate-400">votes</span>
+                    </div>
+                  </div>
+                  <span className="text-[11px] font-medium leading-tight text-slate-500">Upvote to reward asker</span>
+                </div>
+                {/* Desktop vertical rail — hidden on mobile */}
+                <div className="hidden w-[84px] shrink-0 flex-col items-center gap-1 border-r border-slate-100 bg-slate-50/70 px-3 py-5 sm:flex">
                   <button
                     onClick={handleQuestionUpvote}
                     disabled={!authReady}
@@ -376,18 +418,18 @@ export default function QuestionDetail() {
                   </button>
                   <span className="text-[18px] font-extrabold tracking-tight text-slate-900">{q.voteScore ?? 0}</span>
                   <span className="text-[10px] font-bold uppercase tracking-widest text-slate-400">votes</span>
-                  <span className="mt-2 hidden text-center text-[10px] leading-tight text-slate-400 sm:block">
+                  <span className="mt-2 text-center text-[10px] leading-tight text-slate-400">
                     Upvote to
                     <br />
                     reward asker
                   </span>
                 </div>
-                <div className="min-w-0 flex-1 p-5 sm:p-6">
-                  <div className="prose max-w-none prose-slate prose-p:leading-relaxed prose-a:text-brand-600 hover:prose-a:text-brand-700">
+                <div className="min-w-0 flex-1 p-4 sm:p-6">
+                  <div className="prose max-w-none prose-slate prose-sm sm:prose-base prose-p:leading-relaxed prose-a:text-brand-600 hover:prose-a:text-brand-700">
                     <MarkdownBody text={q.body} />
                   </div>
                   {(q.tags || []).length > 0 && (
-                    <div className="mt-5 flex flex-wrap items-center gap-2">
+                    <div className="mt-5 flex flex-wrap items-center gap-1.5 sm:gap-2">
                       {(q.tags || []).map((t) => (
                         <Link
                           key={t}
@@ -406,7 +448,7 @@ export default function QuestionDetail() {
                       isVerified={q.authorIsVerified}
                       size="lg"
                     />
-                    <div className="flex items-center gap-2 text-xs">
+                    <div className="flex flex-wrap items-center gap-2 text-xs">
                       <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1 font-medium text-slate-500 ring-1 ring-slate-200">
                         <Clock className="h-3 w-3" /> {new Date(q.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}
                       </span>
