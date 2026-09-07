@@ -43,11 +43,12 @@ export default function ProfileHeaderQuora({
       { label: "Answers", value: stats?.answers ?? "—" },
     );
   }
-  // followers/following only if exposed and allowed by preference
+  // followers/following only if exposed and allowed by preference — fix singular when 1 (reuse QuestionDetail logic)
   const showFollowers = user?.preferences?.showFollowersOnPublic !== false || isOwner;
   if (showFollowers && stats && (typeof stats.followers === "number" || typeof stats.following === "number")) {
+    const fCount = stats.followers ?? 0;
     statItems.push(
-      { label: "Followers", value: stats.followers ?? 0 },
+      { label: fCount === 1 ? "Follower" : "Followers", value: fCount },
       { label: "Following", value: stats.following ?? 0 },
     );
   }

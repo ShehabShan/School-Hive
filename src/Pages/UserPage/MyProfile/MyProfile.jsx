@@ -301,6 +301,7 @@ export default function ProfilePage() {
   if (isLoading) return <div className="flex min-h-[60vh] items-center justify-center"><Spinner className="h-8 w-8 text-brand-600" /></div>;
 
   const completeness = statsData?.completeness ?? dbUser?.completeness ?? 0;
+  const followersCount = statsData?.followers ?? dbUser?.followersCount ?? 0;
   const userStats = [
     ...(!isInstitution ? [
       { label: "Applications", value: statsData?.applications ?? myApply.length ?? 0, icon: FileText, color: "text-brand-600 bg-brand-50", to: "/userDashboard/myApplication" },
@@ -312,7 +313,7 @@ export default function ProfilePage() {
       { label: "Applicants", value: statsData?.applications ?? "—", icon: Users, color: "text-sky-600 bg-sky-50" },
     ] : []),
     { label: "Saved", value: statsData?.saved ?? savedDocs.length ?? 0, icon: GraduationCap, color: "text-emerald-600 bg-emerald-50", to: "/saved" },
-    { label: "Followers", value: statsData?.followers ?? dbUser?.followersCount ?? 0, icon: Heart, color: "text-rose-600 bg-rose-50" },
+    { label: followersCount === 1 ? "Follower" : "Followers", value: followersCount, icon: Heart, color: "text-rose-600 bg-rose-50" },
   ];
   const adminStats = [
     { label: "Users", value: allUsers?.length || allUsers?.total || "—", icon: Users, color: "text-brand-600 bg-brand-50", to: "/adminDashboard/manageUsers" },
@@ -328,8 +329,13 @@ export default function ProfilePage() {
       <div className="mx-auto max-w-6xl px-4">
         <ProfileLayout user={dbUser} isOwnProfile={true} onEdit={openEdit} completeness={completeness} tabs={visibleTabs} activeTab={activeTab} onTabChange={setActiveTab} />
 
-        <div className="mt-4">
-          <StatsRow stats={isAdminOrMod ? adminStats : userStats} />
+        <div className="mt-4 rounded-[20px] border border-slate-200 bg-white p-5 shadow-soft">
+          <h3 className="flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-slate-400">
+            <ShieldCheck className="h-3.5 w-3.5" /> Stats
+          </h3>
+          <div className="mt-4">
+            <StatsRow stats={isAdminOrMod ? adminStats : userStats} />
+          </div>
         </div>
 
         <div className="mt-5 grid gap-5 lg:grid-cols-[1fr_340px]">
