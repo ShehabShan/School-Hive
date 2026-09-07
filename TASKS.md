@@ -13,7 +13,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## IN PROGRESS
 
-- [ ] **N1. [Feature] Extract shared `useNotifications` data source** — *Next* — see TODO polish batch below. **P1 DONE** (see below). Sub-feature waves W1–W10 DONE (see DONE stub below). Deploys need owner approval.
+- [ ] **N1. [Feature] Extract shared `useNotifications` data source** — *Next* — see TODO polish batch below. **P1 DONE** (see below). Sub-feature waves W1–W10 archived to `docs/TASK_HISTORY.md` 2026-09-04. Deploys need owner approval.
 
 ---
 
@@ -44,25 +44,6 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 - [ ] **Q3. [Feature] Cap nesting at 3 levels, flatten deeper replies** — Extend `Q1/Q2` — server may store true `depth` but client renders `renderDepth = min(depth,3)` (or server clamps `depth=min(parent.depth+1,3)`). In `CommentThread` recursion indent `ml-0/ml-4/ml-8` or `border-l` per level, nodes with `depth>3` render as siblings under the depth-3 ancestor as `Reply to @name` (Reddit/Facebook pattern) with `createdAt` order preserved; no extra horizontal indent beyond level 3. Keep `Q2` as separate reviewable PR, `Q3` as follow-up. Verify: chain 0→1→2→3→4→5 renders indented to level 3 then 4/5 flattened at same indent under depth-3 parent, no overflow at 320px.
 
 - [ ] **Q4. [Feature] Responsive redesign of `QuestionDetail` `motion.article` `src/Pages/QA/QuestionDetail.jsx:349` — desktop/tablet/mobile (after Q2/Q3)** — Sequenced last so layout accounts for final nested-comment UI (not reworked twice). Collapse left vote rail `w-[72px] sm:w-[84px] L357` on mobile to horizontal pill (upvote + score + share) above/below body to save width; keep vertical rail ≥640; adjust `p-5 sm:p-6 L384` → `p-4 sm:p-6`, `prose prose-sm sm:prose-base`, tags `gap-1.5` wrap, author row `flex-col xs:flex-row`, indents scale with viewport, `min-w-0` so threaded replies never cause horizontal scroll. Update `DetailSkeleton` to match. Verify: visual QA at 320/375/768/1024/1280 — no horizontal scroll, vote affordance thumb-reachable on mobile, article + nested replies breathe, right rail `lg:grid-cols-[1fr_340px] L345` intact; Lighthouse mobile ≥90.
-
----
-
-## DONE — Sub-feature Waves 1–2 (2026-09-04, W1–W10; client `3e1f8af..ca2d785`, server `feature/subfeatures`)
-
-> Triage + rejected false positives: see Wave header note preserved below. **DEPLOYED to production 2026-09-04** (owner approved): server `feature/subfeatures` → main → Vercel; client main → Firebase. All W1–W10 live.
-
-- [x] **W1** Print/PDF export — Compare + application details (`window.print()` + global print CSS hiding chrome) — FEAT-206
-- [x] **W2** Application `statusHistory` + user timeline (server `$push` on create/accept/cancel; fallback for old docs) — FEAT-203
-- [x] **W3** Review helpful votes (toggle, own-excluded, PII-safe `helpfulCount`/`helpfulVoted`) + Most-helpful sort — FEAT-301
-- [x] **W4** Rating filter chips — histogram already existed (`ScholarshipDetails.jsx:105`), trimmed to filter only — FEAT-303
-- [x] **W5** Home "Closing soon" strip (server `sort=deadline&deadlineAfter=today`, draft/scheduled hidden) — FEAT-204
-- [x] **W6** Apply draft autosave `apply:draft:<id>` (AnswerForm pattern, file input excluded, clear + restore) — FEAT-201
-- [x] **W7** Privilege ladder card + next-unlock progress on PublicProfile (downvote tooltip already existed) — FEAT-106
-- [x] **W8** ManageUsers: wired existing server q/role/page params + new `GET /users/export` CSV + loading skeleton — FEAT-504
-- [x] **W9** Notifications: `notifications` collection + `/notifications/me|read/:id|read-all`, emit on answer/accept/comment/reply, real bell dropdown in AdminNavbar (all dashboards) — FEAT-101
-- [x] **W10** Follow-question toggle in QuestionDetail right rail + asker notification — FEAT-102
-
-> **Triage note (preserved from Wave 1 header):** rejected as false positives — FEAT-402 photo upload (exists `MyProfile.jsx:427`), FEAT-401 share (exists; OG part → B5), FEAT-403 forgot-password (exists; email-verify → B6), FEAT-108 ranked search (server search + `sort=relevance` + text index already exist), FEAT-703 as written (shared components already adopted; loading gaps → B17).
 
 ---
 

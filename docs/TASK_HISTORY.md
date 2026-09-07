@@ -6,6 +6,25 @@ Completed work moved from `TASKS.md`. `TASKS.md` stays lean (IN PROGRESS / TODO 
 
 ---
 
+## 2026-09-04 — Sub-feature Waves 1–2 (W1–W10) — Completed & Deployed
+
+> **Source:** `TASKS.md: DONE — Sub-feature Waves 1–2 (2026-09-04, W1–W10; client 3e1f8af..ca2d785, server feature/subfeatures)` — all 10 checked per archive rule `TASKS.md:10`, moved to keep TASKS lean. **DEPLOYED 2026-09-04** (owner approved: server `feature/subfeatures` → main → Vercel; client main → Firebase). Each one-sitting ending `Verify:` (see HANDOFF_LOG.md 2026-09-04).
+
+- [x] **W1** Print/PDF export — Compare + application details (`window.print()` + global print CSS hiding chrome) — FEAT-206
+- [x] **W2** Application `statusHistory` + user timeline (server `$push` on create/accept/cancel; fallback for old docs) — FEAT-203
+- [x] **W3** Review helpful votes (toggle, own-excluded, PII-safe `helpfulCount`/`helpfulVoted`) + Most-helpful sort — FEAT-301
+- [x] **W4** Rating filter chips — histogram already existed (`ScholarshipDetails.jsx:105`), trimmed to filter only — FEAT-303
+- [x] **W5** Home "Closing soon" strip (server `sort=deadline&deadlineAfter=today`, draft/scheduled hidden) — FEAT-204
+- [x] **W6** Apply draft autosave `apply:draft:<id>` (AnswerForm pattern, file input excluded, clear + restore) — FEAT-201
+- [x] **W7** Privilege ladder card + next-unlock progress on PublicProfile (downvote tooltip already existed) — FEAT-106
+- [x] **W8** ManageUsers: wired existing server q/role/page params + new `GET /users/export` CSV + loading skeleton — FEAT-504
+- [x] **W9** Notifications: `notifications` collection + `/notifications/me|read/:id|read-all`, emit on answer/accept/comment/reply, real bell dropdown in AdminNavbar (all dashboards) — FEAT-101
+- [x] **W10** Follow-question toggle in QuestionDetail right rail + asker notification — FEAT-102
+
+> **Triage note (preserved from Wave header):** rejected as false positives — FEAT-402 photo upload (exists `MyProfile.jsx:427`), FEAT-401 share (exists; OG part → B5), FEAT-403 forgot-password (exists; email-verify → B6), FEAT-108 ranked search (server search + `sort=relevance` + text index already exist), FEAT-703 as written (shared components already adopted; loading gaps → B17).
+
+---
+
 ## 2026-09-04 — MonkeyCode Triaged — 5 P2 Active — Completed Batch Moved
 
 > **Source:** `docs/moneycode-report.md` Passes 1-5 (AI-generated, triaged — 0 false positives on cited lines, 5×P2 active one-sitting). All `[x]` per archive rule `TASKS.md:10`, moved to keep TASKS lean. Each item ends `Verify:`.
