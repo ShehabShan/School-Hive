@@ -1,5 +1,5 @@
-import { useState, useRef, useEffect } from "react";
-import { ArrowBigUp, ArrowBigDown, MoreHorizontal, Pencil, Trash2 } from "lucide-react";
+import { useState, useRef, useEffect, Children } from "react";
+import { ArrowBigUp, ArrowBigDown, MoreHorizontal, Pencil, Trash2, Minus, Plus } from "lucide-react";
 import MarkdownBody from "./MarkdownBody";
 import AuthorBlock from "./AuthorBlock";
 import ReplyComposer from "./ReplyComposer";
@@ -9,7 +9,7 @@ import { useQueryClient } from "@tanstack/react-query";
 import toast from "react-hot-toast";
 import { timeAgo } from "./QuestionCard";
 
-export default function CommentItem({ comment, depth = 0, answerId, questionId, parentAuthorEmail, onReplySuccess, children, isLast = false }) {
+export default function CommentItem({ comment, depth = 0, answerId, questionId, onReplySuccess, children, isLast = false }) {
   const [showReply, setShowReply] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [editing, setEditing] = useState(false);
@@ -18,6 +18,7 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
   const [voting, setVoting] = useState(false);
   const [showDownvote, setShowDownvote] = useState(false);
   const [downvoteReason, setDownvoteReason] = useState("");
+  const [collapsed, setCollapsed] = useState(false);
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const qc = useQueryClient();
@@ -29,6 +30,7 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
   const iUpvoted = upvoters.includes(myEmail);
   const iDownvoted = downvoters.includes(myEmail);
   const hasVoted = iUpvoted || iDownvoted;
+  const isDeleted = Boolean(comment.isDeleted) || comment.body === "[deleted]" || comment.authorEmail === "[deleted]";
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -65,12 +67,14 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
   };
 
   const handleUpvote = async () => {
+    if (isDeleted) return;
     if (!user) return toast.error("Sign in to vote");
     if (hasVoted) return toast.error("Already voted");
     setVoting(true);
     try { await axiosSecure.post(`/comments/${comment._id}/upvote`); toast.success("Upvoted"); qc.invalidateQueries({ queryKey: ["comments", String(answerId)] }); } catch (e) { toast.error(e?.response?.data?.message || e.message); } finally { setVoting(false); }
   };
   const handleDownvote = async () => {
+    if (isDeleted) return;
     if (!user) return toast.error("Sign in to vote");
     if (hasVoted) return toast.error("Already voted");
     setVoting(true);
@@ -90,12 +94,62 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
 
   const visualDepth = Math.min(depth, 3);
   const indentPad = visualDepth === 0 ? "" : visualDepth === 1 ? "ml-4" : visualDepth === 2 ? "ml-6 sm:ml-8" : "ml-8 sm:ml-10";
-  const isFlattened = depth > 3;
-  const parentName = parentAuthorEmail ? String(parentAuthorEmail).split("@")[0] : null;
   const score = comment.voteScore ?? 0;
   const hasChildren = !!children;
   const isLeafLast = isLast && !hasChildren;
-  const isEdited = Boolean(comment.isEdited) || (comment.updatedAt && comment.createdAt && new Date(comment.updatedAt).getTime() - new Date(comment.createdAt).getTime() > 1000);
+  const isEdited = !isDeleted && (Boolean(comment.isEdited) || (comment.updatedAt && comment.createdAt && new Date(comment.updatedAt).getTime() - new Date(comment.createdAt).getTime() > 1000));
+
+  // count direct children for collapsed pill
+  const countChildren = (() => {
+    if (!children) return 0;
+    try {
+      let count = 0;
+      const countRec = (nodes) => {
+        Children.forEach(nodes, (n) => {
+          if (!n) return;
+          if (n.props && n.props.comment) count += 1;
+          if (n.props && n.props.children) countRec(n.props.children);
+        });
+      };
+      countRec(children);
+      return count || 1;
+    } catch { return 1; }
+  })();
+
+  if (isDeleted) {
+    return (
+      <div className={`${indentPad} relative ${visualDepth > 0 ? "pl-6 sm:pl-7" : ""}`}>
+        {visualDepth > 0 && (
+          <>
+            <span aria-hidden className={`absolute left-0 top-0 w-px bg-slate-200 ${isLeafLast ? "h-[22px]" : "bottom-0"}`} />
+            <span aria-hidden className="absolute left-0 top-[22px] h-[10px] w-4 sm:w-5 -translate-y-[9px] border-b border-l border-slate-200 rounded-bl-lg" />
+          </>
+        )}
+        <div className="flex gap-2.5 py-3.5">
+          {hasChildren && (
+            <button onClick={() => setCollapsed(v=>!v)} className="absolute -left-[9px] top-[14px] flex h-[18px] w-[18px] items-center justify-center rounded-full border border-slate-300 bg-white text-slate-500 shadow-sm" aria-label={collapsed ? "Expand" : "Collapse"}>
+              {collapsed ? <Plus className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
+            </button>
+          )}
+          <div className="min-w-0 flex-1">
+            <div className="flex items-center gap-2">
+              <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-slate-100 text-[10px] font-bold text-slate-400">⊘</span>
+              <span className="text-sm font-medium text-slate-400 italic">Comment was deleted</span>
+              <span className="hidden sm:inline text-slate-300">·</span>
+              <span className="shrink-0 text-[11px] text-slate-400">{comment.createdAt ? timeAgo(comment.createdAt) : ""}</span>
+            </div>
+            <div className="mt-1.5 text-[13px] leading-relaxed text-slate-400 italic">Comment was deleted</div>
+            {hasChildren && collapsed && (
+              <button onClick={() => setCollapsed(false)} className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+                <Plus className="h-3 w-3" /> {countChildren || 1} more {countChildren===1 ? "reply" : "replies"}
+              </button>
+            )}
+          </div>
+        </div>
+        {hasChildren && !collapsed && <div>{children}</div>}
+      </div>
+    );
+  }
 
   return (
     <div className={`${indentPad} relative ${visualDepth > 0 ? "pl-6 sm:pl-7" : ""}`}>
@@ -103,7 +157,7 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
         <>
           <span
             aria-hidden
-            className={`absolute left-0 top-0 w-px bg-slate-200 ${isLeafLast ? "h-[22px]" : "bottom-0"}`}
+            className={`absolute left-0 top-0 w-px bg-slate-200 ${isLeafLast && !collapsed ? "h-[22px]" : collapsed && hasChildren ? "h-[22px]" : "bottom-0"}`}
           />
           <span
             aria-hidden
@@ -112,6 +166,11 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
         </>
       )}
       <div className="flex gap-2.5 py-3.5">
+        {hasChildren && (
+          <button onClick={() => setCollapsed(v=>!v)} className="absolute -left-[9px] top-[14px] flex h-[18px] w-[18px] items-center justify-center rounded-full border border-slate-300 bg-white text-slate-500 shadow-sm hover:bg-slate-100" aria-label={collapsed ? "Expand" : "Collapse"}>
+            {collapsed ? <Plus className="h-3 w-3" /> : <Minus className="h-3 w-3" />}
+          </button>
+        )}
         <div className="min-w-0 flex-1">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2 min-w-0">
@@ -145,12 +204,6 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
               )}
             </div>
           </div>
-
-          {isFlattened && parentName && (
-            <p className="mt-1.5 text-xs text-slate-500">
-              Replying to <span className="font-semibold text-slate-700">@{parentName}</span> · flattened
-            </p>
-          )}
 
           {editing ? (
             <div className="mt-2 space-y-2">
@@ -207,9 +260,14 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
               />
             </div>
           )}
+          {hasChildren && collapsed && (
+            <button onClick={() => setCollapsed(false)} className="mt-2 inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 hover:bg-slate-50">
+              <Plus className="h-3 w-3" /> {countChildren || 1} more {countChildren===1 ? "reply" : "replies"}
+            </button>
+          )}
         </div>
       </div>
-      {children && <div>{children}</div>}
+      {hasChildren && !collapsed && <div>{children}</div>}
     </div>
   );
 }
