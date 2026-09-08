@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowBigUp, ArrowBigDown, CheckCircle2, ExternalLink, MoreHorizontal, Pencil, X, Flag } from "lucide-react";
+import { ArrowBigUp, ArrowBigDown, CheckCircle2, ExternalLink, MessageSquare, MoreHorizontal, Pencil, X, Flag } from "lucide-react";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useRole from "../../Hooks/useRole";
 import useAuth from "../../Hooks/useAuth";
@@ -15,7 +15,7 @@ const DOWNVOTE_REASONS = [
   { value: "incorrect", label: "Incorrect — factually wrong" },
 ];
 
-export default function AnswerCard({ answer, isAsker, onAccept, accepting, questionId, insideGroup = false }){
+export default function AnswerCard({ answer, index = 0, isAsker, onAccept, accepting, questionId, insideGroup = false }){
   const axiosSecure = useAxiosSecure();
   const { me } = useRole();
   const { user } = useAuth();
@@ -94,11 +94,22 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
 
   return (
     <article className={outerClass}>
-      {isAccepted && (
-        <div className={`flex items-center gap-1.5 border-b px-4 py-2 text-[11px] font-bold uppercase tracking-widest ${isAccepted ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "border-slate-100 bg-emerald-50 text-emerald-700"}`}>
-          <CheckCircle2 className="h-3.5 w-3.5" /> Accepted Answer
-        </div>
-      )}
+      {/* Answer header — always visible to distinguish from QUESTION card (indigo) */}
+      <div className={`flex items-center gap-2 border-b px-4 py-2.5 ${isAccepted ? "border-emerald-100 bg-emerald-50" : "border-slate-100 bg-slate-50/80"}`}>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-900 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-widest text-white">
+          <MessageSquare className="h-3.5 w-3.5" /> Answer {typeof index === "number" ? index + 1 : 1}
+        </span>
+        {isAccepted ? (
+          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-600 px-2.5 py-1 text-[11px] font-bold text-white">
+            <CheckCircle2 className="h-3.5 w-3.5" /> Accepted
+          </span>
+        ) : (
+          <span className="truncate text-xs font-medium text-slate-500">
+            From the community — verify with sources
+          </span>
+        )}
+        {Boolean(answer.isEdited) && <span className="ml-auto shrink-0 rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700 ring-1 ring-amber-200">edited</span>}
+      </div>
         <div className="flex gap-3 p-5">
         {/* Vote rail */}
         <div className="flex w-10 shrink-0 flex-col items-center gap-0.5">
@@ -115,7 +126,6 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
             <div className="flex items-center gap-2">
               <AuthorBlock email={answer.authorEmail} role={answer.authorRole} isVerified={answer.authorIsVerified} />
-              {Boolean(answer.isEdited) && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700 ring-1 ring-amber-200">edited</span>}
             </div>
             <div className="flex items-center gap-1">
               <span className="text-[11px] text-slate-400">{new Date(answer.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>
