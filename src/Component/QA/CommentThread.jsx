@@ -57,22 +57,28 @@ export default function CommentThread({ answerId, questionId, isAccepted = false
   const [showComposer, setShowComposer] = useState(false);
   const [expanded, setExpanded] = useState(true);
 
-  const { data: resp, isLoading } = useQuery({
+  const { data: resp, isLoading, refetch } = useQuery({
     queryKey: ["comments", String(answerId)],
     queryFn: async () => {
       const res = await axios.get(`${baseURL}/answers/${answerId}/comments`, { params: { limit: 50 } });
       return res.data;
     },
-    staleTime: 15 * 1000,
+    staleTime: 0,
+    gcTime: 5 * 60 * 1000,
   });
 
   const flat = resp?.data || [];
   const tree = useMemo(() => buildTree(flat), [flat]);
   const count = resp?.total ?? flat.length;
 
-  const handleSuccess = () => {
+  const handleSuccess = async () => {
     setShowComposer(false);
-    qc.invalidateQueries({ queryKey: ["comments", String(answerId)] });
+    await refetch();
+    qc.invalidateQueries({ queryKey: ["question", String(questionId)] });
+  };
+
+  const handleReplySuccess = async () => {
+    await refetch();
     qc.invalidateQueries({ queryKey: ["question", String(questionId)] });
   };
 
@@ -121,7 +127,7 @@ export default function CommentThread({ answerId, questionId, isAccepted = false
             <p className="rounded-lg bg-white px-4 py-5 text-center text-xs text-slate-500 ring-1 ring-slate-100">No replies yet — be the first to reply.</p>
           ) : (
             <div className="divide-y divide-slate-100 rounded-lg bg-white ring-1 ring-slate-100">
-              {renderNodes(tree, 0, answerId, questionId, handleSuccess)}
+              {renderNodes(tree, 0, answerId, questionId, handleReplySuccess)}
             </div>
           )}
         </div>

@@ -1,6 +1,6 @@
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowBigUp,
@@ -132,6 +132,9 @@ export default function QuestionDetail() {
   const [qSaving, setQSaving] = useState(false);
   const [showQDownvote, setShowQDownvote] = useState(false);
   const [qDownvoteReason, setQDownvoteReason] = useState("");
+  const [qBodyExpanded, setQBodyExpanded] = useState(false);
+  // reset expand when question changes
+  useEffect(()=>{ setQBodyExpanded(false); }, [q?._id]);
 
   const { data: followState } = useQuery({
     queryKey: ["question-follow", id, myEmail],
@@ -460,9 +463,27 @@ export default function QuestionDetail() {
                   )}
                 </div>
                 <div className="min-w-0 flex-1 p-4 sm:p-6">
-                  <div className="prose max-w-none prose-slate prose-sm sm:prose-base prose-p:leading-relaxed prose-a:text-brand-600 hover:prose-a:text-brand-700">
-                    <MarkdownBody text={q.body} />
-                  </div>
+                  {(() => {
+                    const bodyText = String(q.body || "");
+                    const qIsLong = bodyText.length > 450 || bodyText.split("\n").length > 6;
+                    return (
+                      <div className="prose max-w-none prose-slate prose-sm sm:prose-base prose-p:leading-relaxed prose-a:text-brand-600 hover:prose-a:text-brand-700">
+                        <div
+                          onClick={() => { if (!qBodyExpanded && qIsLong) setQBodyExpanded(true); }}
+                          className={qIsLong && !qBodyExpanded ? "cursor-pointer" : ""}
+                          style={!qBodyExpanded && qIsLong ? { display: "-webkit-box", WebkitLineClamp: 6, WebkitBoxOrient: "vertical", overflow: "hidden" } : undefined}
+                        >
+                          <MarkdownBody text={q.body} />
+                        </div>
+                        {qIsLong && !qBodyExpanded && (
+                          <button type="button" onClick={() => setQBodyExpanded(true)} className="mt-2 text-sm font-semibold text-sky-600 hover:underline">(more)</button>
+                        )}
+                        {qIsLong && qBodyExpanded && (
+                          <button type="button" onClick={() => setQBodyExpanded(false)} className="mt-2 text-sm font-semibold text-slate-500 hover:text-slate-700">Show less</button>
+                        )}
+                      </div>
+                    );
+                  })()}
                   <div className="mt-4 flex flex-col gap-3 border-t border-slate-100 pt-4 sm:flex-row sm:items-center sm:justify-between">
                     <div className="flex flex-wrap items-center gap-1.5">
                       {(q.tags || []).length > 0 &&

@@ -33,6 +33,10 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
   const isAccepted = Boolean(answer.accepted);
   const isAuthor = String(answer.authorEmail||"").toLowerCase()===String(user?.email||"").toLowerCase();
   const qKey = ["question", String(questionId || answer.questionId)];
+  const [expanded, setExpanded] = useState(false);
+  const bodyText = String(answer.body || "");
+  const isLong = bodyText.length > 280 || bodyText.split("\n").length > 4;
+  useEffect(()=>{ setExpanded(false); }, [answer._id]);
 
   useEffect(()=>{
     if(!menuOpen) return;
@@ -142,7 +146,21 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
               <p className="text-[11px] text-slate-400">{editBody.trim().length}/10000 (min 20)</p>
             </div>
           ) : (
-            <div className="py-3"><MarkdownBody text={answer.body} /></div>
+            <div className="py-3">
+              <div
+                onClick={()=>{ if(!expanded && isLong) setExpanded(true); }}
+                className={isLong && !expanded ? "cursor-pointer" : ""}
+                style={!expanded && isLong ? { display: "-webkit-box", WebkitLineClamp: 4, WebkitBoxOrient: "vertical", overflow: "hidden" } : undefined}
+              >
+                <MarkdownBody text={answer.body} />
+              </div>
+              {isLong && !expanded && (
+                <button type="button" onClick={()=>setExpanded(true)} className="mt-2 text-sm font-semibold text-sky-600 hover:underline">(more)</button>
+              )}
+              {isLong && expanded && (
+                <button type="button" onClick={()=>setExpanded(false)} className="mt-2 text-sm font-semibold text-slate-500 hover:text-slate-700">Show less</button>
+              )}
+            </div>
           )}
 
           {answer.sourceLink && (
