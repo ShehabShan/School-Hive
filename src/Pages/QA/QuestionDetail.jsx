@@ -492,18 +492,22 @@ export default function QuestionDetail() {
                     </Link>
                   </div>
                 ) : (
-                  answersSorted.map((a) => (
-                    <div key={a._id} className="space-y-3">
-                      <AnswerCard
-                        answer={a}
-                        isAsker={isAsker}
-                        onAccept={handleAccept}
-                        accepting={acceptingId === String(a._id)}
-                        questionId={id}
-                      />
-                      <CommentThread answerId={String(a._id)} questionId={id} />
-                    </div>
-                  ))
+                  answersSorted.map((a) => {
+                    const accepted = Boolean(a.accepted);
+                    return (
+                      <div key={a._id} className={`overflow-hidden rounded-2xl border bg-white shadow-sm transition-colors ${accepted ? "border-emerald-200" : "border-slate-200"}`}>
+                        <AnswerCard
+                          answer={a}
+                          isAsker={isAsker}
+                          onAccept={handleAccept}
+                          accepting={acceptingId === String(a._id)}
+                          questionId={id}
+                          insideGroup
+                        />
+                        <CommentThread answerId={String(a._id)} questionId={id} isAccepted={accepted} />
+                      </div>
+                    );
+                  })
                 )}
               </div>
             </section>

@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, ChevronDown } from "lucide-react";
 import axios from "axios";
 import useAuth from "../../Hooks/useAuth";
 import ReplyComposer from "./ReplyComposer";
@@ -23,7 +23,6 @@ function buildTree(flat) {
       roots.push(node);
     }
   });
-  // sort children by createdAt asc (already sorted but ensure)
   const sortRec = (nodes) => {
     nodes.sort((a, b) => new Date(a.createdAt) - new Date(b.createdAt));
     nodes.forEach((n) => sortRec(n.children));
@@ -48,7 +47,7 @@ function renderNodes(nodes, depth, answerId, questionId, onSuccess, parentAuthor
   ));
 }
 
-export default function CommentThread({ answerId, questionId }) {
+export default function CommentThread({ answerId, questionId, isAccepted = false }) {
   const { user } = useAuth();
   const qc = useQueryClient();
   const [showComposer, setShowComposer] = useState(false);
@@ -73,21 +72,26 @@ export default function CommentThread({ answerId, questionId }) {
     qc.invalidateQueries({ queryKey: ["question", String(questionId)] });
   };
 
+  const footerBg = isAccepted ? "bg-emerald-50/40" : "bg-slate-50/60";
+  const borderTop = isAccepted ? "border-emerald-100" : "border-slate-100";
+
   return (
-    <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50/50 p-3 sm:p-4">
-      <div className="flex items-center justify-between gap-2">
+    <div className={`border-t ${borderTop} ${footerBg}`}>
+      <div className="flex items-center justify-between gap-2 px-3 py-2.5 sm:px-4">
         <button
           onClick={() => setExpanded((v) => !v)}
           className="inline-flex items-center gap-1.5 text-xs font-bold text-slate-700 hover:text-slate-900"
         >
           <MessageCircle className="h-3.5 w-3.5 text-slate-500" />
           {count === 0 ? "No replies yet" : `${count} repl${count === 1 ? "y" : "ies"}`}
-          <span className="text-slate-400">· {expanded ? "Hide" : "Show"}</span>
+          <span className="inline-flex items-center gap-0.5 font-medium text-slate-400">
+            · {expanded ? "Hide" : "Show"} <ChevronDown className={`h-3 w-3 transition-transform ${expanded ? "rotate-180" : ""}`} />
+          </span>
         </button>
         {user ? (
           <button
             onClick={() => setShowComposer((v) => !v)}
-            className="rounded-full bg-white px-3 py-1 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-100"
+            className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 ring-1 ring-slate-200 hover:bg-slate-50"
           >
             {showComposer ? "Cancel" : "Reply"}
           </button>
@@ -97,22 +101,24 @@ export default function CommentThread({ answerId, questionId }) {
       </div>
 
       {showComposer && (
-        <div className="mt-3">
+        <div className={`mx-3 mb-3 sm:mx-4 ${expanded || count === 0 ? "mt-0" : "mt-0"}`}>
           <ReplyComposer answerId={answerId} parentId={null} questionId={questionId} onSuccess={handleSuccess} onCancel={() => setShowComposer(false)} />
         </div>
       )}
 
       {expanded && (
-        <div className="mt-3 space-y-3">
+        <div className={`px-3 pb-3 sm:px-4 ${showComposer ? "pt-0" : "pt-0"}`}>
           {isLoading ? (
-            <div className="space-y-2">
-              <div className="h-16 animate-pulse rounded-xl bg-white ring-1 ring-slate-100" />
-              <div className="h-16 animate-pulse rounded-xl bg-white ring-1 ring-slate-100" />
+            <div className="space-y-2 pt-2">
+              <div className="h-14 animate-pulse rounded-lg bg-white ring-1 ring-slate-100" />
+              <div className="h-14 animate-pulse rounded-lg bg-white ring-1 ring-slate-100" />
             </div>
           ) : flat.length === 0 ? (
-            <p className="rounded-xl bg-white px-4 py-6 text-center text-sm text-slate-500 ring-1 ring-slate-100">No replies yet — be the first to reply.</p>
+            <p className="rounded-lg bg-white px-4 py-5 text-center text-xs text-slate-500 ring-1 ring-slate-100">No replies yet — be the first to reply.</p>
           ) : (
-            renderNodes(tree, 0, answerId, questionId, handleSuccess)
+            <div className="divide-y divide-slate-100 rounded-lg bg-white ring-1 ring-slate-100">
+              {renderNodes(tree, 0, answerId, questionId, handleSuccess)}
+            </div>
           )}
         </div>
       )}

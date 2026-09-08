@@ -14,7 +14,7 @@ const DOWNVOTE_REASONS = [
   { value: "incorrect", label: "Incorrect — factually wrong" },
 ];
 
-export default function AnswerCard({ answer, isAsker, onAccept, accepting, questionId }){
+export default function AnswerCard({ answer, isAsker, onAccept, accepting, questionId, insideGroup = false }){
   const axiosSecure = useAxiosSecure();
   const { me } = useRole();
   const qc = useQueryClient();
@@ -51,10 +51,15 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
     } finally { setVoting(false); }
   };
 
+  // when fused inside QuestionDetail's AnswerBlock, parent provides outer border/shadow
+  const outerClass = insideGroup
+    ? `relative overflow-hidden bg-white transition-colors ${isAccepted ? "bg-emerald-50/30" : "bg-white"}`
+    : `relative overflow-hidden rounded-2xl border bg-white shadow-sm transition-colors ${isAccepted ? "border-emerald-200 bg-emerald-50/30" : "border-slate-200"}`;
+
   return (
-    <article className={`relative overflow-hidden rounded-2xl border bg-white shadow-sm transition-colors ${isAccepted ? "border-emerald-200 bg-emerald-50/30" : "border-slate-200"}`}>
+    <article className={outerClass}>
       {isAccepted && (
-        <div className="flex items-center gap-1.5 border-b border-emerald-100 bg-emerald-50 px-4 py-2 text-[11px] font-bold uppercase tracking-widest text-emerald-700">
+        <div className={`flex items-center gap-1.5 border-b px-4 py-2 text-[11px] font-bold uppercase tracking-widest ${isAccepted ? "border-emerald-100 bg-emerald-50 text-emerald-700" : "border-slate-100 bg-emerald-50 text-emerald-700"}`}>
           <CheckCircle2 className="h-3.5 w-3.5" /> Accepted Answer
         </div>
       )}

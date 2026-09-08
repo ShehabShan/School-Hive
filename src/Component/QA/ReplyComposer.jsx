@@ -33,7 +33,7 @@ export default function ReplyComposer({ answerId, parentId = null, onSuccess, on
   };
 
   return (
-    <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-slate-50/50 p-3">
+    <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 bg-white p-3 shadow-sm">
       <textarea
         value={body}
         onChange={(e) => setBody(e.target.value)}
