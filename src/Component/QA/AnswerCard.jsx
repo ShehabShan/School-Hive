@@ -114,7 +114,7 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
           <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-100 pb-2.5">
             <div className="flex items-center gap-2">
               <AuthorBlock email={answer.authorEmail} role={answer.authorRole} isVerified={answer.authorIsVerified} />
-              {(answer.isEdited || (answer.updatedAt && answer.createdAt && new Date(answer.updatedAt).getTime() - new Date(answer.createdAt).getTime() > 1000)) && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700 ring-1 ring-amber-200">edited</span>}
+              {Boolean(answer.isEdited) && <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-bold text-amber-700 ring-1 ring-amber-200">edited</span>}
             </div>
             <div className="flex items-center gap-1">
               <span className="text-[11px] text-slate-400">{new Date(answer.createdAt).toLocaleDateString(undefined, { month: "short", day: "numeric", year: "numeric" })}</span>

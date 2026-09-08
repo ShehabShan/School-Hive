@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, Children } from "react";
-import { ArrowBigUp, ArrowBigDown, MoreHorizontal, Pencil, Trash2, Minus, Plus } from "lucide-react";
+import { ArrowBigUp, ArrowBigDown, MoreHorizontal, Pencil, Trash2, Minus, Plus, X, Flag } from "lucide-react";
 import MarkdownBody from "./MarkdownBody";
 import AuthorBlock from "./AuthorBlock";
 import ReplyComposer from "./ReplyComposer";
@@ -19,6 +19,7 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
   const [showDownvote, setShowDownvote] = useState(false);
   const [downvoteReason, setDownvoteReason] = useState("");
   const [collapsed, setCollapsed] = useState(false);
+  const [showReasons, setShowReasons] = useState(false);
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const qc = useQueryClient();
@@ -97,7 +98,8 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
   const score = comment.voteScore ?? 0;
   const hasChildren = !!children;
   const isLeafLast = isLast && !hasChildren;
-  const isEdited = !isDeleted && (Boolean(comment.isEdited) || (comment.updatedAt && comment.createdAt && new Date(comment.updatedAt).getTime() - new Date(comment.createdAt).getTime() > 1000));
+  const isEdited = !isDeleted && Boolean(comment.isEdited);
+  const reasons = Array.isArray(comment.downvoteReasons) ? comment.downvoteReasons.filter(Boolean) : [];
 
   // count direct children for collapsed pill
   const countChildren = (() => {
@@ -236,6 +238,11 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
             >
               Reply
             </button>
+            {reasons.length > 0 && (
+              <button onClick={() => setShowReasons(true)} className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50">
+                <Flag className="h-3 w-3" /> View reasons ({reasons.length})
+              </button>
+            )}
           </div>
 
           {showDownvote && !hasVoted && (
@@ -268,6 +275,22 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
         </div>
       </div>
       {hasChildren && !collapsed && <div>{children}</div>}
+      {showReasons && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setShowReasons(false)}>
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-900">Downvote reasons</h3>
+              <button onClick={() => setShowReasons(false)} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100"><X className="h-4 w-4" /></button>
+            </div>
+            <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto">
+              {reasons.map((r, i) => (
+                <li key={i} className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">{r}</li>
+              ))}
+            </ul>
+            <p className="mt-3 text-xs text-slate-400">Anonymous — who voted is not shown</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

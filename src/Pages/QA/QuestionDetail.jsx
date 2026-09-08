@@ -383,7 +383,7 @@ export default function QuestionDetail() {
             </span>
           </div>
           <h1 className="mt-3 text-[22px] font-extrabold leading-[1.25] tracking-tight text-slate-900 sm:text-[26px]">
-            {q.title} {(q.isEdited || (q.updatedAt && q.createdAt && new Date(q.updatedAt).getTime() - new Date(q.createdAt).getTime() > 1000)) && <span className="ml-2 align-middle rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700 ring-1 ring-amber-200">edited</span>}
+            {q.title} {Boolean(q.isEdited) && <span className="ml-2 align-middle rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700 ring-1 ring-amber-200">edited</span>}
           </h1>
           {qEditing && (
             <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
