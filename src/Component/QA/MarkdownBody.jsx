@@ -12,7 +12,7 @@ const MarkdownBody = memo(function MarkdownBody({ text, className = "", compact 
     <div
       className={
         (compact ? "prose prose-sm max-w-none prose-p:my-2 prose-li:my-0" : "prose prose-sm max-w-none prose-p:leading-relaxed") +
-        " prose-headings:font-bold prose-a:text-brand-600 prose-a:no-underline hover:prose-a:underline prose-code:before:content-none prose-code:after:content-none prose-code:rounded prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.85em] prose-code:font-medium prose-code:text-rose-600 prose-pre:bg-slate-900 prose-img:rounded-xl prose-img:border prose-img:border-slate-200 " +
+        " prose-headings:font-bold prose-a:text-brand-600 prose-a:no-underline hover:prose-a:underline prose-code:before:content-none prose-code:after:content-none prose-code:rounded prose-code:bg-slate-100 prose-code:px-1 prose-code:py-0.5 prose-code:text-[0.85em] prose-code:font-medium prose-code:text-rose-600 prose-pre:bg-slate-900 prose-img:rounded-xl " +
         className
       }
     >
