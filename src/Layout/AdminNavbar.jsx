@@ -9,6 +9,7 @@ import {
   Sun,
   UserCircle2,
   History,
+  Bell,
 } from "lucide-react";
 import useAuth from "../Hooks/useAuth";
 import useRole from "../Hooks/useRole";
@@ -167,6 +168,9 @@ export function AdminNavbar({ setMobileSidebarOpen }) {
                 >
                   <UserCircle2 className="h-4 w-4 text-slate-400" />
                   Profile
+                </Link>
+                <Link to="/notifications" onClick={() => setProfileDropdownOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm text-slate-600 hover:bg-slate-50">
+                  <Bell className="h-4 w-4 text-slate-400" /> Notifications
                 </Link>
                 {isStaff && (
                   <Link

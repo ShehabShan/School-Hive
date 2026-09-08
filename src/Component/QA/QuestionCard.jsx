@@ -71,6 +71,8 @@ export function AnswerStat({ count, accepted }) {
 
 function PostCard({ q }) {
   const [expanded, setExpanded] = useState(false);
+  const [showDownvote, setShowDownvote] = useState(false);
+  const [downvoteReason, setDownvoteReason] = useState("");
   const full = stripMarkdown(q.body);
   const isLong = full.length > 150;
   const snippet = expanded ? full : full.slice(0, 150);
@@ -84,8 +86,6 @@ function PostCard({ q }) {
   const iUpvoted = upvoters.includes(myEmail);
   const iDownvoted = downvoters.includes(myEmail);
   const hasVoted = iUpvoted || iDownvoted;
-  const rep = typeof me?.reputation === "number" ? me.reputation : 0;
-  const canDownvote = rep >= 125;
 
   const handleUpvote = async (e)=>{
     e.preventDefault(); e.stopPropagation();
@@ -99,13 +99,14 @@ function PostCard({ q }) {
     }catch(err){ toast.error(err?.response?.data?.message || err.message); }
   };
   const handleDownvote = async (e)=>{
-    e.preventDefault(); e.stopPropagation();
+    if(e){ e.preventDefault(); e.stopPropagation(); }
     if(!me) return toast.error("Sign in to vote");
-    if(!canDownvote) return toast.error("125 rep required to downvote");
     if(hasVoted) return toast.error("Already voted");
     try{
-      await axiosSecure.post(`/questions/${q._id}/downvote`);
+      const body = downvoteReason.trim() ? { reason: downvoteReason.trim() } : {};
+      await axiosSecure.post(`/questions/${q._id}/downvote`, body);
       toast.success("Downvoted");
+      setShowDownvote(false); setDownvoteReason("");
       qc.invalidateQueries({ queryKey: ["questions-browse"] });
       qc.invalidateQueries({ queryKey: ["question", String(q._id)] });
     }catch(err){ toast.error(err?.response?.data?.message || err.message); }
@@ -144,9 +145,19 @@ function PostCard({ q }) {
         <button onClick={handleUpvote} disabled={!me || hasVoted} title={!me ? "Sign in to vote" : hasVoted ? "Already voted" : "Upvote — asker earns +2"} className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-bold ring-1 ${iUpvoted ? "bg-brand-600 text-white ring-brand-600" : "bg-sky-50 text-sky-700 ring-sky-100 hover:bg-sky-100"} disabled:opacity-40`}>
           <ArrowBigUp className={`h-3.5 w-3.5 ${iUpvoted ? "fill-white" : ""}`} /> Upvote · {formatCompact(q.voteScore ?? 0)}
         </button>
-        <button onClick={handleDownvote} disabled={!me || hasVoted || !canDownvote} title={!me ? "Sign in to vote" : !canDownvote ? "125 rep required to downvote" : hasVoted ? "Already voted" : "Downvote"} className={`inline-flex h-7 w-7 items-center justify-center rounded-full border bg-white shadow-sm disabled:opacity-30 ${iDownvoted ? "border-sky-200 bg-sky-50 text-sky-600" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
+        <button onClick={() => { if(!me) return toast.error("Sign in to vote"); if(hasVoted) return toast.error("Already voted"); setShowDownvote(v=>!v); }} disabled={!me || hasVoted} title={!me ? "Sign in to vote" : hasVoted ? "Already voted" : "Downvote (optional reason)"} className={`inline-flex h-7 w-7 items-center justify-center rounded-full border bg-white shadow-sm disabled:opacity-30 ${iDownvoted ? "border-sky-200 bg-sky-50 text-sky-600" : "border-slate-200 text-slate-500 hover:bg-slate-50"}`}>
           <ArrowBigDown className="h-3.5 w-3.5" />
         </button>
+        {showDownvote && !hasVoted && (
+          <div className="w-full mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+            <p className="text-xs font-semibold text-slate-700">Downvote reason (optional)</p>
+            <input value={downvoteReason} onChange={e=>setDownvoteReason(e.target.value)} maxLength={300} placeholder="e.g. outdated, incorrect…" className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-100" />
+            <div className="mt-2 flex gap-2">
+              <button onClick={handleDownvote} className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-black">Confirm downvote</button>
+              <button onClick={()=>{setShowDownvote(false); setDownvoteReason("");}} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold ring-1 ring-slate-200">Cancel</button>
+            </div>
+          </div>
+        )}
         <Link
           to={`/questions/${q._id}#answer`}
           onClick={(e) => e.stopPropagation()}

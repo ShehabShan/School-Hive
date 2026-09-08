@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion } from "framer-motion";
 import {
   ArrowBigUp,
+  ArrowBigDown,
   BellOff,
   BellPlus,
   CheckCircle2,
@@ -16,6 +17,8 @@ import {
   ShieldCheck,
   Users,
   Lock,
+  MoreHorizontal,
+  Pencil,
 } from "lucide-react";
 import axios from "axios";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
@@ -119,7 +122,16 @@ export default function QuestionDetail() {
   const isAsker = Boolean(q && me && String(q.authorEmail || "").toLowerCase() === String(me.email || "").toLowerCase());
   const myEmail = String(me?.email || "").toLowerCase();
   const iUpvoted = Boolean(q && Array.isArray(q.upvoterIds) && q.upvoterIds.map(String).includes(myEmail));
+  const iDownvoted = Boolean(q && Array.isArray(q.downvoterIds) && q.downvoterIds.map(String).includes(myEmail));
+  const hasVoted = iUpvoted || iDownvoted;
   const authReady = !authLoading && !roleLoading;
+  const [qMenuOpen, setQMenuOpen] = useState(false);
+  const [qEditing, setQEditing] = useState(false);
+  const [qEditTitle, setQEditTitle] = useState("");
+  const [qEditBody, setQEditBody] = useState("");
+  const [qSaving, setQSaving] = useState(false);
+  const [showQDownvote, setShowQDownvote] = useState(false);
+  const [qDownvoteReason, setQDownvoteReason] = useState("");
 
   const { data: followState } = useQuery({
     queryKey: ["question-follow", id, myEmail],
@@ -182,13 +194,32 @@ export default function QuestionDetail() {
       toast.error("Sign in to vote");
       return;
     }
+    if (hasVoted) return toast.error("Already voted");
     try {
       await axiosSecure.post(`/questions/${id}/upvote`);
-      toast.success(iUpvoted ? "Upvote removed" : "Upvoted — asker earns +2");
+      toast.success("Upvoted — asker earns +2");
       qc.invalidateQueries({ queryKey: ["question", id] });
     } catch (e) {
       toast.error(e?.response?.data?.message || e.message);
     }
+  };
+  const handleQuestionDownvote = async () => {
+    if (!user) return toast.error("Sign in to vote");
+    if (hasVoted) return toast.error("Already voted");
+    try {
+      const body = qDownvoteReason.trim() ? { reason: qDownvoteReason.trim() } : {};
+      await axiosSecure.post(`/questions/${id}/downvote`, body);
+      toast.success("Downvoted");
+      setShowQDownvote(false); setQDownvoteReason("");
+      qc.invalidateQueries({ queryKey: ["question", id] });
+    } catch (e) { toast.error(e?.response?.data?.message || e.message); }
+  };
+  const handleQuestionEditSave = async () => {
+    const t = qEditTitle.trim(); const b = qEditBody.trim();
+    if (t.length < 10) return toast.error("Title must be at least 10 characters");
+    if (b.length < 20) return toast.error("Body must be at least 20 characters");
+    setQSaving(true);
+    try { await axiosSecure.patch(`/questions/${id}`, { title: t, body: b }); toast.success("Question updated"); setQEditing(false); setQMenuOpen(false); qc.invalidateQueries({ queryKey: ["question", id] }); } catch(e){ toast.error(e?.response?.data?.message || e.message); } finally { setQSaving(false); }
   };
   const handleShare = async () => {
     try {
@@ -313,6 +344,16 @@ export default function QuestionDetail() {
             >
               <Share2 className="h-3.5 w-3.5" /> Share
             </button>
+            {isAsker && (
+              <div className="relative">
+                <button onClick={()=>{ setQMenuOpen(v=>!v); if(!qMenuOpen){ setQEditTitle(q.title||""); setQEditBody(q.body||""); } }} className="inline-flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 hover:bg-slate-50" aria-label="More"><MoreHorizontal className="h-4 w-4" /></button>
+                {qMenuOpen && (
+                  <div role="menu" className="absolute right-0 z-20 mt-2 w-40 overflow-hidden rounded-xl border border-slate-200 bg-white shadow-xl">
+                    <button role="menuitem" onClick={()=>{ setQEditing(true); setQEditTitle(q.title||""); setQEditBody(q.body||""); setQMenuOpen(false); }} className="flex w-full items-center gap-2 px-3 py-2.5 text-left text-sm font-medium text-slate-700 hover:bg-slate-50"><Pencil className="h-4 w-4 text-slate-500" /> Edit</button>
+                  </div>
+                )}
+              </div>
+            )}
             <Link
               to="/questions/ask"
               className="hidden items-center gap-1.5 rounded-full bg-brand-600 px-4 py-2 text-xs font-bold text-white shadow-sm hover:bg-brand-700 sm:inline-flex"
@@ -339,8 +380,19 @@ export default function QuestionDetail() {
             </span>
           </div>
           <h1 className="mt-3 text-[22px] font-extrabold leading-[1.25] tracking-tight text-slate-900 sm:text-[26px]">
-            {q.title}
+            {q.title} {(q.isEdited || (q.updatedAt && q.createdAt && new Date(q.updatedAt).getTime() - new Date(q.createdAt).getTime() > 1000)) && <span className="ml-2 align-middle rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700 ring-1 ring-amber-200">edited</span>}
           </h1>
+          {qEditing && (
+            <div className="mt-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+              <input value={qEditTitle} onChange={e=>setQEditTitle(e.target.value)} maxLength={200} placeholder="Title (min 10 chars)" className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm font-bold focus:outline-none focus:ring-2 focus:ring-brand-100" />
+              <textarea value={qEditBody} onChange={e=>setQEditBody(e.target.value)} rows={6} maxLength={10000} placeholder="Body (min 20 chars)" className="mt-3 w-full rounded-xl border border-slate-200 bg-white p-3 text-sm focus:outline-none focus:ring-2 focus:ring-brand-100" />
+              <div className="mt-3 flex gap-2">
+                <button onClick={handleQuestionEditSave} disabled={qSaving} className="rounded-full bg-slate-900 px-4 py-2 text-xs font-bold text-white hover:bg-black disabled:opacity-50">{qSaving?"Saving…":"Save"}</button>
+                <button onClick={()=>setQEditing(false)} className="rounded-full bg-white px-4 py-2 text-xs font-semibold ring-1 ring-slate-200 hover:bg-slate-50">Cancel</button>
+              </div>
+              <p className="mt-1 text-[11px] text-slate-400">{qEditTitle.trim().length} chars title, {qEditBody.trim().length} chars body</p>
+            </div>
+          )}
         </div>
 
         <div className="mt-7 grid gap-8 lg:grid-cols-[1fr_340px]">
@@ -359,45 +411,53 @@ export default function QuestionDetail() {
                   <div className="flex items-center gap-2">
                     <button
                       onClick={handleQuestionUpvote}
-                      disabled={!authReady}
-                      title={
-                        !user
-                          ? "Sign in to vote"
-                          : iUpvoted
-                            ? "Upvoted — click to remove"
-                            : "Upvote — asker earns +2"
-                      }
-                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${
-                        iUpvoted ? "bg-brand-600 text-white" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-                      } disabled:opacity-40`}
+                      disabled={hasVoted || !authReady || !user}
+                      title={!user ? "Sign in to vote" : hasVoted ? "Already voted" : "Upvote — asker earns +2"}
+                      className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-colors ${iUpvoted ? "bg-brand-600 text-white" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"} disabled:opacity-40`}
                     >
                       <ArrowBigUp className="h-5 w-5" />
+                    </button>
+                    <button onClick={()=>{ if(!user) return toast.error("Sign in to vote"); if(hasVoted) return toast.error("Already voted"); setShowQDownvote(v=>!v); }} disabled={hasVoted || !user} title={!user ? "Sign in to vote" : hasVoted ? "Already voted" : "Downvote (optional reason)"} className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${iDownvoted ? "bg-slate-900 text-white" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"} disabled:opacity-40`}>
+                      <ArrowBigDown className="h-5 w-5" />
                     </button>
                     <span className="text-sm font-bold text-slate-900">{q.voteScore ?? 0}</span>
                     <span className="text-xs text-slate-500">votes</span>
                   </div>
                   <span className="text-xs text-slate-400">Upvote to reward asker</span>
                 </div>
+                {showQDownvote && !hasVoted && (
+                  <div className="mx-4 mb-3 rounded-xl border border-slate-200 bg-slate-50 p-3 sm:hidden">
+                    <input value={qDownvoteReason} onChange={e=>setQDownvoteReason(e.target.value)} maxLength={300} placeholder="Reason (optional)" className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                    <div className="mt-2 flex gap-2">
+                      <button onClick={handleQuestionDownvote} className="flex-1 rounded-full bg-slate-900 px-3 py-1.5 text-xs font-bold text-white">Downvote</button>
+                      <button onClick={()=>{setShowQDownvote(false); setQDownvoteReason("");}} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold ring-1 ring-slate-200">Cancel</button>
+                    </div>
+                  </div>
+                )}
                 {/* Desktop vote — plain vertical, no box */}
                 <div className="hidden w-[68px] shrink-0 flex-col items-center gap-1 py-6 sm:flex">
                   <button
                     onClick={handleQuestionUpvote}
-                    disabled={!authReady}
-                    title={
-                      !user
-                        ? "Sign in to vote"
-                        : iUpvoted
-                          ? "Upvoted — click to remove"
-                          : "Upvote — asker earns +2"
-                    }
-                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${
-                      iUpvoted ? "bg-brand-600 text-white" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"
-                    } disabled:opacity-40`}
+                    disabled={hasVoted || !authReady || !user}
+                    title={!user ? "Sign in to vote" : hasVoted ? "Already voted" : "Upvote — asker earns +2"}
+                    className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${iUpvoted ? "bg-brand-600 text-white" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"} disabled:opacity-40`}
                   >
                     <ArrowBigUp className="h-5 w-5" />
                   </button>
                   <span className="text-sm font-bold text-slate-900">{q.voteScore ?? 0}</span>
+                  <button onClick={()=>{ if(!user) return toast.error("Sign in to vote"); if(hasVoted) return toast.error("Already voted"); setShowQDownvote(v=>!v); }} disabled={hasVoted || !user} title={!user ? "Sign in to vote" : hasVoted ? "Already voted" : "Downvote (optional reason)"} className={`flex h-8 w-8 items-center justify-center rounded-full transition-colors ${iDownvoted ? "bg-slate-900 text-white" : "text-slate-400 hover:bg-slate-100 hover:text-slate-600"} disabled:opacity-40`}>
+                    <ArrowBigDown className="h-5 w-5" />
+                  </button>
                   <span className="text-[11px] text-slate-500">votes</span>
+                  {showQDownvote && !hasVoted && (
+                    <div className="mt-2 w-[160px] rounded-xl border border-slate-200 bg-white p-2 shadow-lg">
+                      <input value={qDownvoteReason} onChange={e=>setQDownvoteReason(e.target.value)} maxLength={300} placeholder="Reason (optional)" className="w-full rounded-lg border border-slate-200 px-2 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-brand-100" />
+                      <div className="mt-2 flex gap-1">
+                        <button onClick={handleQuestionDownvote} className="flex-1 rounded-full bg-slate-900 px-2 py-1 text-[11px] font-bold text-white">Downvote</button>
+                        <button onClick={()=>{setShowQDownvote(false); setQDownvoteReason("");}} className="rounded-full bg-white px-2 py-1 text-[11px] ring-1 ring-slate-200">Cancel</button>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 <div className="min-w-0 flex-1 p-4 sm:p-6">
                   <div className="prose max-w-none prose-slate prose-sm sm:prose-base prose-p:leading-relaxed prose-a:text-brand-600 hover:prose-a:text-brand-700">

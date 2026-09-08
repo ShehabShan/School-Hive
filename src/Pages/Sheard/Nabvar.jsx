@@ -14,6 +14,7 @@ import {
   BadgeCheck,
   Compass,
   Clock,
+  Bell,
 } from "lucide-react";
 import useAuth from "../../Hooks/useAuth";
 import useRole from "../../Hooks/useRole";
@@ -212,6 +213,7 @@ const Navbar = () => {
                   <Link to="/questions" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" role="menuitem"><Compass className="h-4 w-4 text-slate-400" /> Browse Q&A</Link>
                   <Link to="/questions/ask" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" role="menuitem"><Plus className="h-4 w-4 text-slate-400" /> Ask Question</Link>
                   <Link to="/verify" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" role="menuitem"><BadgeCheck className="h-4 w-4 text-slate-400" /> Get Verified</Link>
+                  <Link to="/notifications" onClick={() => setProfileOpen(false)} className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50" role="menuitem"><Bell className="h-4 w-4 text-slate-400" /> Notifications</Link>
                   <div className="mx-4 my-2 rounded-xl bg-gradient-to-br from-brand-600 to-indigo-600 px-3 py-2.5 text-xs font-semibold text-white">
                     <p className="font-bold">Q&A is live — knowledge compounds</p>
                     <p className="text-white/80">Browse, ask, earn reputation, get Verified.</p>
@@ -248,6 +250,7 @@ const Navbar = () => {
               </div>
             )}
 
+            {user && <NavLink to="/notifications" className={({ isActive }) => cn("rounded-xl px-3 py-2.5 text-sm font-semibold", isActive ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-100")} onClick={() => setMobileOpen(false)}>Notifications</NavLink>}
             <NavLink to="/aboutUs" className={({ isActive }) => cn("rounded-xl px-3 py-2.5 text-sm font-semibold", isActive ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-100")} onClick={() => setMobileOpen(false)}>About Us</NavLink>
             <NavLink to="/contact" className={({ isActive }) => cn("rounded-xl px-3 py-2.5 text-sm font-semibold", isActive ? "bg-slate-900 text-white" : "text-slate-700 hover:bg-slate-100")} onClick={() => setMobileOpen(false)}>Contact</NavLink>
           </div>

@@ -1,14 +1,13 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { useInfiniteQuery } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
-import axios from "axios";
 import { Search, SlidersHorizontal, X, Plus, FilterX, Inbox, Loader2 } from "lucide-react";
+import { Virtuoso } from "react-virtuoso";
 import FilterChip from "../../Component/scholarship/FilterChip";
 import { QUESTION_CATEGORIES, STUDY_LEVELS, COUNTRIES } from "../../constants/qa";
 import { QuestionListItem } from "../../Component/QA/QuestionCard";
+import { useStreamedQuestions } from "./useStreamedQuestions";
 
-const baseURL = import.meta.env.VITE_server_url || "https://server-six-vert.vercel.app";
 const SORTS = [["newest","Newest"],["votes","Top voted"],["views","Most viewed"],["relevance","Relevance"]];
 
 function useDebounced(v, ms=400){
@@ -83,7 +82,6 @@ export default function BrowseQuestions(){
   const [localQ,setLocalQ]=useState(q);
   const debouncedQ = useDebounced(localQ,400);
   const [drawerOpen,setDrawerOpen]=useState(false);
-  const sentinelRef = useRef(null);
 
   // clean deprecated view/page params for fast single-column post style
   useEffect(()=> {
@@ -104,28 +102,14 @@ export default function BrowseQuestions(){
   };
   useEffect(()=>{ if(debouncedQ!==q) updateParams({ q: debouncedQ }); },[debouncedQ, q]);
 
-  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isError } = useInfiniteQuery({
-    queryKey: ["questions-browse", { q: debouncedQ, category, tag, destinationCountry, homeCountry, studyLevel, sort }],
-    initialPageParam: 1,
-    queryFn: async ({ pageParam })=>{
-      const params={};
-      if(debouncedQ) params.q=debouncedQ;
-      if(category) params.category=category;
-      if(tag) params.tag=tag;
-      if(destinationCountry) params.destinationCountry=destinationCountry;
-      if(homeCountry) params.homeCountry=homeCountry;
-      if(studyLevel) params.studyLevel=studyLevel;
-      if(sort) params.sort=sort;
-      params.page=pageParam;
-      params.limit=12;
-      const res= await axios.get(`${baseURL}/questions`, { params });
-      return res.data;
-    },
-    getNextPageParam: (lastPage)=> {
-      const cur = lastPage?.page ?? 1;
-      const totalPages = lastPage?.totalPages ?? 1;
-      return cur < totalPages ? cur + 1 : undefined;
-    },
+  const { data, isLoading, isFetchingNextPage, hasNextPage, fetchNextPage, isError } = useStreamedQuestions({
+    q: debouncedQ,
+    category,
+    tag,
+    destinationCountry,
+    homeCountry,
+    studyLevel,
+    sort,
   });
 
   const pages = data?.pages || [];
@@ -148,20 +132,6 @@ export default function BrowseQuestions(){
 
   // reset scroll on filter/sort/search change
   useEffect(()=>{ window.scrollTo({ top: 0, behavior: "smooth" }); }, [debouncedQ, category, tag, destinationCountry, homeCountry, studyLevel, sort]);
-
-  // IntersectionObserver sentinel for infinite scroll
-  useEffect(()=>{
-    if(!sentinelRef.current) return;
-    if(!hasNextPage || isFetchingNextPage) return;
-    const el = sentinelRef.current;
-    const obs = new IntersectionObserver((entries)=>{
-      if(entries[0].isIntersecting && hasNextPage && !isFetchingNextPage){
-        fetchNextPage();
-      }
-    }, { rootMargin: "200px", threshold: 0.1 });
-    obs.observe(el);
-    return ()=> obs.disconnect();
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage, list.length]);
 
   return (
     <div className="min-h-screen bg-slate-50 pb-16">
@@ -249,21 +219,27 @@ export default function BrowseQuestions(){
                 </div>
               </div>
             ) : (
-              <div className="space-y-4">{list.map(q=> <QuestionListItem key={q._id} q={q} />)}</div>
+              <Virtuoso
+                useWindowScroll
+                data={list}
+                endReached={() => { if (hasNextPage && !isFetchingNextPage) fetchNextPage(); }}
+                overscan={400}
+                increaseViewportBy={200}
+                itemContent={(_, q) => <div style={{ paddingBottom: 16 }}><QuestionListItem q={q} /></div>}
+                components={{
+                  Footer: () => list.length > 0 && hasNextPage ? (
+                    <div className="flex justify-center py-4">
+                      {isFetchingNextPage ? (
+                        <span className="inline-flex items-center gap-2 text-sm text-slate-500"><Loader2 className="h-4 w-4 animate-spin" /> Loading more…</span>
+                      ) : (
+                        <button onClick={() => fetchNextPage()} className="rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50">Load more</button>
+                      )}
+                    </div>
+                  ) : list.length > 0 && !hasNextPage ? <p className="text-center text-xs text-slate-400 py-4">You’ve reached the end · {total} questions</p> : null,
+                }}
+              />
             )}
-
-            {/* Infinite sentinel + Load more fallback + end */}
-            {list.length > 0 && hasNextPage && (
-              <div ref={sentinelRef} className="mt-6 flex justify-center py-4">
-                {isFetchingNextPage ? (
-                  <span className="inline-flex items-center gap-2 text-sm text-slate-500"><Loader2 className="h-4 w-4 animate-spin" /> Loading more…</span>
-                ) : (
-                  <button onClick={()=>fetchNextPage()} className="rounded-full border border-slate-200 bg-white px-5 py-2.5 text-sm font-bold text-slate-700 shadow-sm hover:bg-slate-50">Load more</button>
-                )}
-              </div>
-            )}
-            {list.length > 0 && !hasNextPage && <p className="mt-6 text-center text-xs text-slate-400">You’ve reached the end · {total} questions</p>}
-            {isFetchingNextPage && list.length > 0 && <div className="mt-3"><BrowseSkeleton /></div>}
+            {isFetchingNextPage && list.length > 0 && list.length < 12 && <div className="mt-3"><BrowseSkeleton /></div>}
           </div>
         </div>
       </div>

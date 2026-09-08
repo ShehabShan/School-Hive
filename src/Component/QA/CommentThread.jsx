@@ -32,19 +32,23 @@ function buildTree(flat) {
 }
 
 function renderNodes(nodes, depth, answerId, questionId, onSuccess, parentAuthorEmail = null) {
-  return nodes.map((node) => (
-    <CommentItem
-      key={node._id}
-      comment={node}
-      depth={depth}
-      answerId={answerId}
-      questionId={questionId}
-      parentAuthorEmail={parentAuthorEmail}
-      onReplySuccess={onSuccess}
-    >
-      {node.children && node.children.length > 0 && renderNodes(node.children, depth + 1, answerId, questionId, onSuccess, node.authorEmail)}
-    </CommentItem>
-  ));
+  return nodes.map((node, idx) => {
+    const isLast = idx === nodes.length - 1;
+    return (
+      <CommentItem
+        key={node._id}
+        comment={node}
+        depth={depth}
+        isLast={isLast}
+        answerId={answerId}
+        questionId={questionId}
+        parentAuthorEmail={parentAuthorEmail}
+        onReplySuccess={onSuccess}
+      >
+        {node.children && node.children.length > 0 && renderNodes(node.children, depth + 1, answerId, questionId, onSuccess, node.authorEmail)}
+      </CommentItem>
+    );
+  });
 }
 
 export default function CommentThread({ answerId, questionId, isAccepted = false }) {

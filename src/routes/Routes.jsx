@@ -50,6 +50,8 @@ const QuestionDetail = lazy(() => import("../Pages/QA/QuestionDetail"));
 const BrowseQuestions = lazy(() => import("../Pages/QA/BrowseQuestions"));
 const VerifyRequest = lazy(() => import("../Pages/QA/VerifyRequest"));
 const VerifyApprovals = lazy(() => import("../Pages/AdminPages/VerifyApprovals"));
+const NotificationsPage = lazy(() => import("../Pages/Notifications/NotificationsPage"));
+const NotificationPreferencesPage = lazy(() => import("../Pages/Notifications/NotificationPreferencesPage"));
 
 // helper to wrap lazy in Suspense
 const susp = (el) => <Suspense fallback={<RouteFallback />}>{el}</Suspense>;
@@ -81,6 +83,8 @@ const router = createBrowserRouter(
         { path: "questions/:id", element: susp(<QuestionDetail />) },
         { path: "questions", element: susp(<BrowseQuestions />) },
         { path: "verify", element: <PrivateRoute>{susp(<VerifyRequest />)}</PrivateRoute> },
+        { path: "notifications", element: <PrivateRoute>{susp(<NotificationsPage />)}</PrivateRoute> },
+        { path: "notifications/preferences", element: <PrivateRoute>{susp(<NotificationPreferencesPage />)}</PrivateRoute> },
       ],
     },
     {
