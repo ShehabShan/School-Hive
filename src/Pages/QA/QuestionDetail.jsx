@@ -9,6 +9,7 @@ import {
   BellPlus,
   CheckCircle2,
   Eye,
+  HelpCircle,
   MessageSquare,
   Share2,
   Sparkles,
@@ -401,13 +402,21 @@ export default function QuestionDetail() {
         <div className="mt-7 grid gap-8 lg:grid-cols-[1fr_340px]">
           {/* Main column */}
           <div className="min-w-0 space-y-6">
-            {/* Question card */}
+            {/* Question card — visually distinct from answers: indigo tint + QUESTION header */}
             <motion.article
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.35 }}
-              className="overflow-hidden rounded-[20px] border border-slate-200 bg-white shadow-soft"
+              className="overflow-hidden rounded-[20px] border border-brand-200 bg-gradient-to-b from-brand-50/70 to-white shadow-soft ring-1 ring-brand-100/60"
             >
+              <div className="flex items-center gap-2 border-b border-brand-100 bg-brand-50/70 px-4 py-2.5 sm:px-6">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-600 px-2.5 py-1 text-[11px] font-extrabold uppercase tracking-widest text-white">
+                  <HelpCircle className="h-3.5 w-3.5" /> Question
+                </span>
+                <span className="truncate text-xs font-medium text-brand-900/60">
+                  Asked by the community — answers below
+                </span>
+              </div>
               <div className="flex flex-col sm:flex-row">
                 {/* Mobile vote — plain, no box */}
                 <div className="flex items-center justify-between gap-3 px-4 py-3 sm:hidden">
@@ -573,12 +582,13 @@ export default function QuestionDetail() {
                     </Link>
                   </div>
                 ) : (
-                  answersSorted.map((a) => {
+                  answersSorted.map((a, idx) => {
                     const accepted = Boolean(a.accepted);
                     return (
                       <div key={a._id} className={`overflow-hidden rounded-2xl border bg-white shadow-sm transition-colors ${accepted ? "border-emerald-200" : "border-slate-200"}`}>
                         <AnswerCard
                           answer={a}
+                          index={idx}
                           isAsker={isAsker}
                           onAccept={handleAccept}
                           accepting={acceptingId === String(a._id)}
