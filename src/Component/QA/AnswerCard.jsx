@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import { ArrowBigUp, ArrowBigDown, CheckCircle2, ExternalLink, MoreHorizontal, Pencil } from "lucide-react";
+import { ArrowBigUp, ArrowBigDown, CheckCircle2, ExternalLink, MoreHorizontal, Pencil, X, Flag } from "lucide-react";
 import useAxiosSecure from "../../Hooks/useAxiosSecure";
 import useRole from "../../Hooks/useRole";
 import useAuth from "../../Hooks/useAuth";
@@ -24,6 +24,7 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
   const [showReason,setShowReason]=useState(false);
   const [reason,setReason]=useState("");
   const [menuOpen,setMenuOpen]=useState(false);
+  const [showReasons,setShowReasons]=useState(false);
   const [editing,setEditing]=useState(false);
   const [editBody,setEditBody]=useState(answer.body||"");
   const [editLink,setEditLink]=useState(answer.sourceLink||"");
@@ -174,6 +175,7 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
             <div className="mt-2 flex flex-wrap items-center gap-1.5">
               <span className="text-[11px] font-semibold text-slate-400">Flagged:</span>
               {(answer.downvoteReasons||[]).map((r,i)=> <span key={i} className="rounded-full bg-rose-50 px-2 py-0.5 text-[11px] font-semibold text-rose-600 ring-1 ring-rose-100">{r}</span>)}
+              <button onClick={()=>setShowReasons(true)} className="ml-1 inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-1 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50"><Flag className="h-3 w-3" /> View reasons ({(answer.downvoteReasons||[]).length})</button>
             </div>
           )}
 
@@ -202,6 +204,20 @@ export default function AnswerCard({ answer, isAsker, onAccept, accepting, quest
           )}
         </div>
       </div>
+      {showReasons && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={()=>setShowReasons(false)}>
+          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl" onClick={e=>e.stopPropagation()}>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold text-slate-900">Downvote reasons</h3>
+              <button onClick={()=>setShowReasons(false)} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100"><X className="h-4 w-4" /></button>
+            </div>
+            <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto">
+              {(answer.downvoteReasons||[]).map((r,i)=><li key={i} className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">{r}</li>)}
+            </ul>
+            <p className="mt-3 text-xs text-slate-400">Anonymous — who voted is not shown</p>
+          </div>
+        </div>
+      )}
     </article>
   );
 }

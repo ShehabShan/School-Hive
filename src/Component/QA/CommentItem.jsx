@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect, Children } from "react";
-import { ArrowBigUp, ArrowBigDown, MoreHorizontal, Pencil, Trash2, Minus, Plus, X, Flag } from "lucide-react";
+import { ArrowBigUp, ArrowBigDown, MoreHorizontal, Pencil, Trash2, Minus, Plus } from "lucide-react";
 import MarkdownBody from "./MarkdownBody";
 import AuthorBlock from "./AuthorBlock";
 import ReplyComposer from "./ReplyComposer";
@@ -16,10 +16,7 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
   const [editBody, setEditBody] = useState(comment.body || "");
   const [saving, setSaving] = useState(false);
   const [voting, setVoting] = useState(false);
-  const [showDownvote, setShowDownvote] = useState(false);
-  const [downvoteReason, setDownvoteReason] = useState("");
   const [collapsed, setCollapsed] = useState(false);
-  const [showReasons, setShowReasons] = useState(false);
   const { user } = useAuth();
   const axiosSecure = useAxiosSecure();
   const qc = useQueryClient();
@@ -80,10 +77,8 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
     if (hasVoted) return toast.error("Already voted");
     setVoting(true);
     try {
-      const payload = downvoteReason.trim() ? { reason: downvoteReason.trim() } : {};
-      await axiosSecure.post(`/comments/${comment._id}/downvote`, payload);
+      await axiosSecure.post(`/comments/${comment._id}/downvote`);
       toast.success("Downvoted");
-      setShowDownvote(false); setDownvoteReason("");
       qc.invalidateQueries({ queryKey: ["comments", String(answerId)] });
     } catch (e) { toast.error(e?.response?.data?.message || e.message); } finally { setVoting(false); }
   };
@@ -99,7 +94,6 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
   const hasChildren = !!children;
   const isLeafLast = isLast && !hasChildren;
   const isEdited = !isDeleted && Boolean(comment.isEdited);
-  const reasons = Array.isArray(comment.downvoteReasons) ? comment.downvoteReasons.filter(Boolean) : [];
 
   // count direct children for collapsed pill
   const countChildren = (() => {
@@ -228,7 +222,7 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
                 <ArrowBigUp className="h-3.5 w-3.5" />
               </button>
               <span className="min-w-4 text-center text-xs font-bold text-slate-700">{score}</span>
-              <button onClick={()=>{ if(!user) return toast.error("Sign in to vote"); if(hasVoted) return toast.error("Already voted"); setShowDownvote(v=>!v); }} disabled={voting || !user || hasVoted} title={!user ? "Sign in to vote" : hasVoted ? "Already voted" : "Downvote (optional reason)"} className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${iDownvoted ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-white hover:text-slate-700"} disabled:opacity-40`}>
+              <button onClick={handleDownvote} disabled={voting || !user || hasVoted} title={!user ? "Sign in to vote" : hasVoted ? "Already voted" : "Downvote"} className={`inline-flex h-5 w-5 items-center justify-center rounded-full ${iDownvoted ? "bg-slate-900 text-white" : "text-slate-500 hover:bg-white hover:text-slate-700"} disabled:opacity-40`}>
                 <ArrowBigDown className="h-3.5 w-3.5" />
               </button>
             </span>
@@ -238,23 +232,7 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
             >
               Reply
             </button>
-            {reasons.length > 0 && (
-              <button onClick={() => setShowReasons(true)} className="inline-flex items-center gap-1 rounded-full bg-white px-3 py-1.5 text-xs font-semibold text-slate-600 ring-1 ring-slate-200 hover:bg-slate-50">
-                <Flag className="h-3 w-3" /> View reasons ({reasons.length})
-              </button>
-            )}
           </div>
-
-          {showDownvote && !hasVoted && (
-            <div className="mt-3 rounded-xl border border-slate-200 bg-slate-50 p-3">
-              <p className="text-xs font-semibold text-slate-700">Downvote reason (optional)</p>
-              <input value={downvoteReason} onChange={e=>setDownvoteReason(e.target.value)} maxLength={300} placeholder="e.g. outdated…" className="mt-2 w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-100" />
-              <div className="mt-2 flex gap-2">
-                <button onClick={handleDownvote} disabled={voting} className="rounded-full bg-slate-900 px-3 py-1.5 text-xs font-bold text-white hover:bg-black disabled:opacity-50">Confirm downvote</button>
-                <button onClick={()=>{setShowDownvote(false); setDownvoteReason("");}} className="rounded-full bg-white px-3 py-1.5 text-xs font-semibold ring-1 ring-slate-200">Cancel</button>
-              </div>
-            </div>
-          )}
 
           {showReply && (
             <div className="mt-3">
@@ -275,22 +253,6 @@ export default function CommentItem({ comment, depth = 0, answerId, questionId, 
         </div>
       </div>
       {hasChildren && !collapsed && <div>{children}</div>}
-      {showReasons && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4" onClick={() => setShowReasons(false)}>
-          <div className="w-full max-w-md rounded-2xl bg-white p-5 shadow-xl" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center justify-between">
-              <h3 className="text-sm font-bold text-slate-900">Downvote reasons</h3>
-              <button onClick={() => setShowReasons(false)} className="rounded-full p-1.5 text-slate-400 hover:bg-slate-100"><X className="h-4 w-4" /></button>
-            </div>
-            <ul className="mt-3 max-h-64 space-y-2 overflow-y-auto">
-              {reasons.map((r, i) => (
-                <li key={i} className="rounded-lg bg-slate-50 px-3 py-2 text-sm text-slate-700 ring-1 ring-slate-200">{r}</li>
-              ))}
-            </ul>
-            <p className="mt-3 text-xs text-slate-400">Anonymous — who voted is not shown</p>
-          </div>
-        </div>
-      )}
     </div>
   );
 }
