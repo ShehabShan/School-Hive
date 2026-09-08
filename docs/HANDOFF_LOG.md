@@ -8,6 +8,26 @@ DONE / IN PROGRESS / LEFT / DECISIONS & CONTEXT.
 
 ---
 
+## 2026-09-08 — Q&A image double-border fix + Firebase deploy (visily follow-up)
+
+### DONE
+- **Double border bug** (`MarkdownBody.jsx:15`): question/answer markdown images rendered with `span rounded-2xl border p-1.5` wrapper + `prose-img:border prose-img:border-slate-200` on inner `img` → visible gap double border. Fixed to single wrapper border (`prose-img:border` removed, keep `prose-img:rounded-xl`); shared fix for `QuestionDetail.jsx:404` + `AnswerCard.jsx:80`.
+- **Visily restyle verification** (`32445ea`): breadcrumb, compact `Solved·Asked·views` header, plain `h-8 w-8 rounded-full` vote, light `bg-slate-100 ring-1` tags, indigo `Stay updated`, stats/related rails confirmed against `docs/IMG/visily-question-details-page.png`.
+- **Continuity:** `TASKS.md` updated `IN PROGRESS DONE` + `DONE Q&A Image Double-Border Fix`, `HANDOFF_LOG.md` this entry.
+- **Commits:** `26c3b9f fix(qa): single border for markdown images` (on `main`).
+- **Deploy:** `VITE_server_url=https://server-six-vert.vercel.app npm run build` guard OK → `npx firebase deploy --only hosting --token $FIREBASE_TOKEN --project scholarhive-913e4` via `./scripts/deploy.sh --client-only` → `https://scholarhive-913e4.web.app` (client OK). Guard verified `0 local refs`.
+
+### IN PROGRESS
+- None
+
+### LEFT
+- Archive DONE batch to `docs/TASK_HISTORY.md` when batch closes (per `TASKS.md:10`). Merge `perf/*` branches in rank order + Lighthouse when owner schedules.
+
+### DECISIONS
+- Keep wrapper `border + p-1.5 shadow-sm` as single source (more polished than bare `prose-img:border`); no caption field in Visily — not added.
+
+---
+
 ## 2026-09-04 — DEPLOY sub-feature waves W1–W10 to production (user approved: "deploy approved")
 
 ### DONE

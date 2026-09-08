@@ -13,7 +13,13 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## IN PROGRESS
 
-- None — **P2 + visily QuestionDetails restyle DONE**. Polish round + Default avatar library archived.
+- None — **P2 + visily QuestionDetails restyle + image double-border fix DONE** (26c3b9f). Ready for deploy.
+
+---
+
+## DONE — Q&A Image Double-Border Fix (2026-09-08)
+
+- [x] **[Bug] Question/answer image double border on QuestionDetail** — `MarkdownBody.jsx:15` had `prose-img:border prose-img:border-slate-200` plus wrapper `span:26 rounded-2xl border border-slate-200 p-1.5 shadow-sm` → gap double border close to image + parent wrapper. Fix: keep single wrapper border, remove `prose-img:border/border-slate-200` (keep `prose-img:rounded-xl`). Covers both `QuestionDetail.jsx:404` question body and `AnswerCard.jsx:80` answer body via shared `MarkdownBody`. **DONE `MarkdownBody.jsx:15` single border, `lint 0`, `build` guard OK, deploys via `./scripts/deploy.sh --client-only`** **Verify:** `![img](url)` in Q body + A body shows one `rounded-2xl border` with `p-1.5` inset, `img` has no extra border, lightbox 320/768 intact.
 
 ---
 
