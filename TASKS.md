@@ -11,6 +11,20 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ---
 
+## Test Results — by Muse Spark (2026-09-09, branch `testing`, live https://scholarhive-913e4.web.app/)
+
+Method: Playwright (same engine as `@playwright/mcp` MCP server) on Linux, headless Chromium `--no-sandbox`, viewports mobile 390×844 + desktop 1440×900. Raw JSON: `/tmp/opencode/qa/results2.json`, screenshots `/tmp/opencode/qa/home-mobile.png` + `home-desktop.png`. Correct routes taken from `src/routes/Routes.jsx` (note: first sweep used guessed URLs `/allScholarships`, `/login`, `/register`, `/qa` which correctly 404 — see F5).
+
+PASS (no fix): `/`, `/scholarships`, `/allScholership`, `/questions`, `/signIn`, `/registration` render with correct H1; `overflowX 0` both viewports; `0` images missing alt; title consistent; Firebase rewrites `** → /index.html` working (deep links return 200 + app).
+
+NEEDS FIX:
+
+- [ ] **F1 [P0/Bug] Home stats API 500** — desktop `/` console: `Failed to load resource: 500` on `GET https://server-six-vert.vercel.app/allScholership/stats`. Mobile run clean (flaky or viewport-triggered). Fix: check server stats controller/route (likely in `Schole-hive-server`), add error guard + client fallback so home renders stats section without console error. Verify: load `/` desktop, no 500, no console error.
+- [ ] **F2 [P1/Bug] Unsplash hotlink fails on scholarship lists** — `/scholarships` + `/allScholership` (both viewports): `requestfailed https://images.unsplash.com/photo-1523050854058-8df90110c9f1?w=800&q=80`. Page still renders H1, so likely one card/banner image. Fix: self-host under `public/` or add `onError` fallback + `loading="lazy"`. Verify: no `requestfailed`, no broken-image icon.
+- [ ] **F3 [P1/Perf] `/contact`, `/aboutUs`, `/compare` ~33s + empty H1** — vs ~3s for all other routes, both viewports; H1 empty (slow lazy chunk or blocking fetch, Suspense fallback stuck). Fix: inspect lazy imports + data fetching on `ContactPage`, `AboutUs`, `Compare`; preconnect/preload or remove blocking await. Verify: each < 5s on desktop, meaningful H1/heading present.
+- [ ] **F4 [P2/UX] 404 page is a dead end (no nav)** — `/nonexistent-xyz-123`: H1 `Page not found` correct, but `navLinks 0` (no header/nav rendered, unlike 7 links on every other page). Fix: render `NotFound` inside `MainLayout` or add Home/browse links. Verify: 404 shows nav + working Home link.
+- [ ] **F5 [P2/UX] Common guessed URLs 404** — `/allScholarships` (double-p), `/login`, `/register`, `/qa` all show `Page not found` (correct per current routes; first sweep confirmed). Canonical: `/scholarships` (also `/allScholership` typo-alias exists), `/signIn`, `/registration`, `/questions`. Fix (optional): add redirect aliases in `Routes.jsx` for the guessed names. Verify: each alias lands on canonical page, no 404.
+
 ## IN PROGRESS
 
 - None — **P2 + visily QuestionDetails restyle + image double-border fix DONE** (26c3b9f). Ready for deploy.
