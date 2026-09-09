@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import { lazy, Suspense } from "react";
 
 import MainLayout from "../Layout/MainLayout";
@@ -85,6 +85,13 @@ const router = createBrowserRouter(
         { path: "verify", element: <PrivateRoute>{susp(<VerifyRequest />)}</PrivateRoute> },
         { path: "notifications", element: <PrivateRoute>{susp(<NotificationsPage />)}</PrivateRoute> },
         { path: "notifications/preferences", element: <PrivateRoute>{susp(<NotificationPreferencesPage />)}</PrivateRoute> },
+        // Guessed-URL aliases (QA F5): redirect common variants to canonical routes
+        { path: "login", element: <Navigate to="/signIn" replace /> },
+        { path: "register", element: <Navigate to="/registration" replace /> },
+        { path: "qa", element: <Navigate to="/questions" replace /> },
+        { path: "allScholarships", element: <Navigate to="/allScholership" replace /> },
+        // 404 inside layout (QA F4): keeps header/nav so the page is not a dead end
+        { path: "*", element: <NotFound /> },
       ],
     },
     {

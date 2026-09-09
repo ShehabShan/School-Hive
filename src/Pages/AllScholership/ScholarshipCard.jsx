@@ -15,6 +15,10 @@ const ScholarshipCard = ({ scholarship }) => {
           src={scholarship?.universityImage}
           alt={`${scholarship?.universityName} campus`}
           loading="lazy"
+          onError={(e) => {
+            e.currentTarget.onerror = null;
+            e.currentTarget.src = "https://placehold.co/600x400?text=Scholarship";
+          }}
           className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-slate-950/50 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
