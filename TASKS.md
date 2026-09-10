@@ -63,4 +63,7 @@ History: `docs/TASK_HISTORY.md` (archived DONE) · Narrative: `docs/HANDOFF_LOG.
 
 ## TODO — Next
 
+- [ ] **[Bug] GET /allScholership/stats returns 500 (18.4s) — MongoDB aggregation pipeline error** — The homepage "Impact" section shows `0 Active Scholarships` / `$—` / `0 Applications` because the stats endpoint at `https://server-six-vert.vercel.app/allScholership/stats` returns 500 `{"message":"A pipeline stage specification object must contain exactly one field."}`. The aggregation pipeline in the server has a stage with multiple fields. Duration 18.4s (cold Vercel + slow aggregation). Fix: correct the `$group` or `$project` stage to have single-field stages. See `Schole-hive-server/src/controllers/scholarship.controller.js` or `src/services/scholarship.service.js` stats route handler.
+- [ ] **[Perf] GET /allScholership/stats 18.4s duration** — Even after the 500 fix, the stats endpoint is extremely slow. Consider reducing complexity, adding indexes, or caching the stats result.
+
 - Merge `perf/*` branches into main in rank order + live `explain()` + Lighthouse + deploy (needs owner "deploy approved").
